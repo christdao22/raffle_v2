@@ -1,6 +1,8 @@
 import { Card } from "@raffle_v2/ui";
 import { Minus, Play, Plus, Radio, RotateCcw, Ticket, Timer, Users } from "lucide-react";
 import { useState } from "react";
+import { useModal } from "../hooks/use-modal";
+import ConfirmationModal from "./confirmation-modal";
 
 interface RaffleConfigCardProps {
   onTriggerDraw?: (config: { winnerCount: number; duration: number }) => void;
@@ -8,13 +10,22 @@ interface RaffleConfigCardProps {
 }
 
 export default function RaffleConfigCard({ onTriggerDraw, onReset }: RaffleConfigCardProps) {
+  const modal = useModal();
   const [winnerCount, setWinnerCount] = useState<number>(1);
   const [duration, setDuration] = useState<number>(15);
 
-  const handleReset = () => {
-    setWinnerCount(1);
-    setDuration(15);
-    onReset?.();
+  const handleResetConfig = () => {
+    modal.openModal({
+      title: "Reset Configuration?",
+      description: "Are you sure you want to reset all draw parameters back to default values?",
+      confirmText: "Reset All",
+      variant: "danger",
+      onConfirm: async () => {
+        setWinnerCount(1);
+        setDuration(15);
+        onReset?.();
+      },
+    });
   };
 
   return (
@@ -136,13 +147,15 @@ export default function RaffleConfigCard({ onTriggerDraw, onReset }: RaffleConfi
         {/* Reset Button */}
         <button
           type="button"
-          onClick={handleReset}
+          onClick={handleResetConfig}
           className="w-full flex items-center justify-center gap-2 text-xs font-bold tracking-widest text-red-400 hover:text-white transition-colors py-2"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           RESET CONFIGURATION
         </button>
       </div>
+
+      <ConfirmationModal {...modal.modalProps} />
     </Card>
   );
 }
