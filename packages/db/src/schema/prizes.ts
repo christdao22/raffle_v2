@@ -5,7 +5,7 @@ import { winners } from "./winners";
 export const prizes = pgTable("prizes", {
   id: text("id").primaryKey(),
   prize: text("prize").notNull(),
-  prizeImage: text("prize_image"),
+  imageUrl: text("image_url"),
   sponsor: text("sponsor"),
   sponsorImage: text("sponsor_image"),
   numberOfWinners: integer("number_of_winners").default(1).notNull(),

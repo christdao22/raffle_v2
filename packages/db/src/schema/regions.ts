@@ -4,6 +4,7 @@ import { persons } from "./persons";
 
 export const regions = pgTable("regions", {
   id: text("id").primaryKey(),
+  region: text("region").notNull(),
   regionName: text("region_name").notNull(),
 });
 

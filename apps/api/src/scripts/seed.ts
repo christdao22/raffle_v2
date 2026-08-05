@@ -64,11 +64,16 @@ async function main() {
   const seededRegions = await db
     .insert(regions)
     .values([
-      { id: "reg_01", regionName: "Region 1 - Luzon" },
-      { id: "reg_02", regionName: "Region 2 - Visayas" },
-      { id: "reg_03", regionName: "Region 3 - Mindanao" },
-      { id: "reg_04", regionName: "Region 4 - Corporate HQ" },
-      { id: "reg_05", regionName: "Region 5 - International" },
+      { id: "reg_01", region: "Region IX", regionName: "Zamboanga Peninsula" },
+      { id: "reg_02", region: "Region X", regionName: "Northern Mindanao" },
+      { id: "reg_03", region: "Region XI", regionName: "Davao Region" },
+      { id: "reg_04", region: "Region XII", regionName: "SOCCSKSARGEN" },
+      { id: "reg_05", region: "Region XIII", regionName: "Caraga" },
+      {
+        id: "reg_06",
+        region: "BARMM",
+        regionName: "Bangsamoro Autonomous Region in Muslim Mindanao",
+      },
     ])
     .onConflictDoNothing()
     .returning();
@@ -87,7 +92,7 @@ async function main() {
       {
         id: "prz_01",
         prize: 'Grand Prize: MacBook Pro M3 16"',
-        prizeImage: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
+        imageUrl: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
         sponsor: "Tech Corp",
         sponsorImage: "https://via.placeholder.com/150",
         numberOfWinners: 1,
@@ -95,7 +100,7 @@ async function main() {
       {
         id: "prz_02",
         prize: "iPhone 15 Pro Max",
-        prizeImage: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab",
+        imageUrl: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab",
         sponsor: "Mobile Solutions Inc.",
         sponsorImage: "https://via.placeholder.com/150",
         numberOfWinners: 2,
@@ -103,7 +108,7 @@ async function main() {
       {
         id: "prz_03",
         prize: "Sony WH-1000XM5 Headphones",
-        prizeImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
+        imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
         sponsor: "Audio Direct",
         sponsorImage: "https://via.placeholder.com/150",
         numberOfWinners: 3,
@@ -111,7 +116,7 @@ async function main() {
       {
         id: "prz_04",
         prize: "Nintendo Switch OLED",
-        prizeImage: "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e",
+        imageUrl: "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e",
         sponsor: "GameStop Philippines",
         sponsorImage: "https://via.placeholder.com/150",
         numberOfWinners: 5,
@@ -119,7 +124,7 @@ async function main() {
       {
         id: "prz_05",
         prize: "$100 Shopping Gift Card",
-        prizeImage: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48",
+        imageUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48",
         sponsor: "HR Employee Perks",
         sponsorImage: "https://via.placeholder.com/150",
         numberOfWinners: 10,
@@ -135,16 +140,76 @@ async function main() {
   await db
     .insert(persons)
     .values([
-      { id: "per_01", fullname: "Juan Dela Cruz", regionId: activeRegions[0].id },
-      { id: "per_02", fullname: "Maria Clara Santos", regionId: activeRegions[0].id },
-      { id: "per_03", fullname: "Jose Rizal Reyes", regionId: activeRegions[1].id },
-      { id: "per_04", fullname: "Ana Marie Dizon", regionId: activeRegions[1].id },
-      { id: "per_05", fullname: "Carlos P. Garcia", regionId: activeRegions[2].id },
-      { id: "per_06", fullname: "Lea Salonga", regionId: activeRegions[2].id },
-      { id: "per_07", fullname: "Manny Pacquiao", regionId: activeRegions[3].id },
-      { id: "per_08", fullname: "Catriona Gray", regionId: activeRegions[3].id },
-      { id: "per_09", fullname: "Pia Wurtzbach", regionId: activeRegions[4].id },
-      { id: "per_10", fullname: "Arnel Pineda", regionId: activeRegions[4].id },
+      {
+        id: "per_01",
+        employeeId: "EMP001",
+        image: "",
+        fullname: "Juan Dela Cruz",
+        regionId: activeRegions[0].id,
+      },
+      {
+        id: "per_02",
+        employeeId: "EMP001",
+        image: "",
+        fullname: "Maria Clara Santos",
+        regionId: activeRegions[0].id,
+      },
+      {
+        id: "per_03",
+        employeeId: "EMP001",
+        image: "",
+        fullname: "Jose Rizal Reyes",
+        regionId: activeRegions[1].id,
+      },
+      {
+        id: "per_04",
+        employeeId: "EMP001",
+        image: "",
+        fullname: "Ana Marie Dizon",
+        regionId: activeRegions[1].id,
+      },
+      {
+        id: "per_05",
+        employeeId: "EMP001",
+        image: "",
+        fullname: "Carlos P. Garcia",
+        regionId: activeRegions[2].id,
+      },
+      {
+        id: "per_06",
+        employeeId: "EMP001",
+        image: "",
+        fullname: "Lea Salonga",
+        regionId: activeRegions[2].id,
+      },
+      {
+        id: "per_07",
+        employeeId: "EMP001",
+        image: "",
+        fullname: "Manny Pacquiao",
+        regionId: activeRegions[3].id,
+      },
+      {
+        id: "per_08",
+        employeeId: "EMP001",
+        image: "",
+        fullname: "Catriona Gray",
+        regionId: activeRegions[3].id,
+      },
+      {
+        id: "per_09",
+        employeeId: "EMP001",
+        image: "",
+        fullname: "Pia Wurtzbach",
+        regionId: activeRegions[4].id,
+      },
+      {
+        id: "per_10",
+        employeeId: "EMP001",
+        image: "",
+        fullname: "Arnel Pineda",
+        regionId: activeRegions[4].id,
+      },
     ])
     .onConflictDoNothing();
 
