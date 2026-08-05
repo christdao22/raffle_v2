@@ -1,5 +1,5 @@
 import { Card } from "@raffle_v2/ui";
-import { Minus, Play, Plus, Radio, RotateCcw, Ticket, Timer, Users } from "lucide-react";
+import { Dice4, Minus, Plus, Radio, RotateCcw, Ticket, Timer, Users } from "lucide-react";
 import { useState } from "react";
 import { useModal } from "../hooks/use-modal";
 import ConfirmationModal from "./confirmation-modal";
@@ -136,7 +136,7 @@ export default function RaffleConfigCard({ onTriggerDraw, onReset }: RaffleConfi
           className="w-full bg-[#10b981] hover:bg-[#059669] text-[#062419] font-black py-4 px-4 rounded-md flex flex-col items-center justify-center gap-1 shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           <div className="flex items-center gap-2 text-sm tracking-wider uppercase">
-            <Play className="w-4 h-4 fill-current" />
+            <Dice4 className="w-5 h-5 animate-spin" />
             Trigger Live Draw
           </div>
           <span className="text-[9px] tracking-widest font-extrabold opacity-80 uppercase">
