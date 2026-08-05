@@ -13,7 +13,7 @@ export function GuestRoute() {
   }
 
   if (session) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (

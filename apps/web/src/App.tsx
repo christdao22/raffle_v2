@@ -1,3 +1,4 @@
+import { Settings } from "lucide-react";
 import { Navigate, Route, Routes } from "react-router";
 import { GuestRoute } from "./components/guest-route";
 import ProtectedRoute from "./components/protected-route";
@@ -7,6 +8,13 @@ import { Login } from "./pages/login";
 import { Register } from "./pages/register";
 
 export default function App() {
+  const ComingSoon = () => (
+    <div className="flex flex-col justify-center items-center h-full gap-6">
+      <Settings className="animate-spin text-current duration-1000 " width={50} height={50} />{" "}
+      <p>Coming Soon</p>
+    </div>
+  );
+
   return (
     <Routes>
       <Route element={<GuestRoute />}>
@@ -15,7 +23,11 @@ export default function App() {
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/prizes" element={<ComingSoon />} />
+        <Route path="/winners" element={<ComingSoon />} />
+        <Route path="/history" element={<ComingSoon />} />
+        <Route path="/settings" element={<ComingSoon />} />
 
         <Route element={<RequireRole roles={["admin", "attendant"]} />}>
           Hello Admin
@@ -23,7 +35,7 @@ export default function App() {
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

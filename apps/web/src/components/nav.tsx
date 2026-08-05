@@ -5,16 +5,19 @@ import {
   Gift,
   History,
   LayoutGrid,
+  Loader2,
   LogOut,
   Settings,
   Trophy,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router";
 import { signOut } from "../lib/auth-client";
 
 export default function CollapsibleSidebar() {
+  const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeItem, setActiveItem] = useState("DASHBOARD");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Automatically collapse sidebar on screens smaller than 768px (mobile)
   useEffect(() => {
@@ -24,36 +27,34 @@ export default function CollapsibleSidebar() {
       }
     };
 
-    // Initial check on mount
     handleResize();
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const navItems = [
-    { name: "DASHBOARD", icon: LayoutGrid },
-    { name: "PRIZES", icon: Gift },
-    { name: "WINNERS", icon: Trophy },
-    { name: "HISTORY", icon: History },
-    { name: "SETTINGS", icon: Settings },
+    { name: "DASHBOARD", icon: LayoutGrid, path: "/dashboard" },
+    { name: "PRIZES", icon: Gift, path: "/prizes" },
+    { name: "WINNERS", icon: Trophy, path: "/winners" },
+    { name: "HISTORY", icon: History, path: "/history" },
+    { name: "SETTINGS", icon: Settings, path: "/settings" },
   ];
 
-  const secondaryNavItems = [
-    {
-      name: "LOGOUT",
-      icon: LogOut,
-      onClick: async () => {
-        await signOut({
-          fetchOptions: {
-            onSuccess: () => {
-              window.location.href = "/login";
-            },
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            window.location.href = "/login";
           },
-        });
-      },
-    },
-  ];
+        },
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <aside
@@ -91,16 +92,16 @@ export default function CollapsibleSidebar() {
         </div>
 
         {/* Navigation List */}
-        <nav className="space-y-2 flex flex-col justify-between">
+        <nav className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeItem === item.name;
+            // Matches active route based on current path
+            const isActive = location.pathname.startsWith(item.path);
 
             return (
-              <button
-                type="button"
+              <Link
                 key={item.name}
-                onClick={() => setActiveItem(item.name)}
+                to={item.path}
                 title={isCollapsed ? item.name : undefined}
                 className={`nav-btn ${isCollapsed ? "justify-center px-0" : "px-4"} ${
                   isActive
@@ -117,42 +118,34 @@ export default function CollapsibleSidebar() {
                 {!isCollapsed && (
                   <span className="whitespace-nowrap overflow-hidden">{item.name}</span>
                 )}
-              </button>
+              </Link>
             );
           })}
 
-          <hr />
+          <hr className="border-slate-800/80 my-4" />
 
-          {secondaryNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeItem === item.name;
+          {/* Logout Button */}
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            title={isCollapsed ? "LOGOUT" : undefined}
+            className={`nav-btn w-full ${
+              isCollapsed ? "justify-center px-0" : "px-4"
+            } text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50`}
+          >
+            {isLoggingOut ? (
+              <Loader2 className="w-5 h-5 flex-shrink-0 animate-spin text-red-400" />
+            ) : (
+              <LogOut className="w-5 h-5 flex-shrink-0 text-slate-400" />
+            )}
 
-            return (
-              <button
-                type="button"
-                key={item.name}
-                onClick={() => {
-                  item.onClick();
-                }}
-                title={isCollapsed ? item.name : undefined}
-                className={`nav-btn ${isCollapsed ? "justify-center px-0" : "px-4"} ${
-                  isActive
-                    ? "bg-[#FFD000] text-[#0d1326] shadow-md shadow-yellow-500/10"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800/40"
-                }`}
-              >
-                <Icon
-                  className={`w-5 h-5 flex-shrink-0 ${
-                    isActive ? "text-[#0d1326]" : "text-slate-400"
-                  }`}
-                />
-
-                {!isCollapsed && (
-                  <span className="whitespace-nowrap overflow-hidden">{item.name}</span>
-                )}
-              </button>
-            );
-          })}
+            {!isCollapsed && (
+              <span className="whitespace-nowrap overflow-hidden">
+                {isLoggingOut ? "LOGGING OUT..." : "LOGOUT"}
+              </span>
+            )}
+          </button>
         </nav>
       </div>
 
