@@ -137,81 +137,83 @@ async function main() {
   // ==========================================
   console.log("Seeding persons...");
 
-  await db
-    .insert(persons)
-    .values([
-      {
-        id: "per_01",
-        employeeId: "EMP001",
-        image: "",
-        fullname: "Juan Dela Cruz",
-        regionId: activeRegions[0].id,
-      },
-      {
-        id: "per_02",
-        employeeId: "EMP001",
-        image: "",
-        fullname: "Maria Clara Santos",
-        regionId: activeRegions[0].id,
-      },
-      {
-        id: "per_03",
-        employeeId: "EMP001",
-        image: "",
-        fullname: "Jose Rizal Reyes",
-        regionId: activeRegions[1].id,
-      },
-      {
-        id: "per_04",
-        employeeId: "EMP001",
-        image: "",
-        fullname: "Ana Marie Dizon",
-        regionId: activeRegions[1].id,
-      },
-      {
-        id: "per_05",
-        employeeId: "EMP001",
-        image: "",
-        fullname: "Carlos P. Garcia",
-        regionId: activeRegions[2].id,
-      },
-      {
-        id: "per_06",
-        employeeId: "EMP001",
-        image: "",
-        fullname: "Lea Salonga",
-        regionId: activeRegions[2].id,
-      },
-      {
-        id: "per_07",
-        employeeId: "EMP001",
-        image: "",
-        fullname: "Manny Pacquiao",
-        regionId: activeRegions[3].id,
-      },
-      {
-        id: "per_08",
-        employeeId: "EMP001",
-        image: "",
-        fullname: "Catriona Gray",
-        regionId: activeRegions[3].id,
-      },
-      {
-        id: "per_09",
-        employeeId: "EMP001",
-        image: "",
-        fullname: "Pia Wurtzbach",
-        regionId: activeRegions[4].id,
-      },
-      {
-        id: "per_10",
-        employeeId: "EMP001",
-        image: "",
-        fullname: "Arnel Pineda",
-        regionId: activeRegions[4].id,
-      },
-    ])
-    .onConflictDoNothing();
+  if (activeRegions.length >= 5) {
+    await db
+      .insert(persons)
+      .values([
+        {
+          id: "per_01",
+          employeeId: "EMP001",
+          image: "",
+          fullname: "Juan Dela Cruz",
+          regionId: activeRegions[0].id,
+        },
+        {
+          id: "per_02",
+          employeeId: "EMP001",
+          image: "",
+          fullname: "Maria Clara Santos",
+          regionId: activeRegions[0].id,
+        },
+        {
+          id: "per_03",
+          employeeId: "EMP001",
+          image: "",
+          fullname: "Jose Rizal Reyes",
+          regionId: activeRegions[1].id,
+        },
+        {
+          id: "per_04",
+          employeeId: "EMP001",
+          image: "",
+          fullname: "Ana Marie Dizon",
+          regionId: activeRegions[1].id,
+        },
+        {
+          id: "per_05",
+          employeeId: "EMP001",
+          image: "",
+          fullname: "Carlos P. Garcia",
+          regionId: activeRegions[2].id,
+        },
+        {
+          id: "per_06",
+          employeeId: "EMP001",
+          image: "",
+          fullname: "Lea Salonga",
+          regionId: activeRegions[2].id,
+        },
+        {
+          id: "per_07",
+          employeeId: "EMP001",
+          image: "",
+          fullname: "Manny Pacquiao",
+          regionId: activeRegions[3].id,
+        },
+        {
+          id: "per_08",
+          employeeId: "EMP001",
+          image: "",
+          fullname: "Catriona Gray",
+          regionId: activeRegions[3].id,
+        },
+        {
+          id: "per_09",
+          employeeId: "EMP001",
+          image: "",
+          fullname: "Pia Wurtzbach",
+          regionId: activeRegions[4].id,
+        },
+        {
+          id: "per_10",
+          employeeId: "EMP001",
+          image: "",
+          fullname: "Arnel Pineda",
+          regionId: activeRegions[4].id,
+        },
+      ])
+      .onConflictDoNothing();
+  }
 
   console.log("🎉 Complete seeding finished successfully!");
   process.exit(0);
