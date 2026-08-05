@@ -69,7 +69,7 @@ export default function Layout({
                 </p>
               </div>
 
-              <div className="w-10 h-10 rounded-full bg-[#faecd4] flex items-center justify-center text-[#0d1326] shadow-sm group-hover:scale-105 transition-transform">
+              <div className="hidden sm:flex w-10 h-10 rounded-full bg-[#faecd4] flex items-center justify-center text-[#0d1326] shadow-sm group-hover:scale-105 transition-transform">
                 {data?.user && data?.user.image !== null ? (
                   <img
                     src={data.user.image}
