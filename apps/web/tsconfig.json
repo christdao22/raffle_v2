@@ -1,0 +1,9 @@
+{
+  "extends": "@raffle_v2/typescript-config/vite-app.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src"]
+}
+

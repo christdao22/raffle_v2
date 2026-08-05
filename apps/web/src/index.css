@@ -1,0 +1,50 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-surface: #0b1326;
+  --color-surface-dim: #0b1326;
+  --color-surface-bright: #31394d;
+  --color-surface-container-lowest: #060e20;
+  --color-surface-container-low: #131b2e;
+  --color-surface-container: #171f33;
+  --color-surface-container-high: #222a3d;
+  --color-surface-container-highest: #2d3449;
+  --color-on-surface: #dae2fd;
+  --color-on-surface-variant: #d0c6ab;
+
+  --color-primary: #fff6df;
+  --color-on-primary: #3a3000;
+  --color-primary-container: #ffd700;
+  --color-on-primary-container: #705e00;
+
+  --color-secondary: #b6c4ff;
+  --color-on-secondary: #05297a;
+  --color-secondary-container: #264191;
+  --color-on-secondary-container: #9db2ff;
+
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+
+  /* Fonts */
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-label: "Hanken Grotesk", sans-serif;
+
+  /* Border Radii */
+  --radius-sm: 0.25rem;
+  --radius-default: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+}
+
+@utility btn-primary {
+  @apply w-full flex items-center gap-4 py-3.5 rounded-md text-xs font-bold tracking-widest transition-all duration-200;
+}
+
+@utility nav-btn {
+  @apply btn-primary;
+}

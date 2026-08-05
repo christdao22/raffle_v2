@@ -1,0 +1,11 @@
+{
+  "name": "@raffle_v2/typescript-config",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "base.json",
+    "react-library.json",
+    "node-library.json",
+    "vite-app.json"
+  ]
+}

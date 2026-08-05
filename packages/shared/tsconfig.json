@@ -1,0 +1,8 @@
+{
+  "extends": "@raffle_v2/typescript-config/base.json",
+  "compilerOptions": {
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
+

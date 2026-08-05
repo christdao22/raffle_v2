@@ -1,0 +1,27 @@
+{
+  "name": "@raffle_v2/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@raffle_v2/typescript-config": "workspace:*",
+    "@types/node": "^22.20.1",
+    "dotenv": "^16.6.1",
+    "drizzle-kit": "^0.30.6",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9"
+  }
+}
