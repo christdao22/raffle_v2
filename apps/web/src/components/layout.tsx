@@ -18,7 +18,7 @@ export default function Layout({
   const { data } = useSession();
 
   return (
-    <div className="flex h-screen bg-[#0a0f1d] text-white font-sans overflow-hidden">
+    <div className="flex h-screen w-full bg-[#0a0f1d] text-white font-sans overflow-hidden">
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full relative">
         {/* Top Header */}
@@ -85,7 +85,7 @@ export default function Layout({
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-gradient-to-br from-[#0d1326] to-[#12192e]">
-          <div className="max-w-7xl mx-auto h-full">{children}</div>
+          <div className="w-full mx-auto h-full">{children}</div>
         </main>
       </div>
     </div>
