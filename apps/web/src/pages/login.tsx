@@ -42,7 +42,7 @@ export function Login() {
       </header>
 
       {/* Login Card */}
-      <Card className="w-full max-w-md mx-auto my-auto z-10">
+      <div className="w-full max-w-md mx-auto my-auto z-10">
         <div className="bg-surface-container/80 backdrop-blur-md rounded-xl p-8 shadow-2xl relative">
           {/* Header Badge & Title */}
           <div className="flex flex-col items-center text-center mb-8">
@@ -137,7 +137,7 @@ export function Login() {
             </a>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Spacer for bottom balance */}
       <footer className="h-8" />
