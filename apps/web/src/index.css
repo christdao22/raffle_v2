@@ -1,10 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
 
 @import "tailwindcss";
 
 @theme {
-  /* Colors */
+  /* ==========================================================================
+     EXISTING THEME TOKENS
+     ========================================================================== */
   --color-surface: #0b1326;
   --color-surface-dim: #0b1326;
   --color-surface-bright: #31394d;
@@ -29,22 +32,257 @@
   --color-error: #ffb4ab;
   --color-error-container: #93000a;
 
-  /* Fonts */
   --font-sans: "Plus Jakarta Sans", sans-serif;
   --font-label: "Hanken Grotesk", sans-serif;
 
-  /* Border Radii */
   --radius-sm: 0.25rem;
   --radius-default: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
+
+  /* ==========================================================================
+     NATIONAL TEACHERS MONTH
+     Usage: bg-tr-primary, text-tr-surface, font-tr-body, shadow-tr-card, etc.
+     ========================================================================== */
+
+  /* Color Palette */
+  --color-tr-surface: #f8f9fa;
+  --color-tr-surface-dim: #d9dadb;
+  --color-tr-surface-bright: #f8f9fa;
+  --color-tr-surface-container-lowest: #ffffff;
+  --color-tr-surface-container-low: #f3f4f5;
+  --color-tr-surface-container: #edeeef;
+  --color-tr-surface-container-high: #e7e8e9;
+  --color-tr-surface-container-highest: #e1e3e4;
+  --color-tr-on-surface: #191c1d;
+  --color-tr-on-surface-variant: #5d3f3d;
+  --color-tr-inverse-surface: #2e3132;
+  --color-tr-inverse-on-surface: #f0f1f2;
+  --color-tr-outline: #926e6b;
+  --color-tr-outline-variant: #e7bdb9;
+  --color-tr-surface-tint: #c0001b;
+
+  --color-tr-primary: #ed2534;
+  --color-tr-on-primary: #ffffff;
+  --color-tr-primary-container: #e61d2b;
+  --color-tr-on-primary-container: #fffdff;
+  --color-tr-inverse-primary: #ffb3ad;
+
+  --color-tr-secondary: #06268d;
+  --color-tr-on-secondary: #ffffff;
+  --color-tr-secondary-container: #6b8dfe;
+  --color-tr-on-secondary-container: #002474;
+
+  --color-tr-tertiary: #fec543;
+  --color-tr-on-tertiary: #ffffff;
+  --color-tr-tertiary-container: #d0a600;
+  --color-tr-on-tertiary-container: #4f3d00;
+
+  --color-tr-error: #ba1a1a;
+  --color-tr-on-error: #ffffff;
+  --color-tr-error-container: #ffdad6;
+  --color-tr-on-error-container: #93000a;
+
+  --color-tr-primary-fixed: #ffdad7;
+  --color-tr-primary-fixed-dim: #ffb3ad;
+  --color-tr-on-primary-fixed: #410004;
+  --color-tr-on-primary-fixed-variant: #930012;
+
+  --color-tr-secondary-fixed: #dce1ff;
+  --color-tr-secondary-fixed-dim: #b6c4ff;
+  --color-tr-on-secondary-fixed: #00164f;
+  --color-tr-on-secondary-fixed-variant: #093cab;
+
+  --color-tr-tertiary-fixed: #ffe089;
+  --color-tr-tertiary-fixed-dim: #f0c100;
+  --color-tr-on-tertiary-fixed: #241a00;
+  --color-tr-on-tertiary-fixed-variant: #574500;
+
+  --color-tr-background: #f8f9fa;
+  --color-tr-on-background: #191c1d;
+  --color-tr-surface-variant: #e1e3e4;
+
+  /* Typography Fonts */
+  --font-tr-heading: "Plus Jakarta Sans", sans-serif;
+  --font-tr-body: "Be Vietnam Pro", sans-serif;
+
+  /* Depth & Shadows */
+  --shadow-tr-card: 0px 4px 12px rgba(0, 56, 168, 0.05);
+  --shadow-tr-modal: 0px 10px 25px rgba(0, 56, 168, 0.12);
+  --shadow-tr-focus: 0 0 0 3px #ffcd00;
 }
 
+/* ==========================================================================
+   EXISTING UTILITIES & KEYFRAMES
+   ========================================================================== */
 @utility btn-primary {
   @apply w-full flex items-center gap-4 py-3.5 rounded-md text-xs font-bold tracking-widest transition-all duration-200;
 }
 
 @utility nav-btn {
   @apply btn-primary;
+}
+
+@keyframes marquee-up {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-marquee-up {
+  animation: marquee-up 25s linear infinite;
+}
+
+.animate-marquee-up:hover {
+  animation-play-state: paused;
+}
+
+/* ==========================================================================
+   TEACHER ROYALE SPECIFIC UTILITIES
+   ========================================================================== */
+
+/* Typography Utilities */
+@utility tr-display-lg {
+  font-family: var(--font-tr-heading);
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 56px;
+  letter-spacing: -0.02em;
+}
+
+@utility tr-headline-lg {
+  font-family: var(--font-tr-heading);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+}
+
+@utility tr-headline-lg-mobile {
+  font-family: var(--font-tr-heading);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 36px;
+}
+
+@utility tr-headline-md {
+  font-family: var(--font-tr-heading);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+}
+
+@utility tr-body-lg {
+  font-family: var(--font-tr-body);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+}
+
+@utility tr-body-md {
+  font-family: var(--font-tr-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+@utility tr-label-md {
+  font-family: var(--font-tr-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+/* Component Utilities */
+@utility tr-btn-primary {
+  @apply bg-tr-primary text-tr-on-primary font-tr-body font-semibold py-3 px-6 rounded-default transition-transform duration-150 active:scale-95 hover:-translate-y-0.5 focus:shadow-tr-focus outline-none inline-flex items-center justify-center gap-2;
+}
+
+@utility tr-btn-secondary {
+  @apply border-2 border-tr-secondary text-tr-secondary bg-transparent font-tr-body font-semibold py-3 px-6 rounded-default transition-transform duration-150 active:scale-95 hover:bg-tr-secondary/10 focus:shadow-tr-focus outline-none inline-flex items-center justify-center gap-2;
+}
+
+@utility tr-card {
+  @apply bg-tr-surface-container-lowest text-tr-on-surface p-4 rounded-lg shadow-tr-card border border-tr-surface-container-high;
+}
+
+@utility tr-input {
+  @apply border-2 border-tr-surface-dim bg-tr-surface-container-lowest text-tr-on-surface px-4 py-2.5 rounded-default font-tr-body text-base outline-none focus:border-tr-secondary focus:shadow-tr-focus transition-all;
+}
+
+@keyframes prize-border-rotate {
+  from {
+    --border-angle: 0deg;
+  }
+
+  to {
+    --border-angle: 360deg;
+  }
+}
+
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.prize-rotating-border {
+  position: relative;
+  isolation: isolate;
+  padding: 10px;
+  border-radius: 1rem;
+
+  background: conic-gradient(from var(--border-angle), #ed2534, #fec543, #06268d, #ed2534);
+
+  animation: prize-border-rotate 4s linear infinite;
+}
+
+.prize-rotating-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+
+  background: conic-gradient(from var(--border-angle), #ed2534, #fec543, #06268d, #ed2534);
+
+  filter: blur(8px);
+  opacity: 0.35;
+}
+
+@keyframes prize-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-10px) scale(1.02);
+  }
+}
+
+.prize-float {
+  animation: prize-float 3s ease-in-out infinite;
+}
+
+@keyframes dot-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+
+  30% {
+    transform: translateY(-18px);
+    opacity: 1;
+  }
+}
+
+.animate-dot-bounce {
+  display: inline-block;
+  animation: dot-bounce 1.2s ease-in-out infinite;
 }

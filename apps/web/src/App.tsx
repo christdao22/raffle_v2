@@ -4,6 +4,7 @@ import { GuestRoute } from "./components/guest-route";
 import ProtectedRoute from "./components/protected-route";
 import { RequireRole } from "./components/require-role";
 import { Dashboard } from "./pages/dashboard";
+import { LiveDraw } from "./pages/livedraw";
 import { Login } from "./pages/login";
 import { Register } from "./pages/register";
 
@@ -21,6 +22,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Route>
+
+      <Route path="/livedraw" element={<LiveDraw />} />
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />

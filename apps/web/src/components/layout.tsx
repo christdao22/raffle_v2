@@ -1,4 +1,5 @@
-import { Bell, User } from "lucide-react";
+import { cn } from "@raffle_v2/ui";
+import { User } from "lucide-react";
 import type React from "react";
 import { useSession } from "../lib/auth-client";
 
@@ -7,39 +8,50 @@ interface LayoutProps {
   pageTitle?: string;
   statusText?: string;
   isConnected?: boolean;
+  className?: string;
 }
 
 export default function Layout({
   children,
   pageTitle = "Page Title",
-  statusText = "LIVE STAGE CONNECTED",
+  statusText,
   isConnected = true,
+  className,
 }: LayoutProps) {
   const { data } = useSession();
 
   return (
-    <div className="flex h-screen w-full bg-[#0a0f1d] text-white font-sans overflow-hidden">
+    <div
+      className={cn(
+        "flex h-screen min-h-dvh w-full bg-[#0a0f1d] text-white font-sans overflow-hidden",
+        className,
+      )}
+    >
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full relative">
         {/* Top Header */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-8 py-6 border-b border-slate-800/40 bg-[#0d1326]/50 backdrop-blur-sm z-10">
           {/* Left: Title & Status */}
-          <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">{pageTitle}</h2>
-            <div className="flex items-center gap-2 mt-1.5">
-              <span
-                className={`w-2 h-2 rounded-full animate-pulse ${
-                  isConnected ? "bg-emerald-500" : "bg-red-500"
-                }`}
-              />
-              <span
-                className={`text-[10px] font-bold tracking-widest uppercase ${
-                  isConnected ? "text-emerald-500" : "text-red-500"
-                }`}
-              >
-                {statusText}
-              </span>
-            </div>
+          <div className="flex gap-3 items-center">
+            <img src="/Bagong-Pilipinas.png" alt="Deped Logo" className="w-10" />
+            <img src="/deped-logo-philippines.png" alt="Deped Logo" className="w-10" />
+            <h2 className="text-xl font-bold text-white tracking-tight">{pageTitle}</h2>
+            {statusText && (
+              <div className="flex items-center gap-2 mt-1.5">
+                <span
+                  className={`w-2 h-2 rounded-full animate-pulse ${
+                    isConnected ? "bg-emerald-500" : "bg-red-500"
+                  }`}
+                />
+                <span
+                  className={`text-[10px] font-bold tracking-widest uppercase ${
+                    isConnected ? "text-emerald-500" : "text-red-500"
+                  }`}
+                >
+                  {statusText}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Right: Actions & User Profile */}
@@ -69,7 +81,7 @@ export default function Layout({
                 </p>
               </div>
 
-              <div className="hidden sm:flex w-10 h-10 rounded-full bg-[#faecd4] flex items-center justify-center text-[#0d1326] shadow-sm group-hover:scale-105 transition-transform">
+              <div className="hidden sm:flex w-10 h-10 rounded-full bg-[#faecd4] items-center justify-center text-[#0d1326] shadow-sm group-hover:scale-105 transition-transform">
                 {data?.user && data?.user.image !== null ? (
                   <img
                     src={data.user.image}
@@ -84,7 +96,7 @@ export default function Layout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-gradient-to-br from-[#0d1326] to-[#12192e]">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-linear-to-br from-[#0d1326] to-[#12192e]">
           <div className="w-full mx-auto h-full">{children}</div>
         </main>
       </div>
