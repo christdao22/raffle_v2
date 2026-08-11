@@ -1,22 +1,12 @@
+import type { Prize } from "@raffle_v2/shared";
 import { cn } from "@raffle_v2/ui";
 
 export interface PrizeCardProps {
-  badgeLabel?: string;
-  prizeTitle?: string;
-  prizeName?: string;
-  sponsor?: string;
-  imageUrl?: string;
+  currentPrize?: Prize;
   className?: string;
 }
 
-export function PrizeCard({
-  badgeLabel = "Prize Laptop",
-  prizeTitle = "Current Prize",
-  prizeName = "Quantum Pro X",
-  sponsor = "Mamba",
-  imageUrl = "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=80",
-  className,
-}: PrizeCardProps) {
+export function PrizeCard({ currentPrize, className }: PrizeCardProps) {
   return (
     <div className={cn("prize-rotating-border", className)}>
       <div className="relative overflow-hidden rounded-[calc(1rem-3px)] bg-tr-surface-container-lowest">
@@ -24,7 +14,7 @@ export function PrizeCard({
         <div className="absolute top-5 left-5 z-20">
           <div className="inline-flex items-center rounded-full border border-tr-primary-container bg-tr-surface px-4 py-1.5 shadow-sm">
             <span className="font-display text-sm font-bold uppercase tracking-wide text-tr-secondary">
-              {badgeLabel}
+              {currentPrize?.prize}
             </span>
           </div>
         </div>
@@ -34,11 +24,11 @@ export function PrizeCard({
           <div className="space-y-5">
             <div className="space-y-2">
               <p className="font-display text-sm font-extrabold uppercase tracking-[0.18em] text-tr-primary">
-                {prizeTitle}
+                {currentPrize?.prize}
               </p>
 
               <h2 className="font-display text-7xl font-black uppercase leading-[0.95] tracking-tighter text-tr-secondary">
-                {prizeName}
+                {currentPrize?.prize}
               </h2>
             </div>
 
@@ -50,7 +40,9 @@ export function PrizeCard({
                 Sponsored by
               </p>
 
-              <p className="font-display text-2xl font-black text-tr-secondary">{sponsor}</p>
+              <p className="font-display text-2xl font-black text-tr-secondary">
+                {currentPrize?.sponsor}
+              </p>
             </div>
           </div>
 
@@ -63,8 +55,8 @@ export function PrizeCard({
             <div className="absolute bottom-8 h-20 w-[80%] rounded-[50%] bg-tr-surface-container shadow-inner" />
 
             <img
-              src={imageUrl}
-              alt={prizeName}
+              src={currentPrize?.imageUrl ?? ""}
+              alt={currentPrize?.prize}
               className=" relative z-10 max-h-64 max-w-full object-contain drop-shadow-2xl prize-float transition-transform duration-300 hover:scale-105 "
             />
           </div>

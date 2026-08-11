@@ -1,10 +1,10 @@
-// prizes.routes.ts (Route Definitions / Schemas)
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { paginatedResponseSchema, paginationQuerySchema, prizeSchema } from "@raffle_v2/shared";
 import {
   createPrizeHandler,
   getPrizeHandler,
   listPrizesHandler,
+  selectPrizeHandler,
 } from "../controller/prize.controller";
 import type { AppEnv } from "../lib/context";
 
@@ -34,12 +34,12 @@ export const listPrizesRoute = createRoute({
 
 export const getPrizeRoute = createRoute({
   method: "get",
-  path: "/prizes/{id}",
+  path: "/{id}",
   tags: ["Prizes"],
   summary: "Get prize details by ID",
   request: {
     params: z.object({
-      id: z.string().uuid(),
+      id: z.uuid(),
     }),
   },
   responses: {
@@ -56,7 +56,7 @@ export const getPrizeRoute = createRoute({
 
 export const createPrizeRoute = createRoute({
   method: "post",
-  path: "/prizes",
+  path: "/",
   tags: ["Prizes"],
   summary: "Create a new prize tier",
   request: {
@@ -76,9 +76,41 @@ export const createPrizeRoute = createRoute({
   },
 });
 
+export const selectPrizeRoute = createRoute({
+  method: "post",
+  path: "/select",
+  tags: ["Prizes"],
+  summary: "Select active prize for live draw",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            prizeId: z.string(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            prizeId: z.string(),
+          }),
+        },
+      },
+      description: "Prize selection broadcasted to LiveDraw",
+    },
+  },
+});
+
 const routes = app
   .openapi(listPrizesRoute, listPrizesHandler)
   .openapi(getPrizeRoute, getPrizeHandler)
-  .openapi(createPrizeRoute, createPrizeHandler);
+  .openapi(createPrizeRoute, createPrizeHandler)
+  .openapi(selectPrizeRoute, selectPrizeHandler);
 
 export default routes;

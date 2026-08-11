@@ -5,7 +5,7 @@ import { PrizeSelectorCard } from "../components/Custom/PrizeSelectorCard";
 import RaffleConfigCard from "../components/Custom/RaffleConfig";
 import Layout from "../components/layout";
 import { useDebouncedValue } from "../hooks/use-debounced-value";
-import { usePrizes } from "../hooks/use-prizes";
+import { usePrizes, useSelectPrizeMutation } from "../hooks/use-prizes";
 import { useRegions } from "../hooks/use-regions";
 
 export function Dashboard() {
@@ -15,12 +15,12 @@ export function Dashboard() {
   });
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
-  const { data: prizeData, isLoading: isPrizesLoading } = usePrizes({
+  const { data: prizeData } = usePrizes({
     ...pagination,
     search,
   });
 
-  const { data: regions, isLoading: isRegionsLoading } = useRegions({
+  const { data: regions } = useRegions({
     page: 1,
     pageSize: 100,
   });
@@ -30,6 +30,13 @@ export function Dashboard() {
       ...prev,
       page: Math.max(1, Math.min(newPage, totalPages)),
     }));
+  };
+
+  const selectPrize = useSelectPrizeMutation();
+
+  const handlePrize = (value: string) => {
+    selectPrize.mutate(value);
+    console.log(value);
   };
 
   if (!regions) {
@@ -78,6 +85,7 @@ export function Dashboard() {
               setSearchInput(val);
             }}
             handlePageChange={handlePageChange}
+            onSelectPrize={handlePrize}
           />
         </div>
 

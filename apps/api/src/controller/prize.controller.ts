@@ -2,7 +2,13 @@ import type { RouteHandler } from "@hono/zod-openapi";
 import { db, ilike, or, prizes } from "@raffle_v2/db";
 import type { AppEnv } from "../lib/context";
 import { paginate } from "../lib/pagination";
-import type { createPrizeRoute, getPrizeRoute, listPrizesRoute } from "../routes/prizes.route";
+import { broadcastEvent } from "../lib/ws";
+import type {
+  createPrizeRoute,
+  getPrizeRoute,
+  listPrizesRoute,
+  selectPrizeRoute,
+} from "../routes/prizes.route";
 // Fixed file import path: prizes.routes instead of prizes.route
 
 export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = async (c) => {
@@ -38,21 +44,15 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
 export const getPrizeHandler: RouteHandler<typeof getPrizeRoute, AppEnv> = async (c) => {
   const { id } = c.req.valid("param");
 
-  if (id === "123e4567-e89b-12d3-a456-426614174000") {
-    return c.json(
-      {
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        prize: 'MacBook Pro 16"',
-        imageUrl: "",
-        sponsor: "",
-        sponsorImage: "",
-        numberOfWinners: 10,
-      },
-      200,
-    );
+  const prize = await db.query.prizes.findFirst({
+    where: (prizes, { eq }) => eq(prizes.id, id),
+  });
+
+  if (!prize) {
+    return c.json({ message: "Prize not found" }, 404);
   }
 
-  return c.json({ message: "Prize not found" }, 404);
+  return c.json(prize, 200);
 };
 
 export const createPrizeHandler: RouteHandler<typeof createPrizeRoute, AppEnv> = async (c) => {
@@ -64,4 +64,16 @@ export const createPrizeHandler: RouteHandler<typeof createPrizeRoute, AppEnv> =
   };
 
   return c.json(newPrize, 201);
+};
+
+export const selectPrizeHandler: RouteHandler<typeof selectPrizeRoute, AppEnv> = async (c) => {
+  const { prizeId } = c.req.valid("json");
+
+  // 1. Drizzle DB Update (e.g., mark prize as active)
+  // await db.update(prizes).set({ isActive: true }).where(eq(prizes.id, prizeId));
+
+  // 2. Broadcast event to WebSocket subscribers on LiveDraw
+  broadcastEvent("PRIZE_SELECTED", { prizeId });
+
+  return c.json({ success: true, prizeId }, 200);
 };

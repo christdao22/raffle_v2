@@ -1,20 +1,22 @@
-import { serve } from "@hono/node-server";
+import { serve, upgradeWebSocket } from "@hono/node-server";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { WebSocketServer } from "ws";
 import { env } from "./env";
 import { auth } from "./lib/auth";
 import type { AppEnv } from "./lib/context";
+import { activeSockets } from "./lib/ws";
 import authRoute from "./routes/auth.route";
 import healthRoute from "./routes/health";
+import liveRoute from "./routes/live.route";
 import prizesRoute from "./routes/prizes.route";
 import regionsRoute from "./routes/region.route";
 
 const app = new OpenAPIHono<AppEnv>();
 
 app.use(logger());
-
 app.use(
   "/*",
   cors({
@@ -32,19 +34,27 @@ app.onError((err, c) => {
 
 app.notFound((c) => c.json({ error: "Not found" }, 404));
 
-// Better Auth owns everything under /api/auth/** (sign-up, sign-in, sign-out,
-// get-session, etc). This has to be mounted with app.on(...) rather than
-// app.openapi(...) since Better Auth's handler isn't a zod-openapi route.
 app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
+
+// WebSocket route with WSContext typing
+app.get(
+  "/ws",
+  upgradeWebSocket(() => ({
+    onOpen(_event, ws) {
+      activeSockets.add(ws);
+    },
+    onClose(_event, ws) {
+      activeSockets.delete(ws);
+    },
+  })),
+);
 
 const routes = app
   .route("/health", healthRoute)
   .route("/prizes", prizesRoute)
-  .route("/regions", regionsRoute)
-  // .route("/participants", participantsRoute)
-  // .route("/registration", registrationRoute)
-  // .route("/school", schoolRoute)
-  .route("/user", authRoute);
+  .route("/live", liveRoute)
+  .route("/user", authRoute)
+  .route("/regions", regionsRoute);
 
 app.doc("/doc", {
   openapi: "3.1.0",
@@ -58,12 +68,12 @@ app.doc("/doc", {
 
 app.get("/reference", Scalar({ url: "/doc" }));
 
-serve({ fetch: app.fetch, port: env.PORT }, (info) => {
+// Initialize WebSocketServer alongside HTTP listener
+const wss = new WebSocketServer({ noServer: true });
+
+serve({ fetch: app.fetch, port: env.PORT, websocket: { server: wss } }, (info) => {
   console.log(`Raffle_v2 API listening on http://localhost:${info.port}`);
   console.log(`  API reference: http://localhost:${info.port}/reference`);
 });
 
-// Used by apps/web for the fully-typed hc<AppType>() RPC client - this is
-// what makes "shared types between front and back" actually zero-duplication
-// instead of hand-copied interfaces.
 export type AppType = typeof routes;

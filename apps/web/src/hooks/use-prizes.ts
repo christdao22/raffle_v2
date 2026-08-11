@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api-client";
 
 interface UsePrizesParams {
@@ -11,7 +11,8 @@ export const prizeKeys = {
   all: ["prizes"] as const,
   lists: () => [...prizeKeys.all, "list"] as const,
   list: (params: UsePrizesParams) => [...prizeKeys.lists(), params] as const,
-  detail: (id: string) => [...prizeKeys.all, "detail", id] as const,
+  details: () => [...prizeKeys.all, "detail"] as const,
+  detail: (id: string) => [...prizeKeys.details(), id] as const,
 };
 
 export function usePrizes(params: UsePrizesParams = {}) {
@@ -41,38 +42,45 @@ export function usePrizes(params: UsePrizesParams = {}) {
   });
 }
 
-// async function fetchPrizeById(id: string): Promise<Prize> {
-//   const response = await api.prizes[":id"].$get({ param: { id } }1);
-//   if (!response.ok) {
-//     throw new Error(`Failed to fetch prize with ID: ${id}`);
-//   }
-//   return response.json();
-// }
+export function usePrize(id: string) {
+  return useQuery({
+    queryKey: prizeKeys.detail(id),
+    queryFn: async () => {
+      const res = await api.prizes[":id"].$get({
+        param: { id },
+      });
 
-// Hook to fetch a single prize by ID
-// export function usePrize(id: string) {
-//   return useQuery({
-//     queryKey: prizeKeys.detail(id),
-//     queryFn: () => fetchPrizeById(id),
-//     enabled: Boolean(id),
-//   });
-// }
+      if (!res.ok) {
+        if (res.status === 404) {
+          throw new Error("Prize not found");
+        }
+        throw new Error(`Failed to fetch prize with ID: ${id}`);
+      }
 
-// Optional Hook to handle selecting a active prize tier
-// export function useSelectPrizeTier() {
-//   const queryClient = useQueryClient();
+      return res.json();
+    },
+    enabled: Boolean(id),
+    staleTime: 1000 * 60 * 5,
+  });
+}
 
-//   return useMutation({
-//     mutationFn: async (prizeId: string) => {
-//       const response = await fetch(`/api/prizes/${prizeId}/select`, {
-//         method: "POST",
-//       });
-//       if (!response.ok) throw new Error("Failed to set active prize tier");
-//       return response.json();
-//     },
-//     onSuccess: () => {
-//       // Invalidate prize list to sync active state or remaining counts
-//       queryClient.invalidateQueries({ queryKey: prizeKeys.all });
-//     },
-//   });
-// }
+export function useSelectPrizeMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (prizeId: string) => {
+      const res = await api.prizes.select.$post({
+        json: { prizeId },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to select active prize");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: prizeKeys.all });
+    },
+  });
+}
