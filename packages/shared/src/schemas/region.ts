@@ -1,19 +1,9 @@
 import { z } from "zod";
 
-export const RegionEnum = z.enum([
-  "Region IX",
-  "Region X",
-  "Region XI",
-  "Region XII",
-  "Region XIII",
-  "BARMM",
-]);
-
-export const regionPoolSchema = z.object({
-  region: RegionEnum,
-  includeGlobalPool: z.boolean().default(false),
-  eligibleEntriesCount: z.number().int().min(0),
+export const regionSchema = z.object({
+  id: z.string().uuid(),
+  region: z.string().min(1, "Region name is required"),
+  regionName: z.string().min(1, "Region name is required"),
 });
 
-export type Region = z.infer<typeof RegionEnum>;
-export type RegionPool = z.infer<typeof regionPoolSchema>;
+export type Region = z.infer<typeof regionSchema>;

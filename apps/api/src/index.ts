@@ -9,7 +9,7 @@ import type { AppEnv } from "./lib/context";
 import authRoute from "./routes/auth.route";
 import healthRoute from "./routes/health";
 import prizesRoute from "./routes/prizes.route";
-import { regionsRoute } from "./routes/region.route";
+import regionsRoute from "./routes/region.route";
 
 const app = new OpenAPIHono<AppEnv>();
 
@@ -40,7 +40,7 @@ app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
 const routes = app
   .route("/health", healthRoute)
   .route("/prizes", prizesRoute)
-  // .route("/regions", regionsRoute)
+  .route("/regions", regionsRoute)
   // .route("/participants", participantsRoute)
   // .route("/registration", registrationRoute)
   // .route("/school", schoolRoute)
