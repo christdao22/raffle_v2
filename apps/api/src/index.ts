@@ -7,7 +7,7 @@ import { WebSocketServer } from "ws";
 import { env } from "./env";
 import { auth } from "./lib/auth";
 import type { AppEnv } from "./lib/context";
-import { activeSockets } from "./lib/ws";
+import { activeSockets, broadcastEvent } from "./lib/ws";
 import authRoute from "./routes/auth.route";
 import healthRoute from "./routes/health";
 import liveRoute from "./routes/live.route";
@@ -42,9 +42,11 @@ app.get(
   upgradeWebSocket(() => ({
     onOpen(_event, ws) {
       activeSockets.add(ws);
+      broadcastEvent("VIEWER_COUNT", { count: activeSockets.size });
     },
     onClose(_event, ws) {
       activeSockets.delete(ws);
+      broadcastEvent("VIEWER_COUNT", { count: activeSockets.size });
     },
   })),
 );
