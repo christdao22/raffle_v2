@@ -64,13 +64,12 @@ async function main() {
   const seededRegions = await db
     .insert(regions)
     .values([
-      { id: "reg_01", region: "Region IX", regionName: "Zamboanga Peninsula" },
-      { id: "reg_02", region: "Region X", regionName: "Northern Mindanao" },
-      { id: "reg_03", region: "Region XI", regionName: "Davao Region" },
-      { id: "reg_04", region: "Region XII", regionName: "SOCCSKSARGEN" },
-      { id: "reg_05", region: "Region XIII", regionName: "Caraga" },
+      { region: "Region IX", regionName: "Zamboanga Peninsula" },
+      { region: "Region X", regionName: "Northern Mindanao" },
+      { region: "Region XI", regionName: "Davao Region" },
+      { region: "Region XII", regionName: "SOCCSKSARGEN" },
+      { region: "Region XIII", regionName: "Caraga" },
       {
-        id: "reg_06",
         region: "BARMM",
         regionName: "Bangsamoro Autonomous Region in Muslim Mindanao",
       },
@@ -90,7 +89,6 @@ async function main() {
     .insert(prizes)
     .values([
       {
-        id: "prz_01",
         prize: 'Grand Prize: MacBook Pro M3 16"',
         imageUrl: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
         sponsor: "Tech Corp",
@@ -98,7 +96,6 @@ async function main() {
         numberOfWinners: 1,
       },
       {
-        id: "prz_02",
         prize: "iPhone 15 Pro Max",
         imageUrl: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab",
         sponsor: "Mobile Solutions Inc.",
@@ -106,7 +103,6 @@ async function main() {
         numberOfWinners: 2,
       },
       {
-        id: "prz_03",
         prize: "Sony WH-1000XM5 Headphones",
         imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
         sponsor: "Audio Direct",
@@ -114,7 +110,6 @@ async function main() {
         numberOfWinners: 3,
       },
       {
-        id: "prz_04",
         prize: "Nintendo Switch OLED",
         imageUrl: "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e",
         sponsor: "GameStop Philippines",
@@ -122,7 +117,6 @@ async function main() {
         numberOfWinners: 5,
       },
       {
-        id: "prz_05",
         prize: "$100 Shopping Gift Card",
         imageUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48",
         sponsor: "HR Employee Perks",
@@ -142,70 +136,60 @@ async function main() {
       .insert(persons)
       .values([
         {
-          id: "per_01",
           employeeId: "EMP001",
           image: "",
           fullname: "Juan Dela Cruz",
           regionId: activeRegions[0].id,
         },
         {
-          id: "per_02",
           employeeId: "EMP001",
           image: "",
           fullname: "Maria Clara Santos",
           regionId: activeRegions[0].id,
         },
         {
-          id: "per_03",
           employeeId: "EMP001",
           image: "",
           fullname: "Jose Rizal Reyes",
           regionId: activeRegions[1].id,
         },
         {
-          id: "per_04",
           employeeId: "EMP001",
           image: "",
           fullname: "Ana Marie Dizon",
           regionId: activeRegions[1].id,
         },
         {
-          id: "per_05",
           employeeId: "EMP001",
           image: "",
           fullname: "Carlos P. Garcia",
           regionId: activeRegions[2].id,
         },
         {
-          id: "per_06",
           employeeId: "EMP001",
           image: "",
           fullname: "Lea Salonga",
           regionId: activeRegions[2].id,
         },
         {
-          id: "per_07",
           employeeId: "EMP001",
           image: "",
           fullname: "Manny Pacquiao",
           regionId: activeRegions[3].id,
         },
         {
-          id: "per_08",
           employeeId: "EMP001",
           image: "",
           fullname: "Catriona Gray",
           regionId: activeRegions[3].id,
         },
         {
-          id: "per_09",
           employeeId: "EMP001",
           image: "",
           fullname: "Pia Wurtzbach",
           regionId: activeRegions[4].id,
         },
         {
-          id: "per_10",
           employeeId: "EMP001",
           image: "",
           fullname: "Arnel Pineda",

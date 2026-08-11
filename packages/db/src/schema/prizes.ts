@@ -1,9 +1,9 @@
-import { relations } from "drizzle-orm";
-import { integer, pgTable, text } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import { integer, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { winners } from "./winners";
 
 export const prizes = pgTable("prizes", {
-  id: text("id").primaryKey(),
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   prize: text("prize").notNull(),
   imageUrl: text("image_url"),
   sponsor: text("sponsor"),
