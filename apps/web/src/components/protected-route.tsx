@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router";
 import { useSession } from "../lib/auth-client";
-import Nav from "./nav";
+import CollapsibleSidebar from "./Custom/CollapsibleSidebar";
 
 const ProtectedRoute = ({ allowedRole }: { allowedRole?: string }) => {
   const { data: session, isPending } = useSession();
@@ -26,7 +26,7 @@ const ProtectedRoute = ({ allowedRole }: { allowedRole?: string }) => {
 
   return (
     <div className="min-h-screen h-dvh bg-background flex">
-      <Nav />
+      <CollapsibleSidebar />
       <main className="w-full">
         <Outlet />
       </main>
