@@ -1,90 +1,62 @@
-import type { Region } from "@raffle_v2/shared";
-import { Card, cn } from "@raffle_v2/ui";
+import type { Prize, Region } from "@raffle_v2/shared";
+import { Button, Card, cn } from "@raffle_v2/ui";
 import {
   Award,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Dice4,
   Globe,
   LucideTowerControl,
   Search,
-  Sparkles,
   Users,
 } from "lucide-react";
-import * as React from "react";
-import { useDebouncedValue } from "../../hooks/use-debounced-value";
-import { usePrizes } from "../../hooks/use-prizes";
-
-export interface PrizeItem {
-  id: string;
-  tierNumber: number;
-  name: string;
-  imageUrl?: string;
-  icon?: React.ReactNode;
-}
+import { useState } from "react";
 
 export interface PrizeSelectorCardProps {
-  prizes?: PrizeItem[];
+  regions: Region[];
+  prizes: {
+    data: Prize[];
+    meta: {
+      pagination: {
+        page: number;
+        pageSize: number;
+        total: number;
+        totalPages: number;
+      };
+    };
+  };
+  searchInput: string;
+  onSearchInput: (val: string) => void;
   selectedPrizeId?: string;
   onSelectPrize?: (prizeId: string) => void;
-  selectedRegion?: Region;
-  onSelectRegion?: (region: Region) => void;
+  selectedRegion?: string;
+  onSelectRegion?: (regionId: string) => void;
   includeGlobalPool?: boolean;
   onToggleGlobalPool?: (include: boolean) => void;
+  handlePageChange: (newPage: number, totalPages: number) => void;
   className?: string;
 }
 
-const REGIONS: Region[] = [
-  "Region IX",
-  "Region X",
-  "Region XI",
-  "Region XII",
-  "Region XIII",
-  "BARMM",
-];
-
 export function PrizeSelectorCard({
+  regions,
+  prizes,
+  searchInput,
+  onSearchInput,
   selectedPrizeId: externalSelectedPrizeId,
   onSelectPrize,
   selectedRegion: externalSelectedRegion,
   onSelectRegion,
   includeGlobalPool: externalIncludeGlobalPool,
   onToggleGlobalPool,
+  handlePageChange,
   className,
 }: PrizeSelectorCardProps) {
   // Local state fallbacks
-
-  const [searchInput, setSearchInput] = React.useState("");
-  const search = useDebouncedValue(searchInput, 300);
-
-  const { data: prizeData, isLoading: isPrizesLoading } = usePrizes({
-    page: 1,
-    pageSize: 100,
-    search,
-  });
-
-  const [internalPrizeId, setInternalPrizeId] = React.useState<string>("");
-  const [internalRegion, setInternalRegion] = React.useState<Region>("Region X");
-  const [internalGlobalPool, setInternalGlobalPool] = React.useState<boolean>(true);
+  const [internalPrizeId, setInternalPrizeId] = useState<string>("");
+  const [internalRegion, setInternalRegion] = useState<string>("");
+  const [internalGlobalPool, setInternalGlobalPool] = useState<boolean>(true);
   const isToogle = false;
-  if (!prizeData) {
-    return (
-      <Card
-        className={cn(
-          "w-full backdrop-blur-md p-6 shadow-2xl space-y-6 font-sans text-on-surface",
-          className,
-        )}
-      >
-        <div className="flex items-center justify-center gap-4">
-          <div className="w-7 h-7 rounded-md border border-primary-container/40 bg-surface-container-lowest flex items-center justify-center text-primary-container shadow-[0_0_10px_rgba(255,215,0,0.15)]">
-            <Sparkles className="w-4 h-4" />
-          </div>
-          <h2 className="font-sans font-bold text-lg text-primary tracking-wide">
-            No prizes found
-          </h2>
-        </div>
-      </Card>
-    );
-  }
 
   const selectedPrizeId = externalSelectedPrizeId ?? internalPrizeId;
   const selectedRegion = externalSelectedRegion ?? internalRegion;
@@ -95,9 +67,9 @@ export function PrizeSelectorCard({
     onSelectPrize?.(id);
   };
 
-  const handleRegionClick = (region: Region) => {
-    setInternalRegion(region);
-    onSelectRegion?.(region);
+  const handleRegionClick = (regionId: string) => {
+    setInternalRegion(regionId);
+    onSelectRegion?.(regionId);
   };
 
   const handleGlobalToggle = () => {
@@ -106,10 +78,6 @@ export function PrizeSelectorCard({
     onToggleGlobalPool?.(nextValue);
   };
 
-  const filteredPrizes = prizeData.data?.filter((p) =>
-    p.prize.toLowerCase().includes(search.toLowerCase()),
-  );
-
   return (
     <Card
       className={cn(
@@ -117,7 +85,6 @@ export function PrizeSelectorCard({
         className,
       )}
     >
-      {/* 1. Header & Search Bar */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-md border border-primary-container/40 bg-surface-container-lowest flex items-center justify-center text-primary-container shadow-[0_0_10px_rgba(255,215,0,0.15)]">
@@ -132,14 +99,13 @@ export function PrizeSelectorCard({
           <input
             type="text"
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={(e) => onSearchInput(e.target.value)}
             placeholder="Search prizes..."
             className="w-full bg-surface-container-lowest/80 border border-slate-800/80 rounded-md py-2 pl-8 pr-3 text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-secondary transition-all"
           />
         </div>
       </div>
 
-      {/* 3. Target Region Pool */}
       <div className="space-y-3 pt-1 mb-10">
         <div className="flex items-center gap-2 text-primary font-sans font-bold text-sm tracking-wide">
           <Globe className="w-4 h-4 text-primary" />
@@ -147,13 +113,13 @@ export function PrizeSelectorCard({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {REGIONS.map((region) => {
-            const isSelected = region === selectedRegion;
+          {regions.map((region) => {
+            const isSelected = region.id === selectedRegion;
             return (
               <button
-                key={region}
+                key={region.id}
                 type="button"
-                onClick={() => handleRegionClick(region)}
+                onClick={() => handleRegionClick(region.id)}
                 className={cn(
                   "px-4 py-1.5 rounded-full text-xs font-sans font-semibold transition-all cursor-pointer flex items-center gap-1.5",
                   isSelected
@@ -164,21 +130,20 @@ export function PrizeSelectorCard({
                 {isSelected && (
                   <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
                 )}
-                {region}
+                {region.region}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* 2. Prize Grid */}
       <div className="flex items-center gap-2 text-primary font-sans font-bold text-sm tracking-wide">
         <Dice4 className="w-4 h-4 text-primary" />
         <span>Select Prize Tier</span>
       </div>
 
       <div className="grid grid-cols-3 gap-2.5">
-        {filteredPrizes.map((prize) => {
+        {prizes.data.map((prize) => {
           const isSelected = prize.id === selectedPrizeId;
 
           return (
@@ -223,7 +188,7 @@ export function PrizeSelectorCard({
               {/* Info */}
               <div className="flex flex-col min-w-0 pr-2">
                 <span className="font-label text-[9px] font-bold text-on-surface-variant uppercase tracking-wider leading-none">
-                  TIER {prize.id}
+                  {prize.sponsor}
                 </span>
                 <span className="font-sans font-bold text-xs text-on-surface truncate mt-0.5 leading-snug">
                   {prize.prize}
@@ -232,6 +197,69 @@ export function PrizeSelectorCard({
             </button>
           );
         })}
+      </div>
+      <div className="flex items-center justify-between border-t border-surface-container-high pt-4 mt-4 px-2 ">
+        {/* Page Info */}
+        <div className="text-body-md text-on-surface-variant font-body">
+          Page <span className="font-bold text-on-surface">{prizes.meta.pagination.page}</span> of{" "}
+          <span className="font-bold text-on-surface">
+            {prizes.meta.pagination.totalPages || 1}
+          </span>
+        </div>
+
+        {/* Page Controls */}
+        <div className="flex items-center gap-1.5">
+          {/* Previous Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              handlePageChange(prizes.meta.pagination.page - 1, prizes.meta.pagination.totalPages)
+            }
+            disabled={prizes.meta.pagination.page <= 1}
+            className="border-2 border-surface-dim hover:bg-surface-container text-on-surface disabled:opacity-40 rounded-md p-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span className="sr-only">Previous Page</span>
+          </Button>
+
+          {/* Numbered Page Buttons */}
+          {Array.from({ length: prizes.meta.pagination.totalPages }, (_, i) => i + 1).map(
+            (pageNum) => {
+              const isActive = pageNum === prizes.meta.pagination.page;
+              return (
+                <Button
+                  key={pageNum}
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePageChange(pageNum, prizes.meta.pagination.totalPages)}
+                  className={cn(
+                    "w-9 h-9 font-body font-semibold rounded-md transition-all text-sm",
+                    isActive
+                      ? "bg-primary text-on-primary shadow-sm"
+                      : "border-2 border-surface-dim hover:bg-surface-container text-on-surface",
+                  )}
+                >
+                  {pageNum}
+                </Button>
+              );
+            },
+          )}
+
+          {/* Next Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              handlePageChange(prizes.meta.pagination.page + 1, prizes.meta.pagination.totalPages)
+            }
+            disabled={prizes.meta.pagination.page >= prizes.meta.pagination.totalPages}
+            className="border-2 border-surface-dim hover:bg-surface-container text-on-surface disabled:opacity-40 rounded-md p-2"
+          >
+            <ChevronRight className="w-4 h-4" />
+            <span className="sr-only">Next Page</span>
+          </Button>
+        </div>
       </div>
 
       {isToogle && (
