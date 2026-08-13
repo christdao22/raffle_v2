@@ -158,6 +158,37 @@ export const closeModalRoute = createRoute({
   },
 });
 
+export const winnerCountRoute = createRoute({
+  method: "post",
+  path: "/winner-count",
+  tags: ["Live"],
+  summary: "Broadcast Number of Winners",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            count: z.number(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            count: z.number(),
+          }),
+        },
+      },
+      description: "Broadcast Number of Winners to be drawn",
+    },
+  },
+});
+
 const routes = app
   .openapi(displaySelection, async (c) => {
     const { type } = c.req.valid("json");
@@ -183,6 +214,11 @@ const routes = app
   .openapi(closeModalRoute, async (c) => {
     broadcastEvent("MODAL_CLOSED", true);
     return c.json({ success: true }, 200);
+  })
+  .openapi(winnerCountRoute, async (c) => {
+    const { count } = c.req.valid("json");
+    broadcastEvent("WINNER_COUNT", { count });
+    return c.json({ success: true, count }, 200);
   });
 
 export default routes;

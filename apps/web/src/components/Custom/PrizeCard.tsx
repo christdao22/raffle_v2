@@ -4,9 +4,10 @@ import { cn } from "@raffle_v2/ui";
 export interface PrizeCardProps {
   currentPrize?: Prize;
   className?: string;
+  count?: number;
 }
 
-export function PrizeCard({ currentPrize, className }: PrizeCardProps) {
+export function PrizeCard({ currentPrize, className, count }: PrizeCardProps) {
   return (
     <div className={cn("prize-rotating-border h-full ", className)}>
       <div className="relative overflow-hidden rounded-[calc(1rem-3px)] bg-tr-surface-container-lowest h-full flex justify-between">
@@ -23,6 +24,9 @@ export function PrizeCard({ currentPrize, className }: PrizeCardProps) {
           {/* Prize details */}
           <div className="space-y-5">
             <div className="space-y-2">
+              <h1 className="font-display text-8xl font-black uppercase leading-[0.95] tracking-tighter text-tr-secondary">
+                {count}
+              </h1>
               <p className="font-display text-2xl font-extrabold uppercase tracking-[0.18em] text-tr-primary">
                 {currentPrize?.prize}
               </p>

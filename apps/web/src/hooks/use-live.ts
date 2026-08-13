@@ -129,3 +129,24 @@ export function useSetCloseModal() {
     },
   });
 }
+
+export function useSetWinnerCount() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ count }: { count: number }) => {
+      const res = await api.live["winner-count"].$post({
+        json: { count },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to broadcast modal closed event");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: liveKeys.all });
+    },
+  });
+}

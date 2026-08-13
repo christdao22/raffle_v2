@@ -1,8 +1,8 @@
 import type { Prize } from "@raffle_v2/shared";
 import { Card } from "@raffle_v2/ui";
 import { Dice4, Minus, Plus, Radio, RotateCcw, Ticket, Timer, Trophy, Users } from "lucide-react";
-import { useState } from "react";
-import { useLiveStatus } from "../../hooks/use-live";
+import { useEffect, useState } from "react";
+import { useLiveStatus, useSetWinnerCount } from "../../hooks/use-live";
 import { useModal } from "../../hooks/use-modal";
 import ConfirmationModal from "./ConfirmationModal";
 import DrawResultModal from "./DrawResultModal";
@@ -27,6 +27,24 @@ export default function RaffleConfigCard({
   const [duration, setDuration] = useState<number>(15);
   const [isDrawModalOpen, setIsDrawModalOpen] = useState<boolean>(false);
   const { data: liveCounter } = useLiveStatus();
+  const displayWinnerCount = useSetWinnerCount();
+
+  const prizeId = prize?.id;
+  const regionKey = regionId?.join(",") ?? "";
+
+  // 1. Reset winner count to 1 whenever prize or region selection changes
+  useEffect(() => {
+    if (prizeId || regionKey) {
+      setWinnerCount(1);
+    }
+  }, [prizeId, regionKey]);
+
+  // 3. Sync winner count to the live display
+  useEffect(() => {
+    if (prize && regionId?.length) {
+      displayWinnerCount.mutate({ count: winnerCount });
+    }
+  }, [winnerCount, prize, regionId, displayWinnerCount.mutate]);
 
   if (!prize) {
     return (
@@ -48,7 +66,16 @@ export default function RaffleConfigCard({
     );
   }
 
-  const isDrawDisabled = prize.numberOfWinners <= 0 || winnerCount > prize.numberOfWinners;
+  const maxWinnersAllowed =
+    totalEligibleCount > 0
+      ? Math.min(prize.numberOfWinners, totalEligibleCount)
+      : prize.numberOfWinners;
+
+  const isDrawDisabled =
+    prize.numberOfWinners <= 0 ||
+    totalEligibleCount <= 0 ||
+    winnerCount > prize.numberOfWinners ||
+    winnerCount > totalEligibleCount;
 
   const handleTriggerDraw = () => {
     onTriggerDraw?.({ winnerCount, duration });
@@ -62,7 +89,7 @@ export default function RaffleConfigCard({
       confirmText: "Reset All",
       variant: "danger",
       onConfirm: async () => {
-        setWinnerCount(prize.numberOfWinners);
+        setWinnerCount(1);
         setDuration(15);
         onReset?.();
       },
@@ -118,8 +145,8 @@ export default function RaffleConfigCard({
             </div>
             <button
               type="button"
-              disabled={winnerCount >= prize.numberOfWinners || prize.numberOfWinners <= 0}
-              onClick={() => setWinnerCount((prev) => Math.min(prize.numberOfWinners, prev + 1))}
+              disabled={winnerCount >= maxWinnersAllowed || prize.numberOfWinners <= 0}
+              onClick={() => setWinnerCount((prev) => Math.min(maxWinnersAllowed, prev + 1))}
               className="w-10 h-10 rounded-lg bg-[#182035] flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#182035] disabled:hover:text-slate-300"
             >
               <Plus className="w-4 h-4" />

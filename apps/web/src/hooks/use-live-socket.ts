@@ -9,6 +9,7 @@ type LiveState = {
   isWinnerModalOpen: boolean;
   isDrawing: boolean;
   countdownRemaining: number | null;
+  count: number;
 };
 
 type LiveAction =
@@ -18,7 +19,8 @@ type LiveAction =
   | { type: "COUNTDOWN_START"; remaining: number }
   | { type: "COUNTDOWN_TICK" }
   | { type: "WINNERS"; persons: Person[] }
-  | { type: "MODAL_CLOSED" };
+  | { type: "MODAL_CLOSED" }
+  | { type: "WINNER_COUNT"; count: number };
 
 const initialState: LiveState = {
   displayType: "standby",
@@ -27,6 +29,7 @@ const initialState: LiveState = {
   isWinnerModalOpen: false,
   isDrawing: false,
   countdownRemaining: null,
+  count: 0,
 };
 
 function reducer(state: LiveState, action: LiveAction): LiveState {
@@ -49,6 +52,8 @@ function reducer(state: LiveState, action: LiveAction): LiveState {
     }
     case "PRIZE_SELECTED":
       return { ...state, selectedPrizeId: action.prizeId };
+    case "WINNER_COUNT":
+      return { ...state, count: action.count };
     case "DISPLAY_SELECTION":
       return { ...state, displayType: action.display };
     case "COUNTDOWN_START":
@@ -128,6 +133,11 @@ export function useLiveSocket(apiHost: string, onPrizeSelected: (prizeId: string
 
           case "DISPLAY_SELECTION": {
             dispatch({ type: "DISPLAY_SELECTION", display: data.payload });
+            break;
+          }
+
+          case "WINNER_COUNT": {
+            dispatch({ type: "WINNER_COUNT", count: data.payload.count });
             break;
           }
 

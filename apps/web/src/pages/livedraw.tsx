@@ -30,9 +30,12 @@ export function LiveDraw() {
     isWinnerModalOpen,
     isDrawing,
     countdownRemaining,
+    count,
   } = state;
 
   const { data: currentPrize, isLoading: isPrizeLoading } = usePrize(selectedPrizeId ?? "");
+
+  console.log(count);
 
   if (isPrizeLoading) {
     return <p>Loading</p>;
@@ -85,12 +88,12 @@ export function LiveDraw() {
             <img src="/iso.png" alt="iso" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full h-full  border-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full h-full">
             {displayType === "standby" ? (
               <StandBy className="flex flex-col gap-6 lg:col-span-12 space-y-6" />
             ) : (
               <div className="flex flex-col gap-6 lg:col-span-12 space-y-6 h-full">
-                <PrizeCard currentPrize={currentPrize} />
+                <PrizeCard currentPrize={currentPrize} count={count} />
               </div>
             )}
           </div>
