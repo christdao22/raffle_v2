@@ -1,4 +1,4 @@
-import type { Prize, Region } from "@raffle_v2/shared";
+import type { Prize } from "@raffle_v2/shared";
 import { Button, Card, cn } from "@raffle_v2/ui";
 import {
   Award,
@@ -13,8 +13,15 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+export interface RegionPersonCounter {
+  id: string;
+  region: string;
+  regionName: string;
+  eligibleCount: number;
+}
+
 export interface PrizeSelectorCardProps {
-  regions: Region[];
+  regions: RegionPersonCounter[];
   prizes: {
     data: Prize[];
     meta: {
@@ -29,9 +36,9 @@ export interface PrizeSelectorCardProps {
   searchInput: string;
   onSearchInput: (val: string) => void;
   selectedPrizeId?: string;
-  onSelectPrize?: (prizeId: string) => void;
-  selectedRegion?: string;
-  onSelectRegion?: (regionId: string) => void;
+  onSelectPrize?: (value: Prize) => void;
+  selectedRegion?: string[];
+  onSelectRegion?: (regionIds: string[]) => void;
   includeGlobalPool?: boolean;
   onToggleGlobalPool?: (include: boolean) => void;
   handlePageChange: (newPage: number, totalPages: number) => void;
@@ -52,9 +59,9 @@ export function PrizeSelectorCard({
   handlePageChange,
   className,
 }: PrizeSelectorCardProps) {
-  // Local state fallbacks
+  // Store string ID locally to match externalSelectedPrizeId
   const [internalPrizeId, setInternalPrizeId] = useState<string>("");
-  const [internalRegion, setInternalRegion] = useState<string>("");
+  const [internalRegion, setInternalRegion] = useState<string[]>([]);
   const [internalGlobalPool, setInternalGlobalPool] = useState<boolean>(true);
   const isToogle = false;
 
@@ -62,14 +69,18 @@ export function PrizeSelectorCard({
   const selectedRegion = externalSelectedRegion ?? internalRegion;
   const includeGlobalPool = externalIncludeGlobalPool ?? internalGlobalPool;
 
-  const handlePrizeClick = (id: string) => {
-    setInternalPrizeId(id);
-    onSelectPrize?.(id);
+  const handlePrizeClick = (value: Prize) => {
+    setInternalPrizeId(value.id);
+    onSelectPrize?.(value);
   };
 
   const handleRegionClick = (regionId: string) => {
-    setInternalRegion(regionId);
-    onSelectRegion?.(regionId);
+    const nextSelected = selectedRegion.includes(regionId)
+      ? selectedRegion.filter((id) => id !== regionId)
+      : [...selectedRegion, regionId];
+
+    setInternalRegion(nextSelected);
+    onSelectRegion?.(nextSelected);
   };
 
   const handleGlobalToggle = () => {
@@ -114,23 +125,52 @@ export function PrizeSelectorCard({
 
         <div className="flex flex-wrap gap-2">
           {regions.map((region) => {
-            const isSelected = region.id === selectedRegion;
+            const isSelected = selectedRegion.includes(region.id);
             return (
               <button
                 key={region.id}
                 type="button"
+                title={region.regionName}
                 onClick={() => handleRegionClick(region.id)}
                 className={cn(
-                  "px-4 py-1.5 rounded-full text-xs font-sans font-semibold transition-all cursor-pointer flex items-center gap-1.5",
+                  "group relative inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 select-none cursor-pointer active:scale-95",
                   isSelected
                     ? "bg-secondary-container text-on-secondary-container border border-secondary/40 shadow-sm"
-                    : "bg-surface-container-low text-on-surface-variant/80 border border-outline-variant/15 hover:bg-surface-container-high hover:text-on-surface",
+                    : "bg-surface-container-low text-on-surface-variant border border-outline-variant/15 hover:bg-surface-container-high hover:text-on-surface hover:border-outline-variant/30",
                 )}
               >
-                {isSelected && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
-                )}
-                {region.region}
+                {/* Custom Hover Tooltip */}
+                <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 pointer-events-none hidden group-hover:flex flex-col items-center z-20 transition-all opacity-0 group-hover:opacity-100">
+                  <span className="bg-surface-container-highest text-on-surface text-[11px] font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap border border-outline-variant/20">
+                    {region.regionName}
+                  </span>
+                  <span className="w-2 h-2 -mt-1 rotate-45 bg-surface-container-highest border-r border-b border-outline-variant/20" />
+                </span>
+
+                {/* Status Indicator Dot */}
+                <span
+                  className={cn(
+                    "w-2 h-2 rounded-full transition-all duration-200 shrink-0",
+                    isSelected
+                      ? "bg-secondary animate-pulse"
+                      : "bg-outline-variant/40 group-hover:bg-outline-variant",
+                  )}
+                />
+
+                {/* Region Name */}
+                <span className="font-semibold tracking-wide">{region.region}</span>
+
+                {/* Counter Badge */}
+                <span
+                  className={cn(
+                    "ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold leading-none transition-colors shrink-0",
+                    isSelected
+                      ? "bg-secondary/20 text-on-secondary-container"
+                      : "bg-surface-container-highest text-on-surface-variant/80 group-hover:bg-surface-container",
+                  )}
+                >
+                  {region.eligibleCount ?? 0}
+                </span>
               </button>
             );
           })}
@@ -150,7 +190,7 @@ export function PrizeSelectorCard({
             <button
               key={prize.id}
               type="button"
-              onClick={() => handlePrizeClick(prize.id)}
+              onClick={() => handlePrizeClick(prize)}
               className={cn(
                 "relative border border-slate-800/80 flex items-center gap-2.5 p-2 rounded-md text-left transition-all cursor-pointer select-none h-14",
                 "bg-surface-container-low/80 hover:bg-surface-container-high/60",
@@ -159,22 +199,14 @@ export function PrizeSelectorCard({
                   : " hover:border-outline-variant/40",
               )}
             >
-              {/* Checkmark Badge */}
               {isSelected && (
                 <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container z-10">
                   <Check className="w-2.5 h-2.5 stroke-3" />
                 </div>
               )}
 
-              {/* Icon or Thumbnail */}
               <div className="shrink-0 w-9 h-9 rounded-md bg-surface-container-lowest border border-outline-variant/20 overflow-hidden flex items-center justify-center">
                 {prize.imageUrl ? (
-                  <img
-                    src={prize.imageUrl}
-                    alt={prize.prize}
-                    className="w-full h-full object-cover"
-                  />
-                ) : prize.imageUrl ? (
                   <img
                     src={prize.imageUrl}
                     alt={prize.prize}
@@ -185,7 +217,6 @@ export function PrizeSelectorCard({
                 )}
               </div>
 
-              {/* Info */}
               <div className="flex flex-col min-w-0 pr-2">
                 <span className="font-label text-[9px] font-bold text-on-surface-variant uppercase tracking-wider leading-none">
                   {prize.sponsor}
@@ -198,8 +229,8 @@ export function PrizeSelectorCard({
           );
         })}
       </div>
+
       <div className="flex items-center justify-between border-t border-surface-container-high pt-4 mt-4 px-2 ">
-        {/* Page Info */}
         <div className="text-body-md text-on-surface-variant font-body">
           Page <span className="font-bold text-on-surface">{prizes.meta.pagination.page}</span> of{" "}
           <span className="font-bold text-on-surface">
@@ -207,9 +238,7 @@ export function PrizeSelectorCard({
           </span>
         </div>
 
-        {/* Page Controls */}
         <div className="flex items-center gap-1.5">
-          {/* Previous Button */}
           <Button
             variant="outline"
             size="sm"
@@ -223,7 +252,6 @@ export function PrizeSelectorCard({
             <span className="sr-only">Previous Page</span>
           </Button>
 
-          {/* Numbered Page Buttons */}
           {Array.from({ length: prizes.meta.pagination.totalPages }, (_, i) => i + 1).map(
             (pageNum) => {
               const isActive = pageNum === prizes.meta.pagination.page;
@@ -246,7 +274,6 @@ export function PrizeSelectorCard({
             },
           )}
 
-          {/* Next Button */}
           <Button
             variant="outline"
             size="sm"
@@ -276,7 +303,6 @@ export function PrizeSelectorCard({
             </div>
           </div>
 
-          {/* Custom Toggle Switch */}
           <button
             type="button"
             role="switch"

@@ -5,12 +5,16 @@ import type { AppEnv } from "../lib/context";
 
 const app = new OpenAPIHono<AppEnv>();
 
-const ErrorSchema = z.object({
-  message: z.string(),
-});
+// const ErrorSchema = z.object({
+//   message: z.string(),
+// });
 
 export const regionsQuerySchema = paginationQuerySchema.extend({
   search: z.string().trim().min(1).optional(),
+});
+
+export const regionPersonEligible = regionSchema.extend({
+  eligibleCount: z.number(),
 });
 
 export const regionsRoute = createRoute({
@@ -21,7 +25,7 @@ export const regionsRoute = createRoute({
   summary: "Get all regions",
   responses: {
     200: {
-      content: { "application/json": { schema: paginatedResponseSchema(regionSchema) } },
+      content: { "application/json": { schema: paginatedResponseSchema(regionPersonEligible) } },
       description: "Successfully retrieved list of regions",
     },
   },

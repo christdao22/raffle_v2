@@ -1,5 +1,5 @@
 import type { RouteHandler } from "@hono/zod-openapi";
-import { db, ilike, or, prizes } from "@raffle_v2/db";
+import { and, db, ilike, prizes, sql } from "@raffle_v2/db";
 import type { AppEnv } from "../lib/context";
 import { paginate } from "../lib/pagination";
 import { broadcastEvent } from "../lib/ws";
@@ -14,25 +14,51 @@ import type {
 export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = async (c) => {
   const { page, pageSize, search } = c.req.valid("query");
 
-  const whereClause = search ? or(ilike(prizes.prize, `%${search}%`)) : undefined;
+  // Filter for db.$count
+  const countFilter = sql`${prizes.numberOfWinners} > (
+    SELECT COUNT(*)::int FROM winners WHERE winners.prize_id = ${prizes.id}
+  )`;
+
+  const countWhereClause = search
+    ? and(ilike(prizes.prize, `%${search}%`), countFilter)
+    : countFilter;
 
   const result = await paginate({
     page,
     pageSize,
-    count: () => db.$count(prizes, whereClause),
+    count: () => db.$count(prizes, countWhereClause),
     query: async ({ limit, offset }) => {
       const rows = await db.query.prizes.findMany({
-        where: whereClause,
+        where: (fields, { and: andWhere, ilike: ilikeWhere, sql: sqlWhere }) => {
+          const conditions = [
+            sqlWhere`${fields.numberOfWinners} > (
+              SELECT COUNT(*)::int FROM winners WHERE winners.prize_id = ${fields.id}
+            )`,
+          ];
+
+          if (search) {
+            conditions.push(ilikeWhere(fields.prize, `%${search}%`));
+          }
+
+          return andWhere(...conditions);
+        },
         limit,
         offset,
         orderBy: (fields, { asc }) => [asc(fields.id)],
+        with: {
+          winners: {
+            columns: {
+              id: true,
+            },
+          },
+        },
       });
 
-      // Map rows to match `prizeSchema` expectations exactly
-      return rows.map((row) => ({
+      return rows.map(({ winners: existingWinners, ...row }) => ({
         ...row,
-        sponsor: row.sponsor ?? "", // Convert null to string if sponsor is required in schema
-        imageUrl: row.imageUrl ?? undefined, // Convert null to undefined for Zod optional()
+        numberOfWinners: Math.max(0, row.numberOfWinners - existingWinners.length),
+        sponsor: row.sponsor ?? "",
+        imageUrl: row.imageUrl ?? undefined,
         sponsorImage: row.sponsorImage ?? undefined,
       }));
     },

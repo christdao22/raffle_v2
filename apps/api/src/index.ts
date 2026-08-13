@@ -13,6 +13,7 @@ import healthRoute from "./routes/health";
 import liveRoute from "./routes/live.route";
 import prizesRoute from "./routes/prizes.route";
 import regionsRoute from "./routes/region.route";
+import winnersRoute from "./routes/winners.route";
 
 const app = new OpenAPIHono<AppEnv>();
 
@@ -56,7 +57,8 @@ const routes = app
   .route("/prizes", prizesRoute)
   .route("/live", liveRoute)
   .route("/user", authRoute)
-  .route("/regions", regionsRoute);
+  .route("/regions", regionsRoute)
+  .route("/winners", winnersRoute);
 
 app.doc("/doc", {
   openapi: "3.1.0",

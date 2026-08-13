@@ -1,3 +1,4 @@
+import type { Prize } from "@raffle_v2/shared";
 import { Card, cn } from "@raffle_v2/ui";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
@@ -11,7 +12,7 @@ import { useRegions } from "../hooks/use-regions";
 export function Dashboard() {
   const [pagination, setPagination] = useState({
     page: 1,
-    pageSize: 2,
+    pageSize: 10,
   });
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
@@ -20,10 +21,32 @@ export function Dashboard() {
     search,
   });
 
+  // Track ID instead of copying the full object into state
+  const [selectedPrizeId, setSelectedPrizeId] = useState<string>();
+  const [regionId, setRegionId] = useState<string[]>();
+
   const { data: regions } = useRegions({
     page: 1,
     pageSize: 100,
   });
+
+  // Derive the active prize dynamically from fresh query data
+  const prizesList: Prize[] = Array.isArray(prizeData)
+    ? prizeData
+    : ((prizeData as { data?: Prize[] })?.data ?? []);
+  const prize = prizesList.find((p) => p.id === selectedPrizeId);
+
+  // Calculate sum of eligible candidates based on selected regions (or all regions if none selected)
+  const regionsList = regions?.data ?? [];
+  const targetRegions =
+    regionId && regionId.length > 0
+      ? regionsList.filter((r) => regionId.includes(r.id))
+      : regionsList;
+
+  const totalEligibleCount = targetRegions.reduce(
+    (acc, item) => acc + (item.eligibleCount ?? 0),
+    0,
+  );
 
   const handlePageChange = (newPage: number, totalPages: number) => {
     setPagination((prev) => ({
@@ -34,9 +57,13 @@ export function Dashboard() {
 
   const selectPrize = useSelectPrizeMutation();
 
-  const handlePrize = (value: string) => {
-    selectPrize.mutate(value);
-    console.log(value);
+  const handlePrize = (value: Prize) => {
+    setSelectedPrizeId(value.id);
+    selectPrize.mutate(value.id);
+  };
+
+  const handleRegion = (value: string[]) => {
+    setRegionId(value);
   };
 
   if (!regions) {
@@ -76,7 +103,7 @@ export function Dashboard() {
   return (
     <Layout pageTitle="Raffle Control & Prize Selector">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
-        <div className="lg:col-span-9 space-y-6">
+        <div className="lg:col-span-8">
           <PrizeSelectorCard
             regions={regions.data}
             prizes={prizeData}
@@ -86,11 +113,16 @@ export function Dashboard() {
             }}
             handlePageChange={handlePageChange}
             onSelectPrize={handlePrize}
+            onSelectRegion={handleRegion}
           />
         </div>
 
-        <div className="lg:col-span-3 flex justify-center lg:justify-end">
-          <RaffleConfigCard />
+        <div className="lg:col-span-4 flex justify-center lg:justify-end">
+          <RaffleConfigCard
+            prize={prize}
+            regionId={regionId}
+            totalEligibleCount={totalEligibleCount}
+          />
         </div>
       </div>
     </Layout>
