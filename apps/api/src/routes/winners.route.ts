@@ -2,22 +2,21 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { and, db, eq, inArray, notInArray, persons, regions, sql, winners } from "@raffle_v2/db";
 import type { AppEnv } from "../lib/context";
 import { requireAuth } from "../middleware/auth";
-import { requireRole } from "../middleware/rbac";
 
 const app = new OpenAPIHono<AppEnv>();
 
 // Region schema definition
-const regionSchema = z.object({
+export const regionSchema = z.object({
   id: z.string().uuid(),
   region: z.string(),
   regionName: z.string(),
 });
 
 // Updated Person output schema
-const personSchema = z.object({
+export const winnerPersonSchema = z.object({
   id: z.string().uuid(),
   fullname: z.string(),
-  employeeId: z.string().uuid(),
+  employeeId: z.string(),
   image: z.string(),
   region: regionSchema,
   isEligible: z.boolean(),
@@ -33,7 +32,7 @@ export const getDrawRoute = createRoute({
   method: "get",
   path: "/draw",
   tags: ["Winners"],
-  middleware: [requireAuth, requireRole("attendant")],
+  middleware: [requireAuth],
   summary: "Get random candidate winners without saving",
   request: {
     query: z.object({
@@ -57,7 +56,7 @@ export const getDrawRoute = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: z.array(personSchema),
+          schema: z.array(winnerPersonSchema),
         },
       },
       description: "Array of randomly selected eligible candidate persons",

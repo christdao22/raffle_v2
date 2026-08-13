@@ -1,6 +1,7 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import type { AppEnv } from "../lib/context";
 import { broadcastEvent, getLatestEvents, getSocketCount } from "../lib/ws";
+import { winnerPersonSchema } from "./winners.route";
 
 const app = new OpenAPIHono<AppEnv>();
 
@@ -72,6 +73,37 @@ export const getLiveEvents = createRoute({
   },
 });
 
+export const displayWinners = createRoute({
+  method: "post",
+  path: "/winners",
+  tags: ["Live"],
+  summary: "Display Winners to LiveDraw",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            persons: z.array(winnerPersonSchema),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            persons: z.array(winnerPersonSchema),
+          }),
+        },
+      },
+      description: "Prize selection broadcasted to LiveDraw",
+    },
+  },
+});
+
 const routes = app
   .openapi(displaySelection, async (c) => {
     const { type } = c.req.valid("json");
@@ -83,6 +115,11 @@ const routes = app
   })
   .openapi(getLiveEvents, (c) => {
     return c.json(getLatestEvents(), 200);
+  })
+  .openapi(displayWinners, async (c) => {
+    const { persons } = c.req.valid("json");
+    broadcastEvent("WINNERS", persons);
+    return c.json({ success: true, persons }, 200);
   });
 
 export default routes;

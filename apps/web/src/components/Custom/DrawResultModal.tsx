@@ -1,6 +1,7 @@
 import type { Prize } from "@raffle_v2/shared";
 import { RefreshCw, Save, Trash2, Trophy, User, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSetDisplayWinners } from "../../hooks/use-live";
 import { useDrawCandidates, useSaveWinnersMutation } from "../../hooks/use-winners";
 
 export interface Region {
@@ -36,7 +37,6 @@ export default function DrawResultModal({
   const [excludedIds, setExcludedIds] = useState<string[]>([]);
   const [prevKey, setPrevKey] = useState<string>("");
 
-  // Reset excluded IDs during render phase when draw parameters or visibility change
   const currentKey = `${prize.id}-${winnerCount}-${isOpen}`;
   if (prevKey !== currentKey) {
     setPrevKey(currentKey);
@@ -51,20 +51,43 @@ export default function DrawResultModal({
   });
 
   const saveWinnersMutation = useSaveWinnersMutation();
+  const displayWinners = useSetDisplayWinners();
 
-  if (!isOpen) return null;
+  // Memoize candidates so reference only changes when data or excludedIds change
+  const candidates = useMemo(() => {
+    const rawCandidates = data ?? [];
+    return rawCandidates.filter((person) => !excludedIds.includes(person.id));
+  }, [data, excludedIds]);
 
-  // Derive candidates directly from query data minus removed IDs
-  const rawCandidates = data ?? [];
-  const candidates = rawCandidates.filter((person) => !excludedIds.includes(person.id));
+  // Initial sync: Send to socket ONLY after the query finishes fetching
+  useEffect(() => {
+    if (isOpen && !isFetching && candidates.length > 0) {
+      displayWinners.mutate(candidates);
+    }
+  }, [isOpen, isFetching, candidates, displayWinners]);
 
+  // Instant sync when removing a candidate
   const handleRemoveCandidate = (personId: string) => {
-    setExcludedIds((prev) => [...prev, personId]);
+    const nextExcluded = [...excludedIds, personId];
+    setExcludedIds(nextExcluded);
+
+    const rawCandidates = data ?? [];
+    const updatedCandidates = rawCandidates.filter((p) => !nextExcluded.includes(p.id));
+    displayWinners.mutate(updatedCandidates);
   };
 
-  const handleRedraw = () => {
+  // 3. Instant sync on Re-draw (await fresh query data)
+  const handleRedraw = async () => {
     setExcludedIds([]);
-    refetch();
+    const result = await refetch();
+    if (result.data) {
+      displayWinners.mutate(result.data);
+    }
+  };
+
+  const handleClose = () => {
+    displayWinners.mutate([]); // Clear live display when closing
+    onClose();
   };
 
   const handleSaveWinners = () => {
@@ -77,11 +100,13 @@ export default function DrawResultModal({
       },
       {
         onSuccess: () => {
-          onClose();
+          handleClose();
         },
       },
     );
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -97,7 +122,7 @@ export default function DrawResultModal({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
@@ -151,7 +176,6 @@ export default function DrawResultModal({
                     </div>
                   </div>
 
-                  {/* Remove Button for Multiple Winners */}
                   {candidates.length > 1 && (
                     <button
                       type="button"
@@ -172,14 +196,13 @@ export default function DrawResultModal({
         <div className="p-4 border-t border-slate-800 bg-[#080d1a] flex items-center justify-between gap-3">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="px-3 py-2 text-xs font-bold text-slate-400 hover:text-white transition-colors"
           >
             Cancel
           </button>
 
           <div className="flex items-center gap-2">
-            {/* Re-draw Button */}
             <button
               type="button"
               disabled={isFetching}
@@ -190,7 +213,6 @@ export default function DrawResultModal({
               Re-draw
             </button>
 
-            {/* Save Button */}
             <button
               type="button"
               disabled={candidates.length === 0 || saveWinnersMutation.isPending}
