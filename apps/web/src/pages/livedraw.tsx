@@ -1,10 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { Person } from "../components/Custom/DrawResultModal";
 import { PrizeCard } from "../components/Custom/PrizeCard";
-import { RaffleStats } from "../components/Custom/RaffleStats";
-import { RecentWinnersCard } from "../components/Custom/RecentWinnersCard";
-import { WinnerReveal } from "../components/Custom/WinnerReveal";
+import { WinnerModal } from "../components/Modals/WinnerModal";
 import { usePrize } from "../hooks/use-prizes";
 import { useSession } from "../lib/auth-client";
 import { StandBy } from "../views/live/stand-by";
@@ -15,8 +14,15 @@ export function LiveDraw() {
   const { data: sessionData } = useSession();
   const queryClient = useQueryClient();
 
-  const [displayType, setDisplayType] = useState("live");
+  const [displayType, setDisplayType] = useState("standby");
   const [selectedPrizeId, setSelectedPrizeId] = useState<string | null>(null);
+
+  const [persons, setPersons] = useState<Person[]>([]);
+  const [isWinnerModalOpen, setIsWinnerModalOpen] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [drawDuration, setdrawDuration] = useState(5000);
+
+  const lastWinnerKeyRef = useRef<string | null>(null);
 
   // Fetch current prize details whenever selectedPrizeId updates
   const { data: currentPrize, isLoading: isPrizeLoading } = usePrize(selectedPrizeId ?? "");
@@ -40,6 +46,37 @@ export function LiveDraw() {
         if (data.type === "DISPLAY_SELECTION") {
           setDisplayType(data.payload);
         }
+
+        if (data.type === "WINNERS") {
+          const winnerPersons = data.payload.persons as Person[];
+
+          if (!winnerPersons?.length) {
+            return;
+          }
+
+          /*
+           * Create a stable key from the winner IDs.
+           *
+           * If the server sends the exact same winners repeatedly,
+           * we ignore the duplicate message.
+           */
+          const winnerKey = winnerPersons.map((person) => person.id).join(",");
+
+          if (lastWinnerKeyRef.current === winnerKey) {
+            console.log("Ignoring duplicate WINNERS message");
+            return;
+          }
+
+          lastWinnerKeyRef.current = winnerKey;
+
+          console.log("New winners:", winnerPersons);
+          console.log(data.payload.drawDuration);
+
+          setPersons(winnerPersons);
+          setdrawDuration(data.payload.drawDuration * 1000);
+          setIsDrawing(true);
+          setIsWinnerModalOpen(true);
+        }
       } catch (err) {
         console.error("Failed to parse WebSocket message:", err);
       }
@@ -53,6 +90,14 @@ export function LiveDraw() {
       }
     };
   }, [queryClient]);
+
+  const handleCloseWinnerModal = () => {
+    setIsWinnerModalOpen(false);
+    setIsDrawing(false);
+
+    // Allow the same winner to be drawn again later
+    lastWinnerKeyRef.current = null;
+  };
 
   if (isPrizeLoading) {
     return <p>Loading</p>;
@@ -112,18 +157,19 @@ export function LiveDraw() {
             {displayType === "standby" ? (
               <StandBy className="flex flex-col gap-6 lg:col-span-12 space-y-6" />
             ) : (
-              <>
-                <div className="flex flex-col gap-6 lg:col-span-9 space-y-6">
-                  <PrizeCard currentPrize={currentPrize} />
-                  <WinnerReveal />
-                  <RaffleStats />
-                </div>
-                <div className="lg:col-span-3 flex justify-center lg:justify-end max-h-[80dvh] z-10">
-                  <RecentWinnersCard />
-                </div>
-              </>
+              <div className="flex flex-col gap-6 lg:col-span-9 space-y-6">
+                <PrizeCard currentPrize={currentPrize} />
+              </div>
             )}
           </div>
+
+          <WinnerModal
+            persons={persons}
+            isOpen={isWinnerModalOpen}
+            isDrawing={isDrawing}
+            drawDuration={drawDuration}
+            onClose={handleCloseWinnerModal}
+          />
         </main>
       </div>
     </div>

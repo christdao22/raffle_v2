@@ -84,6 +84,7 @@ export const displayWinners = createRoute({
         "application/json": {
           schema: z.object({
             persons: z.array(winnerPersonSchema),
+            drawDuration: z.number(),
           }),
         },
       },
@@ -96,6 +97,7 @@ export const displayWinners = createRoute({
           schema: z.object({
             success: z.boolean(),
             persons: z.array(winnerPersonSchema),
+            drawDuration: z.number(),
           }),
         },
       },
@@ -117,9 +119,9 @@ const routes = app
     return c.json(getLatestEvents(), 200);
   })
   .openapi(displayWinners, async (c) => {
-    const { persons } = c.req.valid("json");
-    broadcastEvent("WINNERS", persons);
-    return c.json({ success: true, persons }, 200);
+    const { persons, drawDuration } = c.req.valid("json");
+    broadcastEvent("WINNERS", { persons, drawDuration });
+    return c.json({ success: true, persons, drawDuration }, 200);
   });
 
 export default routes;

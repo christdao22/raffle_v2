@@ -25,6 +25,7 @@ interface DrawResultModalProps {
   prize: Prize;
   regionId: string[];
   winnerCount: number;
+  drawDuration: number;
 }
 
 export default function DrawResultModal({
@@ -33,6 +34,7 @@ export default function DrawResultModal({
   prize,
   regionId,
   winnerCount,
+  drawDuration,
 }: DrawResultModalProps) {
   const [excludedIds, setExcludedIds] = useState<string[]>([]);
   const [prevKey, setPrevKey] = useState<string>("");
@@ -62,9 +64,9 @@ export default function DrawResultModal({
   // Initial sync: Send to socket ONLY after the query finishes fetching
   useEffect(() => {
     if (isOpen && !isFetching && candidates.length > 0) {
-      displayWinners.mutate(candidates);
+      displayWinners.mutate({ persons: candidates, drawDuration });
     }
-  }, [isOpen, isFetching, candidates, displayWinners]);
+  }, [isOpen, isFetching, candidates, drawDuration, displayWinners]);
 
   // Instant sync when removing a candidate
   const handleRemoveCandidate = (personId: string) => {
@@ -73,7 +75,7 @@ export default function DrawResultModal({
 
     const rawCandidates = data ?? [];
     const updatedCandidates = rawCandidates.filter((p) => !nextExcluded.includes(p.id));
-    displayWinners.mutate(updatedCandidates);
+    displayWinners.mutate({ persons: updatedCandidates, drawDuration });
   };
 
   // 3. Instant sync on Re-draw (await fresh query data)
@@ -81,12 +83,12 @@ export default function DrawResultModal({
     setExcludedIds([]);
     const result = await refetch();
     if (result.data) {
-      displayWinners.mutate(result.data);
+      displayWinners.mutate({ persons: result.data, drawDuration });
     }
   };
 
   const handleClose = () => {
-    displayWinners.mutate([]); // Clear live display when closing
+    displayWinners.mutate({ persons: [], drawDuration }); // Clear live display when closing
     onClose();
   };
 

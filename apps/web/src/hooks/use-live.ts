@@ -78,9 +78,9 @@ export function useSetDisplayWinners() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (persons: Winners[]) => {
+    mutationFn: async (data: { persons: Winners[]; drawDuration: number }) => {
       const res = await api.live.winners.$post({
-        json: { persons },
+        json: data,
       });
 
       if (!res.ok) {

@@ -229,6 +229,7 @@ export default function RaffleConfigCard({
         prize={prize}
         regionId={regionId}
         winnerCount={winnerCount}
+        drawDuration={duration}
       />
     </>
   );
