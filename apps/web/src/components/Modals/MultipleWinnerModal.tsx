@@ -1,0 +1,260 @@
+import { Button, cn } from "@raffle_v2/ui";
+import { Trophy, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import Confetti from "react-confetti";
+import type { Person } from "../Custom/DrawResultModal";
+
+export interface MultipleWinnerModalProps {
+  isOpen?: boolean;
+  isDrawing?: boolean;
+  drawDuration?: number;
+  onClose?: () => void;
+  persons?: Person[];
+  prizeTitle?: string;
+  prizeImageUrl?: string;
+  sponsoredBy?: string;
+  showConfetti?: boolean;
+  className?: string;
+}
+
+export function MultipleWinnersModal({
+  isOpen = false,
+  isDrawing = false,
+  onClose,
+  persons = [],
+  prizeTitle = "NETHERBook Pro",
+  sponsoredBy = "MAMBA",
+  showConfetti = true,
+  className,
+}: MultipleWinnerModalProps) {
+  const [randomText, setRandomText] = useState("");
+
+  const winners = persons.slice(0, 10);
+  const showWinner = winners.length > 0;
+
+  const isRevealing = isOpen && isDrawing && !showWinner;
+
+  useEffect(() => {
+    if (!isRevealing) {
+      setRandomText("");
+      return;
+    }
+
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    const generateRandomText = () =>
+      Array.from({ length: 30 }, () =>
+        characters.charAt(Math.floor(Math.random() * characters.length)),
+      ).join(" ");
+
+    const interval = setInterval(() => {
+      setRandomText(generateRandomText());
+    }, 80);
+
+    return () => clearInterval(interval);
+  }, [isRevealing]);
+
+  if (!isOpen) return null;
+
+  const winnerCount = winners.length;
+
+  const getGridClass = () => {
+    if (winnerCount === 2) {
+      return "grid-cols-2";
+    }
+
+    if (winnerCount <= 4) {
+      return "grid-cols-2";
+    }
+
+    if (winnerCount <= 6) {
+      return "grid-cols-2 lg:grid-cols-3";
+    }
+
+    return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5";
+  };
+
+  const getNameSize = () => {
+    if (winnerCount <= 2) {
+      return "text-4xl sm:text-6xl";
+    }
+
+    if (winnerCount <= 4) {
+      return "text-3xl sm:text-5xl";
+    }
+
+    if (winnerCount <= 6) {
+      return "text-xl sm:text-4xl";
+    }
+
+    return "text-base sm:text-4xl";
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-tr-surface/85 backdrop-blur-md animate-in fade-in duration-300 p-6 sm:p-10">
+      {showConfetti && showWinner && <Confetti recycle={true} numberOfPieces={100} />}
+
+      <div
+        className={cn(
+          "relative flex h-full w-full max-w-8xl flex-col overflow-hidden rounded-3xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest shadow-2xl font-sans text-tr-on-surface",
+          className,
+        )}
+      >
+        {/* Background */}
+
+        <div className="absolute inset-0 pointer-events-none opacity-[0.08] bg-[radial-gradient(#0b4db8_1px,transparent_1px)] bg-size-[18px_18px]" />
+
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-tr-primary-container/10 blur-3xl pointer-events-none" />
+
+        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-tr-error/10 blur-3xl pointer-events-none" />
+
+        {/* Close */}
+
+        <Button
+          onClick={onClose}
+          disabled={isRevealing}
+          className="absolute top-4 right-4 z-40 flex h-9 w-9 items-center justify-center rounded-full bg-tr-surface-container-high/80 p-0 text-tr-on-surface-variant shadow-sm transition-all hover:bg-tr-surface-container-highest hover:text-tr-on-surface border-0"
+          aria-label="Close modal"
+        >
+          <X className="h-5 w-5" />
+        </Button>
+
+        {/* Main */}
+
+        <div className="relative z-10 flex h-full flex-col items-center px-6 py-8 sm:px-10">
+          {/* Header */}
+
+          {showWinner && (
+            <div
+              className={cn(
+                "shrink-0 flex flex-col items-center text-center transition-all duration-700",
+                !showWinner ? "opacity-0 -translate-y-10" : "opacity-100 translate-y-0",
+              )}
+            >
+              <div className="mb-4 flex items-center justify-center gap-3">
+                <img src="/Bagong-Pilipinas.png" alt="Bagong Pilipinas" className="w-16 sm:w-20" />
+
+                <img src="/deped-logo-philippines.png" alt="DepEd" className="w-20 sm:w-24" />
+              </div>
+
+              <p className="font-display font-extrabold text-xs sm:text-sm uppercase tracking-[0.2em] text-tr-primary">
+                National Teacher's Day
+              </p>
+
+              <h1 className="mt-1 font-display font-black text-3xl sm:text-5xl lg:text-5xl uppercase tracking-tight text-tr-secondary leading-none">
+                Congratulations!
+              </h1>
+
+              <div className="mt-4 h-1 w-16 rounded-full bg-tr-tertiary-container" />
+            </div>
+          )}
+
+          {/* Winner Area */}
+
+          <div
+            className={cn(
+              "relative flex min-h-0 w-full flex-1 justify-center overflow-hidden rounded-3xl border transition-all duration-700 items-center",
+              showWinner
+                ? "mt-6 border-tr-secondary/10 bg-tr-secondary/5"
+                : "mt-0 border-tr-primary-container/40 bg-tr-secondary shadow-2xl",
+            )}
+          >
+            {/* Drawing */}
+
+            {!showWinner && (
+              <>
+                <div className="absolute inset-0 bg-tr-primary/10 animate-pulse" />
+
+                <div className="absolute left-1/2 top-1/2 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-tr-primary-container/10 blur-3xl" />
+
+                <div className="relative z-10 flex w-full flex-col items-center px-6">
+                  <p className="mb-6 text-xs font-bold uppercase tracking-[0.3em] text-tr-on-secondary animate-pulse">
+                    Selecting Multiple Winners
+                  </p>
+
+                  <span className="flex items-center justify-center gap-3  text-5xl sm:text-8xl lg:text-9xl text-white">
+                    {Array.from({ length: 10 }).map((_, index) => (
+                      <span
+                        // biome-ignore lint/suspicious/noArrayIndexKey: for dot animation
+                        key={index}
+                        className="animate-dot-bounce"
+                        style={{
+                          animationDelay: `${index * 0.1}s`,
+                        }}
+                      >
+                        •
+                      </span>
+                    ))}
+                  </span>
+
+                  <div className="mt-8 flex items-center gap-3">
+                    <span className="h-3 w-3 rounded-full bg-tr-tertiary-container animate-pulse" />
+
+                    <span className="font-display text-sm font-bold uppercase tracking-[0.2em] text-tr-on-secondary/60">
+                      Drawing {winnerCount || "multiple"} winners
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Winners */}
+
+            {showWinner && (
+              <div className="relative z-10 w-full px-4 py-8 sm:px-8 ">
+                <div className="mb-6 flex items-center justify-center gap-2">
+                  <Trophy className="h-5 w-5 text-tr-tertiary-container" />
+
+                  <p className="font-display font-bold text-xs sm:text-sm uppercase tracking-[0.2em] text-tr-on-surface-variant">
+                    {winnerCount} Lucky Winners
+                  </p>
+
+                  <Trophy className="h-5 w-5 text-tr-tertiary-container" />
+                </div>
+                <div className="text-center mb-5">
+                  <h4 className="font-display font-black text-base sm:text-5xl uppercase text-tr-primary truncate leading-tight text-center">
+                    {prizeTitle}
+                  </h4>
+                  <span className="text-xl font-semibold text-tr-on-surface-variant">
+                    Sponsored: {sponsoredBy}
+                  </span>
+                </div>
+                <div className={cn("mx-auto grid w-full max-w-8xl gap-4", getGridClass())}>
+                  {winners.map((person, index) => (
+                    <div
+                      key={person.id}
+                      className="group relative flex min-h-28 flex-col items-center justify-center overflow-hidden rounded-2xl border border-tr-outline-variant/20 bg-tr-surface-container-lowest/95 px-4 py-5 text-center shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-lg"
+                    >
+                      {/* Top accent */}
+
+                      <div className="absolute inset-x-0 top-0 h-1 bg-tr-secondary-container" />
+
+                      {/* Winner */}
+
+                      <h2
+                        className={cn(
+                          "max-w-full font-display font-black uppercase tracking-tight text-tr-secondary leading-tight wrap-break-word",
+                          getNameSize(),
+                        )}
+                      >
+                        {person.fullname ?? "Winner"}
+                      </h2>
+
+                      {/* Region */}
+
+                      {person.region?.region && (
+                        <div className="mt-3 rounded-full bg-tr-primary-container/10 border border-tr-primary-container/20 px-3 py-1 text-[10px] font-bold uppercase text-tr-primary">
+                          {person.region.region}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

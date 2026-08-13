@@ -3,6 +3,7 @@ import { User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Person } from "../components/Custom/DrawResultModal";
 import { PrizeCard } from "../components/Custom/PrizeCard";
+import { MultipleWinnersModal } from "../components/Modals/MultipleWinnerModal";
 import { WinnerModal } from "../components/Modals/WinnerModal";
 import { usePrize } from "../hooks/use-prizes";
 import { useSession } from "../lib/auth-client";
@@ -209,24 +210,34 @@ export function LiveDraw() {
             <img src="/iso.png" alt="iso" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full h-full  border-8">
             {displayType === "standby" ? (
               <StandBy className="flex flex-col gap-6 lg:col-span-12 space-y-6" />
             ) : (
-              <div className="flex flex-col gap-6 lg:col-span-9 space-y-6">
+              <div className="flex flex-col gap-6 lg:col-span-12 space-y-6 h-full">
                 <PrizeCard currentPrize={currentPrize} />
               </div>
             )}
           </div>
 
-          <WinnerModal
-            persons={persons}
-            isOpen={isWinnerModalOpen}
-            isDrawing={isDrawing}
-            // drawDuration={drawDuration}
-            countdownRemaining={countdownRemaining}
-            onClose={handleCloseWinnerModal}
-          />
+          {persons.length > 1 ? (
+            <MultipleWinnersModal
+              persons={persons}
+              isOpen={isWinnerModalOpen}
+              onClose={handleCloseWinnerModal}
+            />
+          ) : (
+            <WinnerModal
+              persons={persons}
+              isOpen={isWinnerModalOpen}
+              isDrawing={isDrawing}
+              countdownRemaining={countdownRemaining}
+              onClose={handleCloseWinnerModal}
+              prizeTitle={currentPrize?.prize}
+              prizeImageUrl={currentPrize?.imageUrl}
+              sponsor={currentPrize?.sponsor}
+            />
+          )}
         </main>
       </div>
     </div>

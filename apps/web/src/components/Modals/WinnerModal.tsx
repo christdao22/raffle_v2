@@ -15,7 +15,8 @@ export interface WinnerModalProps {
   division?: string;
   prizeTitle?: string;
   showConfetti?: boolean;
-  prizeImageUrl?: string;
+  prizeImageUrl?: string | null;
+  sponsor?: string | null;
   className?: string;
 }
 
@@ -26,23 +27,16 @@ export function WinnerModal({
   countdownRemaining = null,
   onClose,
   persons = [],
-  prizeTitle = "NETHERBook Pro",
-  prizeImageUrl = "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80",
+  prizeTitle = "",
+  prizeImageUrl = "",
   className,
   showConfetti = true,
+  sponsor,
 }: WinnerModalProps) {
   const [randomText, setRandomText] = useState("");
 
-  // The single source of truth for "reveal winner": persons only ever
-  // gets populated by the WINNERS broadcast from the admin. So the
-  // reveal happens exactly when the admin reveals — never earlier from
-  // a local timer, never later from a stuck client clock.
   const showWinner = persons.length > 0;
 
-  // Anything before the winner exists — whether we're in the pre-pick
-  // countdown or the post-pick spin — renders the same scramble
-  // animation. There's no meaningful visual difference to the viewer;
-  // both are "waiting for the reveal."
   const isRevealing = isOpen && !showWinner && (isDrawing || countdownRemaining !== null);
 
   useEffect(() => {
@@ -125,7 +119,7 @@ export function WinnerModal({
           {/* WINNER / DRAW CONTAINER */}
           <div
             className={cn(
-              "relative w-full max-w-6xl mt-8 rounded-3xl border transition-all duration-700 ease-in-out overflow-hidden",
+              "relative w-full max-w-8xl mt-8 rounded-3xl border transition-all duration-700 ease-in-out overflow-hidden ",
               showWinner
                 ? "min-h-[220px] border-tr-secondary/10 bg-tr-secondary/5"
                 : "min-h-[520px] scale-[1.02] border-tr-primary-container/40 bg-tr-secondary shadow-2xl",
@@ -141,15 +135,15 @@ export function WinnerModal({
             )}
 
             {/* Content */}
-            <div className="relative z-10 flex h-full min-h-[inherit] flex-col items-center justify-center p-8">
+            <div className="relative z-10 flex h-full w-full min-h-[inherit] flex-col items-center justify-center p-8">
               {showWinner ? (
                 persons.map((p) => (
                   <Fragment key={p.id}>
-                    <p className="mb-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-tr-on-surface-variant">
+                    <p className="mb-2 font-sans text-md font-bold uppercase tracking-[0.2em] text-tr-on-surface-variant">
                       Our Lucky Winner
                     </p>
 
-                    <h2 className="font-display font-black text-4xl sm:text-7xl lg:text-8xl uppercase tracking-tight text-tr-primary leading-none break-words text-center">
+                    <h2 className="font-display font-black text-4xl sm:text-7xl lg:text-9xl uppercase tracking-tight text-tr-primary leading-none break-words text-center">
                       {p?.fullname ?? "Winner"}
                     </h2>
 
@@ -166,9 +160,23 @@ export function WinnerModal({
                     The moment of truth...
                   </p>
 
-                  <div className="font-mono font-black text-4xl sm:text-6xl lg:text-8xl tracking-tight text-tr-on-secondary text-center drop-shadow-lg">
+                  {/* <div className="font-mono font-black text-4xl sm:text-6xl lg:text-8xl tracking-tight text-tr-on-secondary text-center drop-shadow-lg">
                     {randomText || "• • • • • • • • • • • •"}
-                  </div>
+                  </div> */}
+                  <span className="flex items-center justify-center gap-3  text-5xl sm:text-8xl lg:text-9xl text-white">
+                    {Array.from({ length: 10 }).map((_, index) => (
+                      <span
+                        // biome-ignore lint/suspicious/noArrayIndexKey: for dot animation
+                        key={index}
+                        className="animate-dot-bounce"
+                        style={{
+                          animationDelay: `${index * 0.1}s`,
+                        }}
+                      >
+                        •
+                      </span>
+                    ))}
+                  </span>
                 </div>
               )}
             </div>
@@ -183,17 +191,19 @@ export function WinnerModal({
           >
             <div className="relative overflow-hidden rounded-2xl border border-tr-tertiary-container/30 bg-tr-surface-container-low shadow-sm">
               <div className="flex items-center gap-4 p-3.5">
-                <div className="relative flex h-20 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-tr-surface-container-lowest border border-tr-outline-variant/20 shadow-xs">
-                  <img
-                    src={prizeImageUrl}
-                    alt={prizeTitle}
-                    className="h-full w-full object-contain p-1.5"
-                  />
-                </div>
+                {prizeImageUrl && (
+                  <div className="relative flex h-20 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-tr-surface-container-lowest border border-tr-outline-variant/20 shadow-xs">
+                    <img
+                      src={prizeImageUrl}
+                      alt={prizeTitle}
+                      className="h-full w-full object-contain p-1.5"
+                    />
+                  </div>
+                )}
 
                 <div className="min-w-0 text-left">
                   <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-tr-primary">
-                    Grand Prize
+                    Featured Prize
                   </span>
 
                   <h4 className="font-display font-black text-lg sm:text-xl uppercase text-tr-secondary truncate leading-tight">
@@ -201,7 +211,7 @@ export function WinnerModal({
                   </h4>
 
                   <span className="text-xs font-semibold text-tr-on-surface-variant">
-                    Sponsored: MAMBA
+                    Sponsored: {sponsor}
                   </span>
                 </div>
               </div>

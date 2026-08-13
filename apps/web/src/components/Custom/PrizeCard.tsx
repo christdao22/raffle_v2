@@ -8,7 +8,7 @@ export interface PrizeCardProps {
 
 export function PrizeCard({ currentPrize, className }: PrizeCardProps) {
   return (
-    <div className={cn("prize-rotating-border h-full", className)}>
+    <div className={cn("prize-rotating-border h-full ", className)}>
       <div className="relative overflow-hidden rounded-[calc(1rem-3px)] bg-tr-surface-container-lowest h-full flex justify-between">
         {/* Badge */}
         <div className="absolute top-5 left-5 z-20">
