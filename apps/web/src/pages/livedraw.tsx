@@ -8,7 +8,7 @@ import { usePrize } from "../hooks/use-prizes";
 import { useSession } from "../lib/auth-client";
 import { StandBy } from "../views/live/stand-by";
 
-const apiHost = import.meta.env.API_URL ?? "localhost:3000";
+const apiHost = (import.meta.env.VITE_API_URL ?? "localhost:3000").replace(/^https?:\/\//, "");
 
 export function LiveDraw() {
   const { data: sessionData } = useSession();

@@ -8,4 +8,3 @@ const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 export const api = hc<AppType>(apiUrl, {
   init: { credentials: "include" },
 });
-
