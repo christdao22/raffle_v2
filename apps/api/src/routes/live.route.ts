@@ -5,7 +5,7 @@ import { winnerPersonSchema } from "./winners.route";
 
 const app = new OpenAPIHono<AppEnv>();
 
-const displayTypeEnum = z.enum(["standby", "live"]);
+const displayTypeEnum = z.enum(["standby", "live", "unclaimed", "live-unclaimed"]);
 const latestEventsSchema = z.record(z.string(), z.object({ payload: z.unknown() }));
 
 export const displaySelection = createRoute({

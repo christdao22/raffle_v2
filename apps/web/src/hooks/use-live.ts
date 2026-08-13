@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api-client";
 
-export type DisplayType = "standby" | "live";
+export type DisplayType = "standby" | "live" | "unclaimed" | "live-unclaimed";
 export type Winners = {
   id: string;
   fullname: string;

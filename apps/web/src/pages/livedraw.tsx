@@ -110,7 +110,7 @@ export function LiveDraw() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
             {displayType === "standby" ? (
-              <StandBy />
+              <StandBy className="flex flex-col gap-6 lg:col-span-12 space-y-6" />
             ) : (
               <>
                 <div className="flex flex-col gap-6 lg:col-span-9 space-y-6">

@@ -2,6 +2,7 @@ import type { Prize } from "@raffle_v2/shared";
 import { Card, cn } from "@raffle_v2/ui";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
+import LiveScreenDisplayMode from "../components/Custom/LiveScreenDisplayMode";
 import { PrizeSelectorCard } from "../components/Custom/PrizeSelectorCard";
 import RaffleConfigCard from "../components/Custom/RaffleConfig";
 import Layout from "../components/layout";
@@ -102,6 +103,7 @@ export function Dashboard() {
 
   return (
     <Layout pageTitle="Raffle Control & Prize Selector">
+      <LiveScreenDisplayMode />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
         <div className="lg:col-span-8">
           <PrizeSelectorCard
