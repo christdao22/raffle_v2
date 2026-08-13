@@ -17,7 +17,9 @@
     "db:push": "pnpm --filter @raffle_v2/db db:push",
     "db:studio": "pnpm --filter @raffle_v2/db db:studio",
     "auth:generate": "pnpm --filter @raffle_v2/api auth:generate",
-    "seed": "pnpm --filter @raffle_v2/api seed"
+    "seed": "pnpm --filter @raffle_v2/api seed",
+    "docker:tools": "docker compose -f docker-compose.prod.yml --profile tools run --rm migrate",
+    "docker:prod": "docker compose -f docker-compose.prod.yml up -d --build"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.5",
@@ -25,4 +27,3 @@
     "typescript": "^5.9.3"
   }
 }
-
