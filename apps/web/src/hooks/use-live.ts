@@ -94,3 +94,19 @@ export function useSetDisplayWinners() {
     },
   });
 }
+
+export function useSetDisplayCountdown() {
+  return useMutation({
+    mutationFn: async ({ duration, startedAt }: { duration: number; startedAt: number }) => {
+      const res = await api.live.countdown.$post({
+        json: { duration, startedAt },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to broadcast countdown");
+      }
+
+      return res.json();
+    },
+  });
+}

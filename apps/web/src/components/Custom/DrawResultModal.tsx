@@ -1,7 +1,7 @@
 import type { Prize } from "@raffle_v2/shared";
-import { RefreshCw, Save, Trash2, Trophy, User, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useSetDisplayWinners } from "../../hooks/use-live";
+import { Dice5, RefreshCw, Save, Trash2, Trophy, User, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSetDisplayCountdown, useSetDisplayWinners } from "../../hooks/use-live";
 import { useDrawCandidates, useSaveWinnersMutation } from "../../hooks/use-winners";
 
 export interface Region {
@@ -38,11 +38,19 @@ export default function DrawResultModal({
 }: DrawResultModalProps) {
   const [excludedIds, setExcludedIds] = useState<string[]>([]);
   const [prevKey, setPrevKey] = useState<string>("");
+  const [revealed, setRevealed] = useState(false);
+  const [countdown, setCountdown] = useState<number>(drawDuration);
 
+  const countdownSentRef = useRef(false);
+
+  // Reset everything whenever the draw params or open state change.
   const currentKey = `${prize.id}-${winnerCount}-${isOpen}`;
   if (prevKey !== currentKey) {
     setPrevKey(currentKey);
     setExcludedIds([]);
+    setRevealed(false);
+    setCountdown(drawDuration);
+    countdownSentRef.current = false;
   }
 
   const { data, refetch, isFetching, isError, error } = useDrawCandidates({
@@ -54,41 +62,59 @@ export default function DrawResultModal({
 
   const saveWinnersMutation = useSaveWinnersMutation();
   const displayWinners = useSetDisplayWinners();
+  const displayCountdown = useSetDisplayCountdown();
 
-  // Memoize candidates so reference only changes when data or excludedIds change
   const candidates = useMemo(() => {
     const rawCandidates = data ?? [];
     return rawCandidates.filter((person) => !excludedIds.includes(person.id));
   }, [data, excludedIds]);
 
-  // Initial sync: Send to socket ONLY after the query finishes fetching
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ignore
   useEffect(() => {
-    if (isOpen && !isFetching && candidates.length > 0) {
+    if (!isOpen || isFetching || candidates.length === 0 || revealed) return;
+    if (countdownSentRef.current) return;
+
+    countdownSentRef.current = true;
+    displayCountdown.mutate({ duration: drawDuration, startedAt: Date.now() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, isFetching, candidates.length, revealed, drawDuration]);
+
+  // Local admin-side countdown, ticking once per second.
+  const tickRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => {
+    if (!isOpen || isFetching || candidates.length === 0 || revealed) return;
+
+    if (countdown <= 0) {
+      setRevealed(true);
+      return;
+    }
+
+    tickRef.current = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(tickRef.current);
+  }, [isOpen, isFetching, candidates.length, revealed, countdown]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ignore
+  useEffect(() => {
+    if (isOpen && revealed) {
       displayWinners.mutate({ persons: candidates, drawDuration });
     }
-  }, [isOpen, isFetching, candidates, drawDuration, displayWinners]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, revealed, candidates, drawDuration]);
 
-  // Instant sync when removing a candidate
   const handleRemoveCandidate = (personId: string) => {
-    const nextExcluded = [...excludedIds, personId];
-    setExcludedIds(nextExcluded);
-
-    const rawCandidates = data ?? [];
-    const updatedCandidates = rawCandidates.filter((p) => !nextExcluded.includes(p.id));
-    displayWinners.mutate({ persons: updatedCandidates, drawDuration });
+    setExcludedIds((prev) => [...prev, personId]);
   };
 
-  // 3. Instant sync on Re-draw (await fresh query data)
   const handleRedraw = async () => {
     setExcludedIds([]);
-    const result = await refetch();
-    if (result.data) {
-      displayWinners.mutate({ persons: result.data, drawDuration });
-    }
+    setRevealed(false);
+    setCountdown(drawDuration);
+    countdownSentRef.current = false; // allow a fresh countdown broadcast
+    await refetch();
   };
 
   const handleClose = () => {
-    displayWinners.mutate({ persons: [], drawDuration }); // Clear live display when closing
+    displayWinners.mutate({ persons: [], drawDuration }); // clear live display
     onClose();
   };
 
@@ -131,7 +157,7 @@ export default function DrawResultModal({
           </button>
         </div>
 
-        {/* Candidate List */}
+        {/* Body: fetching -> counting down -> revealed list */}
         <div className="p-6 overflow-y-auto space-y-3 flex-1 min-h-[180px]">
           {isFetching ? (
             <div className="flex flex-col items-center justify-center py-10 gap-3 text-slate-400">
@@ -145,6 +171,14 @@ export default function DrawResultModal({
           ) : candidates.length === 0 ? (
             <div className="text-center py-8 text-slate-400 text-xs">
               No candidates available for this draw.
+            </div>
+          ) : !revealed ? (
+            <div className="flex flex-col items-center justify-center py-10 gap-4 text-slate-300">
+              <Dice5 className="w-10 h-10 text-emerald-400 animate-spin" />
+              {/* <span className="text-5xl font-black text-white tabular-nums">{countdown}</span> */}
+              <p className="text-xs font-semibold tracking-widest uppercase text-slate-400 animate-pulse">
+                Revealing winner{candidates.length > 1 ? "s" : ""}...
+              </p>
             </div>
           ) : (
             <div
@@ -217,7 +251,7 @@ export default function DrawResultModal({
 
             <button
               type="button"
-              disabled={candidates.length === 0 || saveWinnersMutation.isPending}
+              disabled={!revealed || candidates.length === 0 || saveWinnersMutation.isPending}
               onClick={handleSaveWinners}
               className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-[#062419] text-xs font-black rounded-md shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >

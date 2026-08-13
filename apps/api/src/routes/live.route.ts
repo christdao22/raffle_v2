@@ -106,6 +106,39 @@ export const displayWinners = createRoute({
   },
 });
 
+export const displayCountdown = createRoute({
+  method: "post",
+  path: "/countdown",
+  tags: ["Live"],
+  summary: "Broadcast countdown before revealing winners",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            duration: z.number(),
+            startedAt: z.number(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            duration: z.number(),
+            startedAt: z.number(),
+          }),
+        },
+      },
+      description: "Countdown broadcasted to LiveDraw",
+    },
+  },
+});
+
 const routes = app
   .openapi(displaySelection, async (c) => {
     const { type } = c.req.valid("json");
@@ -117,6 +150,11 @@ const routes = app
   })
   .openapi(getLiveEvents, (c) => {
     return c.json(getLatestEvents(), 200);
+  })
+  .openapi(displayCountdown, async (c) => {
+    const { duration, startedAt } = c.req.valid("json");
+    broadcastEvent("COUNTDOWN", { duration, startedAt });
+    return c.json({ success: true, duration, startedAt }, 200);
   })
   .openapi(displayWinners, async (c) => {
     const { persons, drawDuration } = c.req.valid("json");

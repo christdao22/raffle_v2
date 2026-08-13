@@ -22,7 +22,11 @@ export function LiveDraw() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawDuration, setdrawDuration] = useState(5000);
 
+  const [countdownRemaining, setCountdownRemaining] = useState<number | null>(null);
+  const countdownTickRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+
   const lastWinnerKeyRef = useRef<string | null>(null);
+  const lastCountdownKeyRef = useRef<string | null>(null);
 
   // Fetch current prize details whenever selectedPrizeId updates
   const { data: currentPrize, isLoading: isPrizeLoading } = usePrize(selectedPrizeId ?? "");
@@ -47,6 +51,47 @@ export function LiveDraw() {
           setDisplayType(data.payload);
         }
 
+        if (data.type === "COUNTDOWN") {
+          const { duration, startedAt } = data.payload as {
+            duration: number;
+            startedAt: number;
+          };
+
+          // Dedupe: ignore a re-broadcast of the same countdown start
+          const countdownKey = `${duration}-${startedAt}`;
+          if (lastCountdownKeyRef.current === countdownKey) {
+            return;
+          }
+          lastCountdownKeyRef.current = countdownKey;
+
+          // Compute remaining time from elapsed wall-clock time, so this
+          // stays in sync even if this display connected mid-countdown
+          // or the message arrived late.
+          const elapsedSeconds = (Date.now() - startedAt) / 1000;
+          const remaining = Math.max(0, Math.ceil(duration - elapsedSeconds));
+
+          if (countdownTickRef.current) {
+            clearInterval(countdownTickRef.current);
+          }
+
+          setPersons([]);
+          setIsDrawing(true);
+          setIsWinnerModalOpen(true);
+          setCountdownRemaining(remaining);
+
+          countdownTickRef.current = setInterval(() => {
+            setCountdownRemaining((prev) => {
+              if (prev === null || prev <= 1) {
+                if (countdownTickRef.current) {
+                  clearInterval(countdownTickRef.current);
+                }
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
+
         if (data.type === "WINNERS") {
           const winnerPersons = data.payload.persons as Person[];
 
@@ -69,11 +114,17 @@ export function LiveDraw() {
 
           lastWinnerKeyRef.current = winnerKey;
 
+          // Winners arrived — countdown is done, stop any local tick.
+          if (countdownTickRef.current) {
+            clearInterval(countdownTickRef.current);
+          }
+          setCountdownRemaining(null);
+
           console.log("New winners:", winnerPersons);
-          console.log(data.payload.drawDuration);
+          console.log(data.payload.spinDuration);
 
           setPersons(winnerPersons);
-          setdrawDuration(data.payload.drawDuration * 1000);
+          setdrawDuration((data.payload.spinDuration ?? 5) * 1000);
           setIsDrawing(true);
           setIsWinnerModalOpen(true);
         }
@@ -83,6 +134,9 @@ export function LiveDraw() {
     };
 
     return () => {
+      if (countdownTickRef.current) {
+        clearInterval(countdownTickRef.current);
+      }
       if (socket.readyState === WebSocket.OPEN) {
         socket.close();
       } else if (socket.readyState === WebSocket.CONNECTING) {
@@ -94,9 +148,11 @@ export function LiveDraw() {
   const handleCloseWinnerModal = () => {
     setIsWinnerModalOpen(false);
     setIsDrawing(false);
+    setCountdownRemaining(null);
 
     // Allow the same winner to be drawn again later
     lastWinnerKeyRef.current = null;
+    lastCountdownKeyRef.current = null;
   };
 
   if (isPrizeLoading) {
@@ -167,7 +223,8 @@ export function LiveDraw() {
             persons={persons}
             isOpen={isWinnerModalOpen}
             isDrawing={isDrawing}
-            drawDuration={drawDuration}
+            // drawDuration={drawDuration}
+            countdownRemaining={countdownRemaining}
             onClose={handleCloseWinnerModal}
           />
         </main>

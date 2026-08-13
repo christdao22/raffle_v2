@@ -1,6 +1,6 @@
 import { Button, cn } from "@raffle_v2/ui";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Confetti from "react-confetti";
 import type { Person } from "../Custom/DrawResultModal";
 
@@ -8,6 +8,7 @@ export interface WinnerModalProps {
   isOpen?: boolean;
   isDrawing?: boolean;
   drawDuration?: number;
+  countdownRemaining?: number | null;
   onClose?: () => void;
   onClaim?: () => void;
   persons?: Person[];
@@ -22,6 +23,7 @@ export function WinnerModal({
   isOpen = false,
   isDrawing = false,
   drawDuration = 5000,
+  countdownRemaining = null,
   onClose,
   persons = [],
   prizeTitle = "NETHERBook Pro",
@@ -30,35 +32,24 @@ export function WinnerModal({
   showConfetti = true,
 }: WinnerModalProps) {
   const [randomText, setRandomText] = useState("");
-  const [remainingTime, setRemainingTime] = useState(drawDuration);
-  const [isFinished, setIsFinished] = useState(false);
 
-  /*
-   * The actual state used by the modal.
-   *
-   * If drawDuration is 0, immediately finish the draw.
-   */
-  const showWinner = !isDrawing || isFinished || drawDuration === 0;
+  // The single source of truth for "reveal winner": persons only ever
+  // gets populated by the WINNERS broadcast from the admin. So the
+  // reveal happens exactly when the admin reveals — never earlier from
+  // a local timer, never later from a stuck client clock.
+  const showWinner = persons.length > 0;
+
+  // Anything before the winner exists — whether we're in the pre-pick
+  // countdown or the post-pick spin — renders the same scramble
+  // animation. There's no meaningful visual difference to the viewer;
+  // both are "waiting for the reveal."
+  const isRevealing = isOpen && !showWinner && (isDrawing || countdownRemaining !== null);
 
   useEffect(() => {
-    // Modal is not drawing
-    if (!isDrawing) {
+    if (!isRevealing) {
       setRandomText("");
-      setRemainingTime(drawDuration);
-      setIsFinished(false);
       return;
     }
-
-    // Instant draw
-    if (drawDuration === 0) {
-      setRandomText("");
-      setRemainingTime(0);
-      setIsFinished(true);
-      return;
-    }
-
-    setIsFinished(false);
-    setRemainingTime(drawDuration);
 
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -68,35 +59,14 @@ export function WinnerModal({
       ).join(" ");
     };
 
-    // Random letters animation
     const randomInterval = setInterval(() => {
       setRandomText(generateRandomText());
     }, 80);
 
-    // Start countdown
-    const startTime = Date.now();
-
-    const timerInterval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(drawDuration - elapsed, 0);
-
-      setRemainingTime(remaining);
-
-      // Timer finished
-      if (remaining === 0) {
-        clearInterval(timerInterval);
-        clearInterval(randomInterval);
-
-        setRandomText("");
-        setIsFinished(true);
-      }
-    }, 50);
-
     return () => {
       clearInterval(randomInterval);
-      clearInterval(timerInterval);
     };
-  }, [isDrawing, drawDuration]);
+  }, [isRevealing]);
 
   if (!isOpen) return null;
 
@@ -117,7 +87,7 @@ export function WinnerModal({
         {/* Close */}
         <Button
           onClick={onClose}
-          disabled={isDrawing && !isFinished}
+          disabled={isRevealing}
           className="absolute top-4 right-4 z-40 w-9 h-9 rounded-full bg-tr-surface-container-high/80 text-tr-on-surface-variant hover:bg-tr-surface-container-highest hover:text-tr-on-surface transition-all p-0 flex items-center justify-center border-0 shadow-sm"
           aria-label="Close modal"
         >
@@ -173,38 +143,33 @@ export function WinnerModal({
             {/* Content */}
             <div className="relative z-10 flex h-full min-h-[inherit] flex-col items-center justify-center p-8">
               {showWinner ? (
-                persons.map((p) => {
-                  return (
-                    <>
-                      <p className="mb-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-tr-on-surface-variant">
-                        Our Lucky Winner
-                      </p>
-
-                      <h2 className="font-display font-black text-4xl sm:text-7xl lg:text-8xl uppercase tracking-tight text-tr-primary leading-none break-words text-center">
-                        {p?.fullname ?? "Winner"}
-                      </h2>
-
-                      {p?.region && (
-                        <div className="mt-5 rounded-full bg-tr-primary-container/10 border border-tr-primary-container/20 px-5 py-2 text-sm font-bold uppercase text-tr-primary">
-                          {p.region.region}
-                        </div>
-                      )}
-                    </>
-                  );
-                })
-              ) : (
-                <>
-                  {/* Random characters */}
-                  <div className="mb-8">
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-tr-on-secondary/60 text-center mb-5">
-                      Randomizing Entries
+                persons.map((p) => (
+                  <Fragment key={p.id}>
+                    <p className="mb-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-tr-on-surface-variant">
+                      Our Lucky Winner
                     </p>
 
-                    <div className="font-mono font-black text-4xl sm:text-6xl lg:text-8xl tracking-tight text-tr-on-secondary text-center drop-shadow-lg">
-                      {randomText || "• • • • • • • • • • • •"}
-                    </div>
+                    <h2 className="font-display font-black text-4xl sm:text-7xl lg:text-8xl uppercase tracking-tight text-tr-primary leading-none break-words text-center">
+                      {p?.fullname ?? "Winner"}
+                    </h2>
+
+                    {p?.region && (
+                      <div className="mt-5 rounded-full bg-tr-primary-container/10 border border-tr-primary-container/20 px-5 py-2 text-sm font-bold uppercase text-tr-primary">
+                        {p.region.region}
+                      </div>
+                    )}
+                  </Fragment>
+                ))
+              ) : (
+                <div className="mb-8">
+                  <p className="text-xs font-bold uppercase tracking-[0.3em] text-tr-on-secondary/60 text-center mb-5">
+                    The moment of truth...
+                  </p>
+
+                  <div className="font-mono font-black text-4xl sm:text-6xl lg:text-8xl tracking-tight text-tr-on-secondary text-center drop-shadow-lg">
+                    {randomText || "• • • • • • • • • • • •"}
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
