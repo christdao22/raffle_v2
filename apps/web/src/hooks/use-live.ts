@@ -84,7 +84,7 @@ export function useSetDisplayWinners() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to update display type");
+        throw new Error("Failed to update display winners");
       }
 
       return res.json();
@@ -107,6 +107,25 @@ export function useSetDisplayCountdown() {
       }
 
       return res.json();
+    },
+  });
+}
+
+export function useSetCloseModal() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await api.live["modal-closed"].$post();
+
+      if (!res.ok) {
+        throw new Error("Failed to broadcast modal closed event");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: liveKeys.all });
     },
   });
 }

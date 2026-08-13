@@ -7,7 +7,6 @@ import type { Person } from "../Custom/DrawResultModal";
 export interface WinnerModalProps {
   isOpen?: boolean;
   isDrawing?: boolean;
-  drawDuration?: number;
   countdownRemaining?: number | null;
   onClose?: () => void;
   onClaim?: () => void;
@@ -23,7 +22,6 @@ export interface WinnerModalProps {
 export function WinnerModal({
   isOpen = false,
   isDrawing = false,
-  drawDuration = 5000,
   countdownRemaining = null,
   onClose,
   persons = [],

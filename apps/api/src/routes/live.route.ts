@@ -139,6 +139,25 @@ export const displayCountdown = createRoute({
   },
 });
 
+export const closeModalRoute = createRoute({
+  method: "post",
+  path: "/modal-closed",
+  tags: ["Live"],
+  summary: "Broadcast modal closed event to LiveDraw",
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+          }),
+        },
+      },
+      description: "Modal closed event broadcasted to LiveDraw",
+    },
+  },
+});
+
 const routes = app
   .openapi(displaySelection, async (c) => {
     const { type } = c.req.valid("json");
@@ -160,6 +179,10 @@ const routes = app
     const { persons, drawDuration } = c.req.valid("json");
     broadcastEvent("WINNERS", { persons, drawDuration });
     return c.json({ success: true, persons, drawDuration }, 200);
+  })
+  .openapi(closeModalRoute, async (c) => {
+    broadcastEvent("MODAL_CLOSED", true);
+    return c.json({ success: true }, 200);
   });
 
 export default routes;

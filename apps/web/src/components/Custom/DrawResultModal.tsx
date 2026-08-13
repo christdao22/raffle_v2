@@ -1,7 +1,11 @@
 import type { Prize } from "@raffle_v2/shared";
 import { Dice5, RefreshCw, Save, Trash2, Trophy, User, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSetDisplayCountdown, useSetDisplayWinners } from "../../hooks/use-live";
+import {
+  useSetCloseModal,
+  useSetDisplayCountdown,
+  useSetDisplayWinners,
+} from "../../hooks/use-live";
 import { useDrawCandidates, useSaveWinnersMutation } from "../../hooks/use-winners";
 
 export interface Region {
@@ -63,6 +67,7 @@ export default function DrawResultModal({
   const saveWinnersMutation = useSaveWinnersMutation();
   const displayWinners = useSetDisplayWinners();
   const displayCountdown = useSetDisplayCountdown();
+  const closeLiveWinner = useSetCloseModal();
 
   const candidates = useMemo(() => {
     const rawCandidates = data ?? [];
@@ -115,6 +120,7 @@ export default function DrawResultModal({
 
   const handleClose = () => {
     displayWinners.mutate({ persons: [], drawDuration }); // clear live display
+    closeLiveWinner.mutate();
     onClose();
   };
 
