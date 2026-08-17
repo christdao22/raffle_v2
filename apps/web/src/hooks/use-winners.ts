@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Winner } from "@raffle_v2/shared";
 import { api } from "../lib/api-client";
 import { prizeKeys } from "./use-prizes";
 import { regionKeys } from "./use-regions";
@@ -19,6 +20,24 @@ interface UseWinnersParams {
   page?: number;
   pageSize?: number;
   search?: string;
+}
+
+/** The list endpoint adds aggregate distribution counts to the shared pagination metadata. */
+interface WinnersResponse {
+  data: Winner[];
+  meta: {
+    pagination: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    };
+    stats: {
+      receivedCount: number;
+      pendingCount: number;
+      totalPrizes: number;
+    };
+  };
 }
 
 export const winnerKeys = {
@@ -50,7 +69,7 @@ export function useWinners(params: UseWinnersParams = {}) {
         throw new Error("Failed to load winners");
       }
 
-      return res.json();
+      return (await res.json()) as unknown as WinnersResponse;
     },
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,

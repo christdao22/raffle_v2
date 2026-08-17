@@ -1,52 +1,23 @@
+import type { Winner } from "@raffle_v2/shared";
 import { Button, cn } from "@raffle_v2/ui";
 import {
+  Check,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  CheckCircle2,
   Clock,
   Search,
+  TrendingUp,
   Trophy,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import Layout from "../components/layout";
-import { useDebouncedValue } from "../hooks/use-debounced-value";
-import { useClaimWinnerMutation, useWinners } from "../hooks/use-winners";
-import type { Winner } from "@raffle_v2/shared";
-import { useModal } from "../hooks/use-modal";
 import ConfirmationModal from "../components/Custom/ConfirmationModal";
-
-// --- Extracted Sub-Components for Performance & Cleanliness ---
-
-function LoadingSkeleton({ rows = 5 }: { rows?: number }) {
-  return (
-    <>
-      {Array.from({ length: rows }).map((_, idx) => (
-        <tr
-          key={idx}
-          className="animate-pulse border-b border-tr-outline-variant/10"
-        >
-          <td className="px-5 py-4">
-            <div className="h-4 w-36 rounded bg-tr-surface-container-high/60" />
-            <div className="mt-2 h-3 w-20 rounded bg-tr-surface-container-high/40" />
-          </td>
-          <td className="px-5 py-4">
-            <div className="h-4 w-28 rounded bg-tr-surface-container-high/60" />
-            <div className="mt-2 h-3 w-24 rounded bg-tr-surface-container-high/40" />
-          </td>
-          <td className="px-5 py-4">
-            <div className="h-4 w-16 rounded bg-tr-surface-container-high/60" />
-          </td>
-          <td className="px-5 py-4 text-center">
-            <div className="mx-auto h-6 w-20 rounded-full bg-tr-surface-container-high/50" />
-          </td>
-          <td className="px-5 py-4 text-right">
-            <div className="ml-auto h-8 w-20 rounded-lg bg-tr-surface-container-high/60" />
-          </td>
-        </tr>
-      ))}
-    </>
-  );
-}
+import { StatCard } from "../components/Custom/StatCard";
+import Layout from "../components/layout";
+import { TableSkeleton } from "../components/Skeleton/TableSkeleton";
+import { useDebouncedValue } from "../hooks/use-debounced-value";
+import { useModal } from "../hooks/use-modal";
+import { useClaimWinnerMutation, useWinners } from "../hooks/use-winners";
 
 function EmptyWinner({ hasSearch }: { hasSearch: boolean }) {
   return (
@@ -55,9 +26,7 @@ function EmptyWinner({ hasSearch }: { hasSearch: boolean }) {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-tr-surface-container-high/50">
           <Trophy className="h-7 w-7 text-tr-on-surface-variant/60" />
         </div>
-        <p className="mt-4 font-display font-bold text-base text-tr-on-surface">
-          No winners found
-        </p>
+        <p className="mt-4 font-display font-bold text-base text-tr-on-surface">No winners found</p>
         <p className="mt-1 text-xs text-tr-on-surface-variant">
           {hasSearch
             ? "No results match your search parameters. Try a different query."
@@ -99,8 +68,7 @@ function WinnerRow({
           </p>
           {winner.prize?.sponsor && (
             <p className="mt-0.5 text-[11px] text-tr-on-surface-variant">
-              Sponsored by{" "}
-              <span className="font-semibold">{winner.prize.sponsor}</span>
+              Sponsored by <span className="font-semibold">{winner.prize.sponsor}</span>
             </p>
           )}
         </div>
@@ -137,7 +105,7 @@ function WinnerRow({
             "rounded-lg px-4 py-2 w-full max-w-[100px] text-xs font-black uppercase tracking-wider transition-all shadow-xs",
             winner.isReceived
               ? "cursor-not-allowed bg-tr-surface-container-high text-tr-on-surface-variant/60 shadow-none opacity-80"
-              : "bg-tr-secondary text-tr-on-primary hover:bg-tr-secondary/90 hover:shadow-md active:scale-95"
+              : "bg-tr-secondary text-tr-on-primary hover:bg-tr-secondary/90 hover:shadow-md active:scale-95",
           )}
         >
           {winner.isReceived ? "Claimed" : "Claim"}
@@ -146,8 +114,6 @@ function WinnerRow({
     </tr>
   );
 }
-
-// --- Main Page Component ---
 
 export function Winners() {
   const [pagination, setPagination] = useState({
@@ -159,7 +125,7 @@ export function Winners() {
 
   useEffect(() => {
     setPagination((prev) => (prev.page === 1 ? prev : { ...prev, page: 1 }));
-  }, [search]);
+  }, []);
 
   const { data: winners, isLoading: isWinnerLoading } = useWinners({
     ...pagination,
@@ -172,6 +138,9 @@ export function Winners() {
   const totalPages = winners?.meta.pagination.totalPages ?? 1;
   const currentPage = winners?.meta.pagination.page ?? pagination.page;
   const total = winners?.meta.pagination.total ?? 0;
+  const receivedCount = winners?.meta?.stats?.receivedCount ?? 0;
+  const pendingCount = winners?.meta?.stats?.pendingCount ?? 0;
+  const receivedPercent = total > 0 ? Math.round((receivedCount / total) * 100) : 0;
 
   const handleClaimPrize = (id: string) => {
     claimConfirmation.openModal({
@@ -193,9 +162,28 @@ export function Winners() {
   };
 
   return (
-    <Layout pageTitle="Raffle Control & Prize Selector">
-      <div className="w-full rounded-2xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest shadow-sm font-sans overflow-hidden">
-        
+    <Layout pageTitle="Raffle Winners">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <StatCard
+          title="Total Winners"
+          value={receivedPercent}
+          icon={TrendingUp}
+          variant="secondary"
+        />
+        <StatCard
+          title="Successfully Distributed"
+          icon={Check}
+          value={receivedCount}
+          variant="primary"
+        />
+        <StatCard
+          title="Awaiting Distribution"
+          icon={Clock}
+          value={pendingCount}
+          variant="tertiary"
+        />
+      </div>
+      <div className="w-full p-4 rounded-2xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest shadow-sm font-sans overflow-hidden">
         {/* Header Section */}
         <div className="flex flex-col gap-4 border-b border-tr-outline-variant/20 p-5 sm:flex-row sm:items-center sm:justify-between bg-tr-surface-container-lowest">
           <div className="flex items-start gap-3">
@@ -250,7 +238,7 @@ export function Winners() {
 
             <tbody className="divide-y divide-tr-outline-variant/10">
               {isWinnerLoading ? (
-                <LoadingSkeleton rows={pagination.pageSize} />
+                <TableSkeleton rows={pagination.pageSize} />
               ) : winners && winners.data.length > 0 ? (
                 winners.data.map((winner) => (
                   <WinnerRow
@@ -290,7 +278,7 @@ export function Winners() {
                 "flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all border border-tr-outline-variant/30",
                 currentPage <= 1
                   ? "cursor-not-allowed bg-tr-surface-container-high/50 text-tr-on-surface-variant/40 border-transparent"
-                  : "bg-tr-surface-container-lowest text-tr-on-surface hover:bg-tr-surface-container-low active:scale-95 shadow-xs"
+                  : "bg-tr-surface-container-lowest text-tr-on-surface hover:bg-tr-surface-container-low active:scale-95 shadow-xs",
               )}
             >
               <ChevronLeft className="h-3.5 w-3.5" />
@@ -304,7 +292,7 @@ export function Winners() {
                 "flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all border border-tr-outline-variant/30",
                 currentPage >= totalPages
                   ? "cursor-not-allowed bg-tr-surface-container-high/50 text-tr-on-surface-variant/40 border-transparent"
-                  : "bg-tr-surface-container-lowest text-tr-on-surface hover:bg-tr-surface-container-low active:scale-95 shadow-xs"
+                  : "bg-tr-surface-container-lowest text-tr-on-surface hover:bg-tr-surface-container-low active:scale-95 shadow-xs",
               )}
             >
               Next

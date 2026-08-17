@@ -71,6 +71,14 @@ export const getDrawRoute = createRoute({
   },
 });
 
+const winnerListResponseSchema = paginatedResponseSchema(winnerSchema, {
+  stats: z.object({
+    receivedCount: z.number().int(),
+    pendingCount: z.number().int(),
+    totalPrizes: z.number().int(),
+  }),
+});
+
 // POST /winners/draw route definition
 export const saveDrawRoute = createRoute({
   method: "post",
@@ -122,7 +130,7 @@ export const listWinnersRoute = createRoute({
   summary: "Get all winners",
   responses: {
     200: {
-      content: { "application/json": { schema: paginatedResponseSchema(winnerSchema) } },
+      content: { "application/json": { schema: winnerListResponseSchema } },
       description: "Successfully retrieved list of winners",
     },
   },

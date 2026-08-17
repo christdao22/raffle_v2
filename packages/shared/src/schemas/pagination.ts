@@ -12,7 +12,7 @@ export const paginationQuerySchema = z.object({
  * across controllers, and it's what the frontend's hc<AppType>() client
  * infers its response type from.
  */
-export function paginatedResponseSchema<T extends z.ZodTypeAny>(itemSchema: T) {
+export function paginatedResponseSchema<T extends z.ZodTypeAny, M extends z.ZodRawShape = {}>(itemSchema: T, extraMeta?: M,) {
   return z.object({
     data: z.array(itemSchema),
     meta: z.object({
@@ -22,6 +22,7 @@ export function paginatedResponseSchema<T extends z.ZodTypeAny>(itemSchema: T) {
         total: z.number().int(),
         totalPages: z.number().int(),
       }),
+      ...(extraMeta ?? {}),
     }),
   });
 }

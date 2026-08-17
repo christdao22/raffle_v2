@@ -58,7 +58,29 @@ export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> =
     },
   });
 
-  return c.json(result, 200);
+  const [receivedCounts] = await db
+    .select({
+      receivedCount: sql<number>`count(*) filter (where ${winners.isReceived} = true)`,
+      pendingCount: sql<number>`count(*) filter (where ${winners.isReceived} = false)`,
+    })
+    .from(winners);
+
+
+  const [totalPrizesResult] = await db
+    .select({ totalPrizes: sql<number>`count(*)` })
+    .from(prizes);
+
+  return c.json({
+    ...result,
+    meta: {
+      ...result.meta,
+      stats:{
+        receivedCount: receivedCounts?.receivedCount ?? 0,
+        pendingCount: receivedCounts?.pendingCount ?? 0,
+        totalPrizes: totalPrizesResult?.totalPrizes ?? 0,
+      }
+    },
+  }, 200);
 };
 
 
