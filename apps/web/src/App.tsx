@@ -7,6 +7,7 @@ import { Dashboard } from "./pages/dashboard";
 import { LiveDraw } from "./pages/livedraw";
 import { Login } from "./pages/login";
 import { Register } from "./pages/register";
+import { Winners } from "./pages/winners";
 
 export default function App() {
   const ComingSoon = () => (
@@ -28,7 +29,7 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/prizes" element={<ComingSoon />} />
-        <Route path="/winners" element={<ComingSoon />} />
+        <Route path="/winners" element={<Winners />} />
         <Route path="/history" element={<ComingSoon />} />
         <Route path="/settings" element={<ComingSoon />} />
 
