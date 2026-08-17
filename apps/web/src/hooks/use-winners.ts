@@ -1,5 +1,5 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Winner } from "@raffle_v2/shared";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api-client";
 import { prizeKeys } from "./use-prizes";
 import { regionKeys } from "./use-regions";
@@ -47,7 +47,6 @@ export const winnerKeys = {
   lists: () => [...winnerKeys.all, "list"] as const,
   list: (params: UseWinnersParams) => [...winnerKeys.lists(), params] as const,
 };
-
 
 export function useWinners(params: UseWinnersParams = {}) {
   const page = params.page ?? 1;
