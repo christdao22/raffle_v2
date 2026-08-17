@@ -36,8 +36,8 @@ export default function CollapsibleSidebar() {
     { name: "DASHBOARD", icon: LayoutGrid, path: "/dashboard" },
     { name: "PRIZES", icon: Gift, path: "/prizes" },
     { name: "WINNERS", icon: Trophy, path: "/winners" },
-    { name: "HISTORY", icon: History, path: "/history" },
-    { name: "SETTINGS", icon: Settings, path: "/settings" },
+    // { name: "HISTORY", icon: History, path: "/history" },
+    // { name: "SETTINGS", icon: Settings, path: "/settings" },
   ];
 
   const handleLogout = async () => {
