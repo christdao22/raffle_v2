@@ -7,62 +7,83 @@ export interface PrizeCardProps {
   count?: number;
 }
 
-export function PrizeCard({ currentPrize, className, count }: PrizeCardProps) {
+export function PrizeCard({ currentPrize, className, count = 1 }: PrizeCardProps) {
   return (
-    <div className={cn("prize-rotating-border h-full ", className)}>
-      <div className="relative overflow-hidden rounded-[calc(1rem-3px)] bg-tr-surface-container-lowest h-full flex justify-between">
-        {/* Badge */}
-        <div className="absolute top-5 left-5 z-20">
-          <div className="inline-flex items-center rounded-full border border-tr-primary-container bg-tr-surface px-4 py-1.5 shadow-sm">
-            <span className="font-display text-sm font-bold uppercase tracking-wide text-tr-secondary">
-              {currentPrize?.prize}
-            </span>
-          </div>
+    <div className={cn("prize-rotating-border h-full w-full", className)}>
+      <div className="relative flex h-full w-full justify-between overflow-hidden rounded-[calc(1rem-3px)] bg-tr-surface-container-lowest">
+        {/* Top Floating Stage Badges */}
+        <div className="absolute top-5 left-5 right-5 z-20 flex items-center justify-between gap-4">
+          {/* Prize Type */}
+          {currentPrize?.type ? (
+            <div className="inline-flex items-center gap-2 rounded-full border border-tr-primary-container/40 bg-tr-surface/80 px-4 py-1.5 backdrop-blur-md shadow-sm">
+              <span className="h-2.5 w-2.5 rounded-full bg-tr-primary animate-pulse" />
+              <span className="font-display text-xs font-extrabold uppercase tracking-widest text-tr-secondary sm:text-sm">
+                {currentPrize.type} Prize
+              </span>
+            </div>
+          ) : (
+            <div />
+          )}
         </div>
 
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-[1fr_1.15fr] w-full items-center gap-6 p-8 pt-18">
-          {/* Prize details */}
-          <div className="space-y-5">
+        {/* Main Stage Grid */}
+        <div className="relative z-10 grid w-full grid-cols-1 items-center gap-8 p-6 pt-20 lg:grid-cols-[1.15fr_1fr] lg:p-8 lg:pt-24">
+          {/* Left Column: Stage Text */}
+          <div className="flex flex-col justify-center space-y-5">
             <div className="space-y-2">
-              <h1 className="font-display text-8xl font-black uppercase leading-[0.95] tracking-tighter text-tr-secondary">
-                {count}
-              </h1>
-              <p className="font-display text-2xl font-extrabold uppercase tracking-[0.18em] text-tr-primary">
-                {currentPrize?.prize}
-              </p>
-
-              <h2 className="font-display text-8xl font-black uppercase leading-[0.95] tracking-tighter text-tr-secondary">
-                {currentPrize?.prize}
+              {/* Winner Count Callout */}
+              <div className="inline-flex items-center gap-2 rounded-full border border-tr-primary-container/40 bg-tr-surface-container/80 px-5 py-1.5 backdrop-blur-md shadow-sm">
+                <span className="font-display text-xl font-black text-tr-primary leading-none sm:text-2xl">
+                  {count}
+                </span>
+                <span className="font-sans text-xs font-extrabold uppercase tracking-wider text-tr-secondary">
+                  {count === 1 ? "Winner" : "Winners"}
+                </span>
+              </div>
+              {/* Balanced Title Scale */}
+              <h2 className="font-display text-3xl font-black uppercase leading-[0.92] tracking-tight text-tr-secondary sm:text-5xl md:text-6xl lg:text-7xl break-words">
+                {currentPrize?.prize ?? "Select a Prize"}
               </h2>
             </div>
 
-            <div className="h-1 w-28 rounded-full bg-tr-primary-container" />
+            <div className="h-1.5 w-28 rounded-full bg-gradient-to-r from-tr-primary via-tr-primary-container to-transparent" />
 
-            {/* Sponsor */}
-            <div className="pt-3">
-              <p className="font-sans text-sm font-bold uppercase tracking-[0.16em] text-tr-primary">
-                Sponsored by
-              </p>
-
-              <p className="font-display text-2xl font-black text-tr-secondary">
-                {currentPrize?.sponsor}
-              </p>
-            </div>
+            {/* Sponsor Callout */}
+            {currentPrize?.sponsor && (
+              <div className="inline-flex max-w-max flex-col rounded-xl border border-tr-primary-container/30 bg-tr-surface-container/50 p-4 backdrop-blur-md">
+                <span className="font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-tr-primary/90 sm:text-xs">
+                  Sponsored By
+                </span>
+                <span className="font-display text-base font-black text-tr-secondary sm:text-xl lg:text-2xl mt-0.5">
+                  {currentPrize.sponsor}
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* Product showcase */}
-          <div className="relative flex min-h-70 items-center justify-center">
-            {/* Glow */}
-            <div className="absolute h-56 w-56 rounded-full bg-primary-container/20 blur-3xl" />
+          {/* Right Column: Display Stage Showcase */}
+          <div className="relative flex min-h-[260px] items-center justify-center lg:min-h-[360px]">
+            {/* Stage Ambient Glow */}
+            <div className="absolute h-56 w-56 rounded-full bg-tr-primary/25 blur-3xl lg:h-72 lg:w-72" />
+            <div className="absolute h-40 w-40 rounded-full bg-tr-primary-container/30 blur-2xl lg:h-52 lg:w-52" />
 
-            {/* Pedestal */}
-            <div className="absolute bottom-8 h-20 w-[80%] rounded-[50%] bg-tr-surface-container shadow-inner" />
+            {/* Pedestal Platform */}
+            <div className="absolute bottom-2 h-14 w-[80%] rounded-[50%] bg-gradient-to-t from-tr-surface-container-high to-tr-surface-container/20 shadow-xl backdrop-blur-md border border-white/10" />
 
-            <img
-              src={currentPrize?.imageUrl ?? ""}
-              alt={currentPrize?.prize}
-              className=" relative z-10 max-h-80 max-w-full object-contain drop-shadow-2xl prize-float transition-transform duration-300 hover:scale-105 "
-            />
+            {/* Stage Product Image */}
+            {currentPrize?.imageUrl ? (
+              <img
+                src={currentPrize.imageUrl}
+                alt={currentPrize.prize}
+                className="prize-float relative z-10 max-h-56 max-w-full object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)] transition-transform duration-500 hover:scale-105 sm:max-h-72 lg:max-h-88"
+              />
+            ) : (
+              <div className="relative z-10 flex h-48 w-48 items-center justify-center rounded-2xl border border-dashed border-tr-primary-container/40 bg-tr-surface/30">
+                <span className="font-sans text-xs font-bold uppercase tracking-wider text-tr-secondary/50">
+                  No Image Available
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

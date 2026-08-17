@@ -7,6 +7,7 @@ export const prizeSchema = z.object({
   sponsor: z.string().min(1, "Sponsor name is required").nullable().optional(),
   sponsorImage: z.string().url("Invalid sponsor image URL").nullable().optional(),
   numberOfWinners: z.number().int().min(1, "Quantity must be at least 1"),
+  type: z.string().min(1, "Prize name is required").nullable().optional(),
 });
 
 export type Prize = z.infer<typeof prizeSchema>;

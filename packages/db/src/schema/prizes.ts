@@ -9,6 +9,7 @@ export const prizes = pgTable("prizes", {
   sponsor: text("sponsor"),
   sponsorImage: text("sponsor_image"),
   numberOfWinners: integer("number_of_winners").default(1).notNull(),
+  type: text("type"),
 });
 
 export const prizesRelations = relations(prizes, ({ many }) => ({
