@@ -1,5 +1,6 @@
 import type { Prize } from "@raffle_v2/shared";
 import { Button, Card, cn } from "@raffle_v2/ui";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Award,
   Check,
@@ -11,7 +12,10 @@ import {
   Search,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSetRegions } from "../../hooks/use-live";
+import { useLiveSocket } from "../../hooks/use-live-socket";
+import { useSelectPrizeMutation } from "../../hooks/use-prizes";
 
 export interface RegionPersonCounter {
   id: string;
@@ -36,7 +40,7 @@ export interface PrizeSelectorCardProps {
   searchInput: string;
   onSearchInput: (val: string) => void;
   selectedPrizeId?: string;
-  onSelectPrize?: (value: Prize) => void;
+  onSelectPrize?: (value: string) => void;
   selectedRegion?: string[];
   onSelectRegion?: (regionIds: string[]) => void;
   includeGlobalPool?: boolean;
@@ -44,6 +48,8 @@ export interface PrizeSelectorCardProps {
   handlePageChange: (newPage: number, totalPages: number) => void;
   className?: string;
 }
+
+const apiHost = (import.meta.env.VITE_API_URL ?? "localhost:3000").replace(/^https?:\/\//, "");
 
 export function PrizeSelectorCard({
   regions,
@@ -59,19 +65,46 @@ export function PrizeSelectorCard({
   handlePageChange,
   className,
 }: PrizeSelectorCardProps) {
-  // Store string ID locally to match externalSelectedPrizeId
   const [internalPrizeId, setInternalPrizeId] = useState<string>("");
   const [internalRegion, setInternalRegion] = useState<string[]>([]);
   const [internalGlobalPool, setInternalGlobalPool] = useState<boolean>(true);
   const isToogle = false;
 
+  const queryClient = useQueryClient();
+
+  const handlePrizeSelected = useCallback(
+    (prizeId: string) => {
+      queryClient.invalidateQueries({ queryKey: ["prizes", "detail", prizeId] });
+    },
+    [queryClient],
+  );
+
+  const { state } = useLiveSocket(apiHost, handlePrizeSelected);
+  const { selectedPrizeId: statePrize, selectedRegionIds } = state;
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: get websockets state
+  useEffect(() => {
+    if (statePrize !== null) {
+      setInternalPrizeId(statePrize);
+      onSelectPrize?.(statePrize);
+    }
+    if (selectedRegionIds && selectedRegionIds.length > 0) {
+      setInternalRegion(selectedRegionIds);
+      onSelectRegion?.(selectedRegionIds);
+    }
+  }, [statePrize, selectedRegionIds]);
+
   const selectedPrizeId = externalSelectedPrizeId ?? internalPrizeId;
   const selectedRegion = externalSelectedRegion ?? internalRegion;
   const includeGlobalPool = externalIncludeGlobalPool ?? internalGlobalPool;
 
-  const handlePrizeClick = (value: Prize) => {
-    setInternalPrizeId(value.id);
+  const selectPrize = useSelectPrizeMutation();
+  const selectRegions = useSetRegions();
+
+  const handlePrizeClick = (value: string) => {
+    setInternalPrizeId(value);
     onSelectPrize?.(value);
+    selectPrize.mutate(value);
   };
 
   const handleRegionClick = (regionId: string) => {
@@ -81,6 +114,7 @@ export function PrizeSelectorCard({
 
     setInternalRegion(nextSelected);
     onSelectRegion?.(nextSelected);
+    selectRegions.mutate(nextSelected);
   };
 
   const handleGlobalToggle = () => {
@@ -139,7 +173,6 @@ export function PrizeSelectorCard({
                     : "bg-surface-container-low text-on-surface-variant border border-outline-variant/15 hover:bg-surface-container-high hover:text-on-surface hover:border-outline-variant/30",
                 )}
               >
-                {/* Custom Hover Tooltip */}
                 <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 pointer-events-none hidden group-hover:flex flex-col items-center z-20 transition-all opacity-0 group-hover:opacity-100">
                   <span className="bg-surface-container-highest text-on-surface text-[11px] font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap border border-outline-variant/20">
                     {region.regionName}
@@ -147,7 +180,6 @@ export function PrizeSelectorCard({
                   <span className="w-2 h-2 -mt-1 rotate-45 bg-surface-container-highest border-r border-b border-outline-variant/20" />
                 </span>
 
-                {/* Status Indicator Dot */}
                 <span
                   className={cn(
                     "w-2 h-2 rounded-full transition-all duration-200 shrink-0",
@@ -157,10 +189,8 @@ export function PrizeSelectorCard({
                   )}
                 />
 
-                {/* Region Name */}
                 <span className="font-semibold tracking-wide">{region.region}</span>
 
-                {/* Counter Badge */}
                 <span
                   className={cn(
                     "ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold leading-none transition-colors shrink-0",
@@ -190,7 +220,7 @@ export function PrizeSelectorCard({
             <button
               key={prize.id}
               type="button"
-              onClick={() => handlePrizeClick(prize)}
+              onClick={() => handlePrizeClick(prize.id)}
               className={cn(
                 "relative border border-slate-800/80 flex items-center gap-2.5 p-2 rounded-md text-left transition-all cursor-pointer select-none h-14",
                 "bg-surface-container-low/80 hover:bg-surface-container-high/60",

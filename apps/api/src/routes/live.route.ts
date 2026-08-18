@@ -189,6 +189,37 @@ export const winnerCountRoute = createRoute({
   },
 });
 
+export const displayRegion = createRoute({
+  method: "post",
+  path: "/region",
+  tags: ["Live"],
+  summary: "/region",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            regions: z.array(z.string()),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            regions: z.array(z.string()),
+          }),
+        },
+      },
+      description: "Region selection broadcasted to LiveDraw",
+    },
+  },
+});
+
 const routes = app
   .openapi(displaySelection, async (c) => {
     const { type } = c.req.valid("json");
@@ -219,6 +250,11 @@ const routes = app
     const { count } = c.req.valid("json");
     broadcastEvent("WINNER_COUNT", { count });
     return c.json({ success: true, count }, 200);
+  })
+  .openapi(displayRegion, async (c) => {
+    const { regions } = c.req.valid("json");
+    broadcastEvent("REGIONS_SELECTED", regions);
+    return c.json({ success: true, regions }, 200);
   });
 
 export default routes;

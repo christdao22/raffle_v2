@@ -1,14 +1,35 @@
 import { cn } from "@raffle_v2/ui";
+import { useQueryClient } from "@tanstack/react-query";
 import { Award, Eye, Monitor, Radio, Tv } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSetDisplayTypeMutation } from "../../hooks/use-live";
+import { useLiveSocket } from "../../hooks/use-live-socket";
 
 export type DisplayType = "standby" | "live" | "unclaimed" | "live-unclaimed";
+
+const apiHost = (import.meta.env.VITE_API_URL ?? "localhost:3000").replace(/^https?:\/\//, "");
+
 export default function LiveScreenDisplayMode() {
+  //Hooks
+  const queryClient = useQueryClient();
+
+  const handlePrizeSelected = useCallback(
+    (prizeId: string) => {
+      queryClient.invalidateQueries({ queryKey: ["prizes", "detail", prizeId] });
+    },
+    [queryClient],
+  );
+
+  const { state } = useLiveSocket(apiHost, handlePrizeSelected);
+  const { displayType: displayState } = state;
+
   // Track active display mode
   const [displayType, setDisplayType] = useState<DisplayType>("standby");
 
-  //
+  useEffect(() => {
+    setDisplayType(displayState);
+  }, [displayState]);
+
   const display = useSetDisplayTypeMutation();
 
   // Display Type Action Handlers

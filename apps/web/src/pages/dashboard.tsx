@@ -1,13 +1,12 @@
 import type { Prize } from "@raffle_v2/shared";
 import { Card, cn } from "@raffle_v2/ui";
-import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import LiveScreenDisplayMode from "../components/Custom/LiveScreenDisplayMode";
 import { PrizeSelectorCard } from "../components/Custom/PrizeSelectorCard";
 import RaffleConfigCard from "../components/Custom/RaffleConfig";
 import Layout from "../components/layout";
 import { useDebouncedValue } from "../hooks/use-debounced-value";
-import { usePrizes, useSelectPrizeMutation } from "../hooks/use-prizes";
+import { usePrizes } from "../hooks/use-prizes";
 import { useRegions } from "../hooks/use-regions";
 
 export function Dashboard() {
@@ -56,11 +55,8 @@ export function Dashboard() {
     }));
   };
 
-  const selectPrize = useSelectPrizeMutation();
-
-  const handlePrize = (value: Prize) => {
-    setSelectedPrizeId(value.id);
-    selectPrize.mutate(value.id);
+  const handlePrize = (value: string) => {
+    setSelectedPrizeId(value);
   };
 
   const handleRegion = (value: string[]) => {

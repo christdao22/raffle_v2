@@ -150,3 +150,24 @@ export function useSetWinnerCount() {
     },
   });
 }
+
+export function useSetRegions() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (regions: string[]) => {
+      const res = await api.live.region.$post({
+        json: { regions },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update display type");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: liveKeys.all });
+    },
+  });
+}

@@ -117,6 +117,8 @@ export function LiveDraw() {
               persons={persons}
               isOpen={isWinnerModalOpen}
               onClose={closeWinnerModal}
+              prizeTitle={currentPrize?.prize}
+              sponsoredBy={currentPrize?.sponsor ?? ""}
             />
           ) : (
             <WinnerModal

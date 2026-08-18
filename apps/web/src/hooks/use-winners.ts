@@ -1,6 +1,7 @@
 import type { Winner } from "@raffle_v2/shared";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api-client";
+import { useSetDisplayTypeMutation } from "./use-live";
 import { prizeKeys } from "./use-prizes";
 import { regionKeys } from "./use-regions";
 
@@ -133,6 +134,7 @@ export function useDrawCandidates(params: UseDrawCandidatesParams = {}) {
 
 export function useSaveWinnersMutation() {
   const queryClient = useQueryClient();
+  const display = useSetDisplayTypeMutation();
 
   return useMutation({
     mutationFn: async (payload: SaveWinnersPayload) => {
@@ -150,6 +152,7 @@ export function useSaveWinnersMutation() {
       queryClient.invalidateQueries({ queryKey: winnerKeys.all });
       queryClient.invalidateQueries({ queryKey: prizeKeys.all });
       queryClient.invalidateQueries({ queryKey: regionKeys.all });
+      display.mutate("standby");
     },
   });
 }
