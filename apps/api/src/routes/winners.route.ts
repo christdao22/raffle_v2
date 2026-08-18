@@ -1,7 +1,16 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { and, db, eq, inArray, notInArray, persons, regions, sql, winners } from "@raffle_v2/db";
-import { paginatedResponseSchema, paginationQuerySchema, regionSchema, winnerSchema } from "@raffle_v2/shared";
-import { claimWinnerHandler, listWinnersHandler } from "../controller/winner.controller";
+import {
+  paginatedResponseSchema,
+  paginationQuerySchema,
+  regionSchema,
+  winnerSchema,
+} from "@raffle_v2/shared";
+import {
+  claimWinnerHandler,
+  listUnclaimedWinnersHandler,
+  listWinnersHandler,
+} from "../controller/winner.controller";
 import type { AppEnv } from "../lib/context";
 import { requireAuth } from "../middleware/auth";
 
@@ -121,7 +130,6 @@ export const saveDrawRoute = createRoute({
   },
 });
 
-
 export const listWinnersRoute = createRoute({
   method: "get",
   path: "/",
@@ -131,6 +139,20 @@ export const listWinnersRoute = createRoute({
   responses: {
     200: {
       content: { "application/json": { schema: winnerListResponseSchema } },
+      description: "Successfully retrieved list of winners",
+    },
+  },
+});
+
+export const listUnclaimedWinnersRoute = createRoute({
+  method: "get",
+  path: "/unclaimed",
+  tags: ["Winners"],
+  request: { query: listWinnersQuerySchema },
+  summary: "Get all winners",
+  responses: {
+    200: {
+      content: { "application/json": { schema: paginatedResponseSchema(winnerSchema) } },
       description: "Successfully retrieved list of winners",
     },
   },
@@ -244,6 +266,7 @@ const winnersRoute = app
     return c.json({ success: true, count: inserted.length }, 200);
   })
   .openapi(listWinnersRoute, listWinnersHandler)
+  .openapi(listUnclaimedWinnersRoute, listUnclaimedWinnersHandler)
   .openapi(claimWinnerRoute, claimWinnerHandler);
 
 export default winnersRoute;

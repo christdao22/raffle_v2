@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { User } from "lucide-react";
 import { useCallback } from "react";
 import { PrizeCard } from "../components/Custom/PrizeCard";
+import { RecentWinnersCard } from "../components/Custom/RecentWinnersCard";
 import { MultipleWinnersModal } from "../components/Modals/MultipleWinnerModal";
 import { WinnerModal } from "../components/Modals/WinnerModal";
 import { useLiveSocket } from "../hooks/use-live-socket";
@@ -35,7 +36,7 @@ export function LiveDraw() {
 
   const { data: currentPrize, isLoading: isPrizeLoading } = usePrize(selectedPrizeId ?? "");
 
-  console.log(count);
+  console.log(displayType);
 
   if (isPrizeLoading) {
     return <p>Loading</p>;
@@ -89,12 +90,25 @@ export function LiveDraw() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full h-full">
-            {displayType === "standby" ? (
+            {displayType === "standby" && (
               <StandBy className="flex flex-col gap-6 lg:col-span-12 space-y-6" />
-            ) : (
+            )}
+
+            {displayType === "live" && (
               <div className="flex flex-col gap-6 lg:col-span-12 space-y-6 h-full">
                 <PrizeCard currentPrize={currentPrize} count={count} />
               </div>
+            )}
+
+            {displayType === "live-unclaimed" && (
+              <>
+                <div className="flex flex-col gap-6 lg:col-span-9 space-y-6 h-full">
+                  <PrizeCard currentPrize={currentPrize} count={count} />
+                </div>
+                <div className="flex flex-col gap-6 lg:col-span-3 space-y-6 h-full">
+                  <RecentWinnersCard />
+                </div>
+              </>
             )}
           </div>
 

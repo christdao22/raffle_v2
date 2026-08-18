@@ -75,6 +75,31 @@ export function useWinners(params: UseWinnersParams = {}) {
   });
 }
 
+export function useUnclaimedWinners(params: UseWinnersParams = {}) {
+  const page = params.page ?? 1;
+  const pageSize = params.pageSize ?? 20;
+
+  return useQuery({
+    queryKey: winnerKeys.list({ page, pageSize }),
+    queryFn: async () => {
+      const res = await api.winners.$get({
+        query: {
+          page: String(page),
+          pageSize: String(pageSize),
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to load unclaimed winners");
+      }
+
+      return (await res.json()) as unknown as WinnersResponse;
+    },
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 export function useDrawCandidates(params: UseDrawCandidatesParams = {}) {
   const { prizeId, numberOfWinners, regionId = [] } = params;
 
