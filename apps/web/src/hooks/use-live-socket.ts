@@ -5,6 +5,7 @@ import { type DisplayType, useLiveEvents } from "./use-live";
 type LiveState = {
   displayType: DisplayType;
   selectedPrizeId: string | null;
+  selectedRegionIds: string[];
   persons: Person[];
   isWinnerModalOpen: boolean;
   isDrawing: boolean;
@@ -15,16 +16,18 @@ type LiveState = {
 type LiveAction =
   | { type: "HYDRATE"; events: Record<string, { payload: unknown }> }
   | { type: "PRIZE_SELECTED"; prizeId: string }
+  | { type: "REGIONS_SELECTED"; regionIds: string[] }
   | { type: "DISPLAY_SELECTION"; display: DisplayType }
   | { type: "COUNTDOWN_START"; remaining: number }
   | { type: "COUNTDOWN_TICK" }
   | { type: "WINNERS"; persons: Person[] }
   | { type: "MODAL_CLOSED" }
-  | { type: "WINNER_COUNT"; count: number };
+  | { type: "WINNER_COUNT"; payload: { count: number } };
 
 const initialState: LiveState = {
   displayType: "standby",
   selectedPrizeId: null,
+  selectedRegionIds: [],
   persons: [],
   isWinnerModalOpen: false,
   isDrawing: false,
@@ -48,12 +51,30 @@ function reducer(state: LiveState, action: LiveAction): LiveState {
         next = { ...next, selectedPrizeId: prizeId };
       }
 
+      const winnerCount = action.events.WINNER_COUNT;
+      if (winnerCount) {
+        const { count } = winnerCount.payload as { count: number };
+        if (typeof count === "number") {
+          next = { ...next, count };
+        }
+      }
+
+      const regionsSelected = action.events.REGIONS_SELECTED;
+      if (regionsSelected) {
+        const regionIds = (regionsSelected.payload as string[]) ?? [];
+        if (Array.isArray(regionIds)) {
+          next = { ...next, selectedRegionIds: regionIds };
+        }
+      }
+
       return next;
     }
     case "PRIZE_SELECTED":
       return { ...state, selectedPrizeId: action.prizeId };
+    case "REGIONS_SELECTED":
+      return { ...state, selectedRegionIds: action.regionIds };
     case "WINNER_COUNT":
-      return { ...state, count: action.count };
+      return { ...state, count: action.payload.count };
     case "DISPLAY_SELECTION":
       return { ...state, displayType: action.display };
     case "COUNTDOWN_START":
@@ -91,13 +112,17 @@ function reducer(state: LiveState, action: LiveAction): LiveState {
   }
 }
 
-export function useLiveSocket(apiHost: string, onPrizeSelected: (prizeId: string) => void) {
+export function useLiveSocket(
+  apiHost: string,
+  onPrizeSelected?: (prizeId: string) => void,
+  onRegionsSelected?: (regionIds: string[]) => void,
+) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { data: initialEvents } = useLiveEvents();
 
   const hydratedRef = useRef(false);
 
-  // Hydrate once, as soon as the query resolves
+  // Hydrate once as soon as the initial query resolves
   useEffect(() => {
     if (initialEvents && !hydratedRef.current) {
       dispatch({ type: "HYDRATE", events: initialEvents });
@@ -109,12 +134,14 @@ export function useLiveSocket(apiHost: string, onPrizeSelected: (prizeId: string
   const lastWinnerKeyRef = useRef<string | null>(null);
   const lastCountdownKeyRef = useRef<string | null>(null);
 
-  // Keep the latest callback without re-triggering the connect effect
+  // Keep latest callbacks without re-triggering the socket connection effect
   const onPrizeSelectedRef = useRef(onPrizeSelected);
   onPrizeSelectedRef.current = onPrizeSelected;
 
+  const onRegionsSelectedRef = useRef(onRegionsSelected);
+  onRegionsSelectedRef.current = onRegionsSelected;
+
   useEffect(() => {
-    // Strip http:// or https:// if accidentally passed in apiHost
     const cleanHost = apiHost.replace(/^https?:\/\//, "");
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const socket = new WebSocket(`${protocol}//${cleanHost}/ws`);
@@ -127,7 +154,14 @@ export function useLiveSocket(apiHost: string, onPrizeSelected: (prizeId: string
           case "PRIZE_SELECTED": {
             const prizeId = data.payload.prizeId;
             dispatch({ type: "PRIZE_SELECTED", prizeId });
-            onPrizeSelectedRef.current(prizeId);
+            onPrizeSelectedRef.current?.(prizeId);
+            break;
+          }
+
+          case "REGIONS_SELECTED": {
+            const regionIds = (data.payload as string[]) ?? [];
+            dispatch({ type: "REGIONS_SELECTED", regionIds });
+            onRegionsSelectedRef.current?.(regionIds);
             break;
           }
 
@@ -137,7 +171,7 @@ export function useLiveSocket(apiHost: string, onPrizeSelected: (prizeId: string
           }
 
           case "WINNER_COUNT": {
-            dispatch({ type: "WINNER_COUNT", count: data.payload.count });
+            dispatch({ type: "WINNER_COUNT", payload: { count: data.payload.count } });
             break;
           }
 

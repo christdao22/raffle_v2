@@ -7,7 +7,7 @@ import { PrizeSelectorCard } from "../components/Custom/PrizeSelectorCard";
 import RaffleConfigCard from "../components/Custom/RaffleConfig";
 import Layout from "../components/layout";
 import { useDebouncedValue } from "../hooks/use-debounced-value";
-import { usePrizes, useSelectPrizeMutation } from "../hooks/use-prizes";
+import { usePrizes } from "../hooks/use-prizes";
 import { useRegions } from "../hooks/use-regions";
 
 export function Dashboard() {
@@ -17,7 +17,7 @@ export function Dashboard() {
   });
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
-  const { data: prizeData } = usePrizes({
+  const { data: prizeData, isLoading: loadingPrize } = usePrizes({
     ...pagination,
     search,
   });
@@ -26,7 +26,7 @@ export function Dashboard() {
   const [selectedPrizeId, setSelectedPrizeId] = useState<string>();
   const [regionId, setRegionId] = useState<string[]>();
 
-  const { data: regions } = useRegions({
+  const { data: regions, isLoading: loadingRegion } = useRegions({
     page: 1,
     pageSize: 100,
   });
@@ -56,16 +56,17 @@ export function Dashboard() {
     }));
   };
 
-  const selectPrize = useSelectPrizeMutation();
-
-  const handlePrize = (value: Prize) => {
-    setSelectedPrizeId(value.id);
-    selectPrize.mutate(value.id);
+  const handlePrize = (value: string) => {
+    setSelectedPrizeId(value);
   };
 
   const handleRegion = (value: string[]) => {
     setRegionId(value);
   };
+
+  if (loadingPrize || loadingRegion) {
+    return <p>Loading...</p>;
+  }
 
   if (!regions) {
     return (
