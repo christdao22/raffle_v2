@@ -6,6 +6,7 @@ import { RequireRole } from "./components/require-role";
 import { Dashboard } from "./pages/dashboard";
 import { LiveDraw } from "./pages/livedraw";
 import { Login } from "./pages/login";
+import { Prizes } from "./pages/prizes";
 import { Register } from "./pages/register";
 import { Winners } from "./pages/winners";
 
@@ -28,7 +29,7 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/prizes" element={<ComingSoon />} />
+        <Route path="/prizes" element={<Prizes />} />
         <Route path="/winners" element={<Winners />} />
         <Route path="/history" element={<ComingSoon />} />
         <Route path="/settings" element={<ComingSoon />} />
