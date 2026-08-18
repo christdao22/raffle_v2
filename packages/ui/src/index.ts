@@ -1,3 +1,5 @@
+export * from "./common/Datatable/datatable";
+export * from "./common/Skeleton/TableSkeleton";
 export * from "./components/badge";
 export * from "./components/button";
 export * from "./components/card";
