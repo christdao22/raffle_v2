@@ -1,6 +1,5 @@
 import type { Prize } from "@raffle_v2/shared";
 import { Card, cn } from "@raffle_v2/ui";
-import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import LiveScreenDisplayMode from "../components/Custom/LiveScreenDisplayMode";
 import { PrizeSelectorCard } from "../components/Custom/PrizeSelectorCard";
@@ -17,7 +16,7 @@ export function Dashboard() {
   });
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
-  const { data: prizeData, isLoading: loadingPrize } = usePrizes({
+  const { data: prizeData } = usePrizes({
     ...pagination,
     search,
   });
@@ -26,7 +25,7 @@ export function Dashboard() {
   const [selectedPrizeId, setSelectedPrizeId] = useState<string>();
   const [regionId, setRegionId] = useState<string[]>();
 
-  const { data: regions, isLoading: loadingRegion } = useRegions({
+  const { data: regions } = useRegions({
     page: 1,
     pageSize: 100,
   });
@@ -63,10 +62,6 @@ export function Dashboard() {
   const handleRegion = (value: string[]) => {
     setRegionId(value);
   };
-
-  if (loadingPrize || loadingRegion) {
-    return <p>Loading...</p>;
-  }
 
   return (
     <Layout pageTitle="Raffle Control & Prize Selector">
