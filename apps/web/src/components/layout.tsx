@@ -96,8 +96,8 @@ export default function Layout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-linear-to-br from-[#0d1326] to-[#12192e]">
-          <div className="w-full mx-auto h-full">{children}</div>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-linear-to-br from-[#0d1326] to-[#12192e]">
+          <div className="w-full mx-auto">{children}</div>
         </main>
       </div>
     </div>

@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Winner } from "@raffle_v2/shared";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api-client";
 import { useSetDisplayTypeMutation } from "./use-live";
 import { prizeKeys } from "./use-prizes";
@@ -16,11 +17,64 @@ interface SaveWinnersPayload {
   personIds: string[];
 }
 
+interface UseWinnersParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+}
+
+/** The list endpoint adds aggregate distribution counts to the shared pagination metadata. */
+interface WinnersResponse {
+  data: Winner[];
+  meta: {
+    pagination: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    };
+    stats: {
+      receivedCount: number;
+      pendingCount: number;
+      totalPrizes: number;
+    };
+  };
+}
+
 export const winnerKeys = {
   all: ["winners"] as const,
   draws: () => [...winnerKeys.all, "draw"] as const,
   draw: (params: UseDrawCandidatesParams) => [...winnerKeys.draws(), params] as const,
+  lists: () => [...winnerKeys.all, "list"] as const,
+  list: (params: UseWinnersParams) => [...winnerKeys.lists(), params] as const,
 };
+
+export function useWinners(params: UseWinnersParams = {}) {
+  const page = params.page ?? 1;
+  const pageSize = params.pageSize ?? 20;
+  const search = params.search;
+
+  return useQuery({
+    queryKey: winnerKeys.list({ page, pageSize, search }),
+    queryFn: async () => {
+      const res = await api.winners.$get({
+        query: {
+          page: String(page),
+          pageSize: String(pageSize),
+          ...(search ? { search } : {}),
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to load winners");
+      }
+
+      return (await res.json()) as unknown as WinnersResponse;
+    },
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60 * 5,
+  });
+}
 
 export function useDrawCandidates(params: UseDrawCandidatesParams = {}) {
   const { prizeId, numberOfWinners, regionId = [] } = params;
@@ -74,6 +128,27 @@ export function useSaveWinnersMutation() {
       queryClient.invalidateQueries({ queryKey: prizeKeys.all });
       queryClient.invalidateQueries({ queryKey: regionKeys.all });
       display.mutate("standby");
+    },
+  });
+}
+
+export function useClaimWinnerMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { winnerId: string }) => {
+      const res = await api.winners.claim.$patch({
+        json: payload,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to claim");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: winnerKeys.all });
     },
   });
 }

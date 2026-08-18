@@ -1,16 +1,11 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { and, db, eq, inArray, notInArray, persons, regions, sql, winners } from "@raffle_v2/db";
+import { paginatedResponseSchema, paginationQuerySchema, regionSchema, winnerSchema } from "@raffle_v2/shared";
+import { claimWinnerHandler, listWinnersHandler } from "../controller/winner.controller";
 import type { AppEnv } from "../lib/context";
 import { requireAuth } from "../middleware/auth";
 
 const app = new OpenAPIHono<AppEnv>();
-
-// Region schema definition
-export const regionSchema = z.object({
-  id: z.string().uuid(),
-  region: z.string(),
-  regionName: z.string(),
-});
 
 // Updated Person output schema
 export const winnerPersonSchema = z.object({
@@ -20,6 +15,10 @@ export const winnerPersonSchema = z.object({
   image: z.string(),
   region: regionSchema,
   isEligible: z.boolean(),
+});
+
+export const listWinnersQuerySchema = paginationQuerySchema.extend({
+  search: z.string().trim().min(1).optional(),
 });
 
 const errorResponseSchema = z.object({
@@ -72,6 +71,14 @@ export const getDrawRoute = createRoute({
   },
 });
 
+const winnerListResponseSchema = paginatedResponseSchema(winnerSchema, {
+  stats: z.object({
+    receivedCount: z.number().int(),
+    pendingCount: z.number().int(),
+    totalPrizes: z.number().int(),
+  }),
+});
+
 // POST /winners/draw route definition
 export const saveDrawRoute = createRoute({
   method: "post",
@@ -102,6 +109,60 @@ export const saveDrawRoute = createRoute({
         },
       },
       description: "Winners successfully saved to database",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "Incomplete or invalid query parameters",
+    },
+  },
+});
+
+
+export const listWinnersRoute = createRoute({
+  method: "get",
+  path: "/",
+  tags: ["Winners"],
+  request: { query: listWinnersQuerySchema },
+  summary: "Get all winners",
+  responses: {
+    200: {
+      content: { "application/json": { schema: winnerListResponseSchema } },
+      description: "Successfully retrieved list of winners",
+    },
+  },
+});
+
+export const claimWinnerRoute = createRoute({
+  method: "patch",
+  path: "/claim",
+  tags: ["Winners"],
+  summary: "Updates winner if the prize is claimed",
+  middleware: [requireAuth],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            winnerId: z.string().uuid(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+          }),
+        },
+      },
+      description: "Winners successfully claimed the prize",
     },
     400: {
       content: {
@@ -181,6 +242,8 @@ const winnersRoute = app
     const inserted = await db.insert(winners).values(recordsToInsert).returning();
 
     return c.json({ success: true, count: inserted.length }, 200);
-  });
+  })
+  .openapi(listWinnersRoute, listWinnersHandler)
+  .openapi(claimWinnerRoute, claimWinnerHandler);
 
 export default winnersRoute;
