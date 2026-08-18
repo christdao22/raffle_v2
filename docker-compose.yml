@@ -1,37 +1,4 @@
 services:
-  # Reverse proxy - auto-discovers API replicas so `--scale api=N` just works,
-  # no manual upstream config needed.
-  traefik:
-    image: traefik:v3.6
-    restart: unless-stopped
-    command:
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-      # --- Uncomment for HTTPS via Let's Encrypt ---
-      # - --entrypoints.websecure.address=:443
-      # - --certificatesresolvers.le.acme.httpchallenge=true
-      # - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
-      # - --certificatesresolvers.le.acme.email=you@example.com
-      # - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
-    # No ports published to the host - cloudflared reaches traefik over the
-    # internal docker network, and the tunnel connects outbound to Cloudflare.
-    # Your server's firewall can stay fully closed on 80/443.
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      # - letsencrypt:/letsencrypt
-
-  # Routes are now managed via the dashboard's Published Application Routes
-  # tab, so this runs as a token-authenticated (remotely-managed) tunnel.
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    restart: unless-stopped
-    command: tunnel run
-    environment:
-      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in .env}
-    depends_on:
-      - traefik
-
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
@@ -39,8 +6,8 @@ services:
       POSTGRES_USER: raffle_v2
       POSTGRES_PASSWORD: raffle_v2
       POSTGRES_DB: raffle_v2
-    # No host port mapping in prod - only reachable inside the compose network.
-    # Add "5432:5432" back temporarily if you need to connect a GUI client.
+    ports:
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -49,93 +16,6 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: redis-server --appendonly yes
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
-  api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
-    restart: unless-stopped
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      DATABASE_URL: postgres://raffle_v2:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/raffle_v2
-      REDIS_URL: redis://redis:6379
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?Set BETTER_AUTH_URL in .env}
-      WEB_URL: ${WEB_URL:?Set WEB_URL in .env}
-      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:?Set SEED_ADMIN_EMAIL in .env}
-      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?Set SEED_ADMIN_PASSWORD in .env}
-      GMAIL_ACCOUNTS: ${GMAIL_ACCOUNTS:?Set GMAIL_ACCOUNTS in .env}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    deploy:
-      replicas: 3
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.raffle-api.rule=Host(`braffle.nationalteachersmonth2026.online`)
-      - traefik.http.routers.raffle-api.entrypoints=web
-      - traefik.http.services.raffle-api.loadbalancer.server.port=3000
-
-  web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      args:
-        VITE_API_URL: https://braffle.nationalteachersmonth2026.online
-    restart: unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.raffle-web.rule=Host(`raffle.nationalteachersmonth2026.online`)
-      - traefik.http.routers.raffle-web.entrypoints=web
-      - traefik.http.services.raffle-web.loadbalancer.server.port=80
-
-  # One-off migration runner - NOT started automatically, so scaling `api`
-  # never triggers concurrent migrations. Reuses the api image (it already
-  # has the full monorepo + devDependencies installed, so drizzle-kit is
-  # available) and just runs your existing db:push script.
-  migrate:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
-    environment:
-      DATABASE_URL: postgres://raffle_v2:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/raffle_v2
-    depends_on:
-      postgres:
-        condition: service_healthy
-    entrypoint: ["pnpm", "--filter", "@raffle_v2/db", "db:push"]
-    profiles: ["tools"]
-
-  # Drizzle Studio - DB admin UI. Bound to 127.0.0.1 only, never exposed
-  # publicly. Access it via an SSH tunnel (see instructions).
-  studio:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
-    environment:
-      DATABASE_URL: postgres://raffle_v2:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/raffle_v2
-    depends_on:
-      postgres:
-        condition: service_healthy
-    entrypoint: ["pnpm", "--filter", "@raffle_v2/db", "exec", "drizzle-kit", "studio", "--host", "0.0.0.0", "--port", "4983"]
-    ports:
-      - "127.0.0.1:4983:4983"
-    profiles: ["tools"]
-
 volumes:
   postgres-data:
-  redis-data:
-  # letsencrypt:
+
