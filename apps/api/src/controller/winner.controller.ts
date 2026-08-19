@@ -1,5 +1,17 @@
 import type { RouteHandler } from "@hono/zod-openapi";
-import { asc, db, eq, ilike, persons, prizes, regions, sql, winners } from "@raffle_v2/db";
+import {
+  and,
+  asc,
+  db,
+  eq,
+  ilike,
+  isNull,
+  persons,
+  prizes,
+  regions,
+  sql,
+  winners,
+} from "@raffle_v2/db";
 import type { AppEnv } from "../lib/context";
 import { paginate } from "../lib/pagination";
 import type {
@@ -11,7 +23,10 @@ import type {
 export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> = async (c) => {
   const { page, pageSize, search } = c.req.valid("query");
 
-  const searchCondition = search ? ilike(persons.fullname, `%${search}%`) : undefined;
+  const activeWinnerCondition = and(
+    isNull(winners.deletedAt),
+    search ? ilike(persons.fullname, `%${search}%`) : undefined,
+  );
 
   const result = await paginate({
     page,
@@ -21,7 +36,7 @@ export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> =
         .select({ count: sql<number>`count(*)` })
         .from(winners)
         .innerJoin(persons, eq(winners.personId, persons.id))
-        .where(searchCondition);
+        .where(activeWinnerCondition);
 
       return rows[0]?.count ?? 0;
     },
@@ -50,7 +65,7 @@ export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> =
         .innerJoin(persons, eq(winners.personId, persons.id))
         .innerJoin(regions, eq(persons.regionId, regions.id))
         .innerJoin(prizes, eq(winners.prizeId, prizes.id))
-        .where(searchCondition)
+        .where(activeWinnerCondition)
         .orderBy(asc(winners.id))
         .limit(limit)
         .offset(offset);
@@ -67,7 +82,8 @@ export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> =
       receivedCount: sql<number>`count(*) filter (where ${winners.isReceived} = true)`,
       pendingCount: sql<number>`count(*) filter (where ${winners.isReceived} = false)`,
     })
-    .from(winners);
+    .from(winners)
+    .where(isNull(winners.deletedAt));
 
   const [totalPrizesResult] = await db.select({ totalPrizes: sql<number>`count(*)` }).from(prizes);
 
@@ -100,7 +116,8 @@ export const listUnclaimedWinnersHandler: RouteHandler<
       const rows = await db
         .select({ count: sql<number>`count(*)` })
         .from(winners)
-        .innerJoin(persons, eq(winners.personId, persons.id));
+        .innerJoin(persons, eq(winners.personId, persons.id))
+        .where(isNull(winners.deletedAt));
 
       return rows[0]?.count ?? 0;
     },
@@ -129,6 +146,7 @@ export const listUnclaimedWinnersHandler: RouteHandler<
         .innerJoin(persons, eq(winners.personId, persons.id))
         .innerJoin(regions, eq(persons.regionId, regions.id))
         .innerJoin(prizes, eq(winners.prizeId, prizes.id))
+        .where(isNull(winners.deletedAt))
         .orderBy(asc(winners.id))
         .limit(limit)
         .offset(offset);
@@ -145,7 +163,8 @@ export const listUnclaimedWinnersHandler: RouteHandler<
       receivedCount: sql<number>`count(*) filter (where ${winners.isReceived} = true)`,
       pendingCount: sql<number>`count(*) filter (where ${winners.isReceived} = false)`,
     })
-    .from(winners);
+    .from(winners)
+    .where(isNull(winners.deletedAt));
 
   const [totalPrizesResult] = await db.select({ totalPrizes: sql<number>`count(*)` }).from(prizes);
 

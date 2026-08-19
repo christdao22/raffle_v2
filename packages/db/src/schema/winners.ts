@@ -16,6 +16,7 @@ export const winners = pgTable("winners", {
   isReceived: boolean("is_received").default(false).notNull(),
   receivedAt: timestamp("received_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export const winnersRelations = relations(winners, ({ one }) => ({

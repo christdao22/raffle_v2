@@ -5,7 +5,7 @@ import ConfirmationModal from "../components/Custom/ConfirmationModal";
 import { StatCard } from "../components/Custom/StatCard";
 import Layout from "../components/layout";
 import { useTableState } from "../hooks/datatable/use-table-state";
-import { useModal } from "../hooks/use-modal";
+import { useConfirmationModal } from "../hooks/use-modal";
 import { useClaimWinnerMutation, useWinners } from "../hooks/use-winners";
 
 export function Winners() {
@@ -17,7 +17,7 @@ export function Winners() {
     search: table.search,
   });
 
-  const claimConfirmation = useModal();
+  const claimConfirmation = useConfirmationModal();
   const claimWinner = useClaimWinnerMutation();
 
   const total: number = winners?.meta.pagination.total ?? 0;
@@ -26,7 +26,7 @@ export function Winners() {
   const receivedPercent = total > 0 ? Math.round((receivedCount / total) * 100) : 0;
 
   const handleClaimPrize = (id: string) => {
-    claimConfirmation.openModal({
+    claimConfirmation.openConfirmModal({
       title: "Claim Prize?",
       description: "Are you sure you want to process this prize claim?",
       confirmText: "Confirm Claim",
