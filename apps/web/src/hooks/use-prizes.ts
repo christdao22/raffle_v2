@@ -84,3 +84,35 @@ export function useSelectPrizeMutation() {
     },
   });
 }
+
+export function useDeletePrize() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (prizeId: string) => {
+      const res = await api.prizes.delete.$delete({
+        json: { prizeId },
+      });
+      return res.json();
+    },
+    onMutate: async (deletedId) => {
+      await queryClient.cancelQueries({ queryKey: prizeKeys.lists() });
+      const previousItems = queryClient.getQueryData(prizeKeys.lists());
+      queryClient.setQueryData(prizeKeys.lists(), (old: any) => {
+        if (!old) return [];
+
+        return old.filter((prize: any) => prize.id !== deletedId);
+      });
+
+      return { previousItems };
+    },
+    onError: (err, deletedId, context) => {
+      if (context?.previousItems) {
+        queryClient.setQueryData(prizeKeys.lists(), context.previousItems);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: prizeKeys.all });
+    },
+  });
+}

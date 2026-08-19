@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { integer, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { winners } from "./winners";
 
 export const prizes = pgTable("prizes", {
@@ -10,6 +10,7 @@ export const prizes = pgTable("prizes", {
   sponsorImage: text("sponsor_image"),
   numberOfWinners: integer("number_of_winners").default(1).notNull(),
   type: text("type"),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export const prizesRelations = relations(prizes, ({ many }) => ({

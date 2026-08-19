@@ -2,6 +2,7 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { paginatedResponseSchema, paginationQuerySchema, prizeSchema } from "@raffle_v2/shared";
 import {
   createPrizeHandler,
+  deletePrizeHandler,
   getPrizeHandler,
   listPrizesHandler,
   selectPrizeHandler,
@@ -76,6 +77,34 @@ export const createPrizeRoute = createRoute({
   },
 });
 
+export const deletePrizeRoute = createRoute({
+  method: "delete",
+  path: "/delete",
+  tags: ["Prizes"],
+  summary: "Delete prize tier",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            prizeId: z.string().uuid(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: z.object({ success: z.boolean() }) } },
+      description: "Prize successfully deleted",
+    },
+    400: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "The user is not allowed or the prize was not found",
+    },
+  },
+});
+
 export const selectPrizeRoute = createRoute({
   method: "post",
   path: "/select",
@@ -111,6 +140,7 @@ const routes = app
   .openapi(listPrizesRoute, listPrizesHandler)
   .openapi(getPrizeRoute, getPrizeHandler)
   .openapi(createPrizeRoute, createPrizeHandler)
+  .openapi(deletePrizeRoute, deletePrizeHandler)
   .openapi(selectPrizeRoute, selectPrizeHandler);
 
 export default routes;

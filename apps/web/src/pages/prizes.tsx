@@ -1,18 +1,35 @@
 import type { Prize } from "@raffle_v2/shared";
-import { DataTable, type DataTableColumn } from "@raffle_v2/ui";
+import { Button, cn, DataTable, type DataTableColumn } from "@raffle_v2/ui";
 import { Trophy } from "lucide-react";
+import ConfirmationModal from "../components/Custom/ConfirmationModal";
 import Layout from "../components/layout";
 import { useTableState } from "../hooks/datatable/use-table-state";
-import { usePrizes } from "../hooks/use-prizes";
+import { useConfirmationModal } from "../hooks/use-modal";
+import { useDeletePrize, usePrizes } from "../hooks/use-prizes";
 
 export function Prizes() {
   const table = useTableState({ pageSize: 2 });
+  const deleteConfirmation = useConfirmationModal();
+
+  const deletePrize = useDeletePrize();
 
   const { data: prizes, isLoading: isPrizesLoading } = usePrizes({
     page: table.page,
     pageSize: table.pageSize,
     search: table.search,
   });
+
+  const handleDeletePrize = (id: string) => {
+    deleteConfirmation.openConfirmModal({
+      title: "Delete Prize?",
+      description: "Are you sure you want to delete this prize?",
+      confirmText: "Confirm Delete",
+      variant: "danger",
+      onConfirm: async () => {
+        deletePrize.mutate(id);
+      },
+    });
+  };
 
   const columns: DataTableColumn<Prize>[] = [
     {
@@ -45,6 +62,22 @@ export function Prizes() {
         <span className="inline-block rounded-md bg-tr-surface-container-high px-2.5 py-1 text-xs font-semibold uppercase text-tr-on-surface">
           {prize.numberOfWinners}
         </span>
+      ),
+    },
+    {
+      id: "action",
+      header: "Action",
+      cell: (prize) => (
+        <Button
+          // disabled={claimWinner.isPending}
+          onClick={() => handleDeletePrize(prize.id)}
+          className={cn(
+            "rounded-lg px-4 py-2 w-full max-w-25 text-xs font-black uppercase tracking-wider transition-all shadow-xs",
+            "bg-tr-secondary text-tr-on-primary hover:bg-tr-secondary/90 hover:shadow-md active:scale-95",
+          )}
+        >
+          Delete
+        </Button>
       ),
     },
   ];
@@ -84,6 +117,8 @@ export function Prizes() {
           </span>
         )}
       />
+
+      <ConfirmationModal {...deleteConfirmation.modalProps} />
     </Layout>
   );
 }

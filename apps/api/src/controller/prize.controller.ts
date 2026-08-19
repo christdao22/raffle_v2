@@ -1,10 +1,11 @@
 import type { RouteHandler } from "@hono/zod-openapi";
-import { and, db, ilike, prizes, sql } from "@raffle_v2/db";
+import { and, db, eq, ilike, isNull, prizes, sql } from "@raffle_v2/db";
 import type { AppEnv } from "../lib/context";
 import { paginate } from "../lib/pagination";
 import { broadcastEvent } from "../lib/ws";
 import type {
   createPrizeRoute,
+  deletePrizeRoute,
   getPrizeRoute,
   listPrizesRoute,
   selectPrizeRoute,
@@ -20,8 +21,8 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
   )`;
 
   const countWhereClause = search
-    ? and(ilike(prizes.prize, `%${search}%`), countFilter)
-    : countFilter;
+    ? and(isNull(prizes.deletedAt), ilike(prizes.prize, `%${search}%`), countFilter)
+    : and(isNull(prizes.deletedAt), countFilter);
 
   const result = await paginate({
     page,
@@ -29,8 +30,9 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
     count: () => db.$count(prizes, countWhereClause),
     query: async ({ limit, offset }) => {
       const rows = await db.query.prizes.findMany({
-        where: (fields, { and: andWhere, ilike: ilikeWhere, sql: sqlWhere }) => {
+        where: (fields, { and: andWhere, ilike: ilikeWhere, isNull: isNullWhere, sql: sqlWhere }) => {
           const conditions = [
+            isNullWhere(fields.deletedAt),
             sqlWhere`${fields.numberOfWinners} > (
               SELECT COUNT(*)::int FROM winners WHERE winners.prize_id = ${fields.id}
             )`,
@@ -71,7 +73,8 @@ export const getPrizeHandler: RouteHandler<typeof getPrizeRoute, AppEnv> = async
   const { id } = c.req.valid("param");
 
   const prize = await db.query.prizes.findFirst({
-    where: (prizes, { eq }) => eq(prizes.id, id),
+    where: (fields, { and: andWhere, eq: eqWhere, isNull: isNullWhere }) =>
+      andWhere(eqWhere(fields.id, id), isNullWhere(fields.deletedAt)),
   });
 
   if (!prize) {
@@ -90,6 +93,20 @@ export const createPrizeHandler: RouteHandler<typeof createPrizeRoute, AppEnv> =
   };
 
   return c.json(newPrize, 201);
+};
+
+export const deletePrizeHandler: RouteHandler<typeof deletePrizeRoute, AppEnv> = async (c) => {
+  const { prizeId } = c.req.valid("json");
+
+  const [existing] = await db.select().from(prizes).where(eq(prizes.id, prizeId));
+
+  if (!existing) {
+    return c.json({ message: "Prize not found" }, 400);
+  }
+
+  await db.update(prizes).set({ deletedAt: new Date() }).where(eq(prizes.id, prizeId));
+
+  return c.json({ success: true }, 200);
 };
 
 export const selectPrizeHandler: RouteHandler<typeof selectPrizeRoute, AppEnv> = async (c) => {
