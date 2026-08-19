@@ -124,7 +124,7 @@ export function DataTable<T>({
 
           {search && (
             <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-tr-on-surface-variant/70" />
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-tr-on-surface" />
               <input
                 type="text"
                 value={search.value}
