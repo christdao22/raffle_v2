@@ -3,7 +3,7 @@ import { Card } from "@raffle_v2/ui";
 import { Dice4, Minus, Plus, Radio, RotateCcw, Ticket, Timer, Trophy, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLiveStatus, useSetWinnerCount } from "../../hooks/use-live";
-import { useModal } from "../../hooks/use-modal";
+import { useConfirmationModal } from "../../hooks/use-modal";
 import ConfirmationModal from "./ConfirmationModal";
 import DrawResultModal from "./DrawResultModal";
 
@@ -22,7 +22,7 @@ export default function RaffleConfigCard({
   regionId,
   totalEligibleCount = 0,
 }: RaffleConfigCardProps) {
-  const modal = useModal();
+  const modal = useConfirmationModal();
   const [winnerCount, setWinnerCount] = useState<number>(1);
   const [duration, setDuration] = useState<number>(15);
   const [isDrawModalOpen, setIsDrawModalOpen] = useState<boolean>(false);
@@ -83,7 +83,7 @@ export default function RaffleConfigCard({
   };
 
   const handleResetConfig = () => {
-    modal.openModal({
+    modal.openConfirmModal({
       title: "Reset Configuration?",
       description: "Are you sure you want to reset all draw parameters back to default values?",
       confirmText: "Reset All",

@@ -10,19 +10,19 @@ export interface ModalOptions<T = unknown> {
   onConfirm?: (data?: T) => Promise<void> | void;
 }
 
-export function useModal<T = unknown>() {
+export function useConfirmationModal<T = unknown>() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [config, setConfig] = useState<ModalOptions<T>>({});
 
   // Opens modal and dynamically injects text, variants, data, and callbacks
-  const openModal = useCallback((options: ModalOptions<T> = {}) => {
+  const openConfirmModal = useCallback((options: ModalOptions<T> = {}) => {
     setConfig(options);
     setIsOpen(true);
   }, []);
 
   // Closes modal and resets internal state
-  const closeModal = useCallback(() => {
+  const closeConfirmModal = useCallback(() => {
     setIsOpen(false);
     setIsLoading(false);
   }, []);
@@ -30,29 +30,29 @@ export function useModal<T = unknown>() {
   // Wraps onConfirm to automatically handle loading states & auto-closing
   const handleConfirm = useCallback(async () => {
     if (!config.onConfirm) {
-      closeModal();
+      closeConfirmModal();
       return;
     }
 
     try {
       setIsLoading(true);
       await config.onConfirm(config.data);
-      closeModal();
+      closeConfirmModal();
     } catch (error) {
       console.error("Modal confirmation error:", error);
       setIsLoading(false);
     }
-  }, [config, closeModal]);
+  }, [config, closeConfirmModal]);
 
   return {
     isOpen,
     isLoading,
-    closeModal,
-    openModal,
+    closeConfirmModal,
+    openConfirmModal,
     modalProps: {
       isOpen,
       isLoading,
-      onClose: closeModal,
+      onClose: closeConfirmModal,
       onConfirm: handleConfirm,
       title: config.title,
       description: config.description,
