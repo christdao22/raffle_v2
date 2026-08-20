@@ -2,8 +2,8 @@ import type { Prize } from "@raffle_v2/shared";
 import { Card } from "@raffle_v2/ui";
 import { Dice4, Minus, Plus, Radio, RotateCcw, Ticket, Timer, Trophy, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useConfirmationModal } from "../../hooks/use-confirmation-modal";
 import { useLiveStatus, useSetWinnerCount } from "../../hooks/use-live";
-import { useConfirmationModal } from "../../hooks/use-modal";
 import ConfirmationModal from "./ConfirmationModal";
 import DrawResultModal from "./DrawResultModal";
 

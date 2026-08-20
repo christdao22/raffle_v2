@@ -5,7 +5,7 @@ import ConfirmationModal from "../components/Custom/ConfirmationModal";
 import { StatCard } from "../components/Custom/StatCard";
 import Layout from "../components/layout";
 import { useTableState } from "../hooks/datatable/use-table-state";
-import { useConfirmationModal } from "../hooks/use-modal";
+import { useConfirmationModal } from "../hooks/use-confirmation-modal";
 import { useClaimWinnerMutation, useWinners } from "../hooks/use-winners";
 
 export function Winners() {
