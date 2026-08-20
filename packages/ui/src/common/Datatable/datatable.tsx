@@ -172,7 +172,11 @@ export function DataTable<T>({
                   {columns.map((col) => (
                     <td
                       key={col.id}
-                      className={cn("px-5 py-4", alignClass(col.align), col.cellClassName)}
+                      className={cn(
+                        "px-5 py-1 text-sm font-display font-black capitalize text-tr-on-surface group-hover:text-tr-primary transition-colors",
+                        alignClass(col.align),
+                        col.cellClassName,
+                      )}
                     >
                       {col.cell(row)}
                     </td>

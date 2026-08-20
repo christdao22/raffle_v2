@@ -43,7 +43,7 @@ export function Winners() {
       header: "Winner",
       cell: (winner) => (
         <div>
-          <p className="font-display font-black uppercase text-tr-secondary group-hover:text-tr-primary transition-colors">
+          <p className="font-display text-[14px] font-black uppercase text-tr-secondary group-hover:text-tr-primary transition-colors">
             {winner.person.fullname}
           </p>
           <p className="mt-0.5 text-[11px] font-mono text-tr-on-surface-variant/80">
@@ -57,7 +57,7 @@ export function Winners() {
       header: "Prize",
       cell: (winner) => (
         <div>
-          <p className="font-display font-bold text-sm uppercase text-tr-primary">
+          <p className="font-display text-[14px] font-bold text-sm uppercase text-tr-primary">
             {winner.prize?.prize}
           </p>
           {winner.prize?.sponsor && (
