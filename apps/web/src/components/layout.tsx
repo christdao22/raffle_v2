@@ -1,6 +1,7 @@
 import { cn } from "@raffle_v2/ui";
 import { User } from "lucide-react";
 import type React from "react";
+import { Toaster } from "sonner";
 import { useSession } from "../lib/auth-client";
 
 interface LayoutProps {
@@ -98,6 +99,7 @@ export default function Layout({
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-linear-to-br from-[#0d1326] to-[#12192e]">
           <div className="w-full mx-auto">{children}</div>
+          <Toaster />
         </main>
       </div>
     </div>

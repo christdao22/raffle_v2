@@ -1,14 +1,15 @@
 import type { Prize } from "@raffle_v2/shared";
 import { Button, cn, DataTable, type DataTableColumn } from "@raffle_v2/ui";
-import { Trophy } from "lucide-react";
+import { Edit, Gift, Loader2, Trash2, Trophy } from "lucide-react";
+import { Toaster, toast } from "sonner";
 import ConfirmationModal from "../components/Custom/ConfirmationModal";
 import Layout from "../components/layout";
 import { useTableState } from "../hooks/datatable/use-table-state";
-import { useConfirmationModal } from "../hooks/use-modal";
+import { useConfirmationModal } from "../hooks/use-confirmation-modal";
 import { useDeletePrize, usePrizes } from "../hooks/use-prizes";
 
 export function Prizes() {
-  const table = useTableState({ pageSize: 2 });
+  const table = useTableState({ pageSize: 5 });
   const deleteConfirmation = useConfirmationModal();
 
   const deletePrize = useDeletePrize();
@@ -27,6 +28,7 @@ export function Prizes() {
       variant: "danger",
       onConfirm: async () => {
         deletePrize.mutate(id);
+        toast.success("Deleted successfully!");
       },
     });
   };
@@ -37,47 +39,68 @@ export function Prizes() {
       header: "Prize Name",
       cell: (prize) => (
         <div>
-          <p className="font-display font-black uppercase text-tr-secondary group-hover:text-tr-primary transition-colors">
-            {prize.prize}
-          </p>
-          <p className="mt-0.5 text-[11px] font-mono text-tr-on-surface-variant/80">{prize.type}</p>
-        </div>
-      ),
-    },
-    {
-      id: "sponsor",
-      header: "Sponsor",
-      cell: (prize) => (
-        <div>
-          <p className="font-display font-bold text-sm uppercase text-tr-primary">
+          <p className="">{prize.prize}</p>
+          <p className="mt-0.5 text-[11px] font-mono text-tr-on-surface-variant/80">
             {prize.sponsor}
           </p>
         </div>
       ),
     },
     {
+      id: "type",
+      header: "Type",
+      align: "center",
+      cell: (prize) => (
+        <span className="inline-block rounded-md bg-tr-tertiary px-2.5 py-1 text-xs font-semibold">
+          {prize.type}
+        </span>
+      ),
+    },
+    {
       id: "number-of-items",
       header: "Number of Items",
+      align: "center",
       cell: (prize) => (
-        <span className="inline-block rounded-md bg-tr-surface-container-high px-2.5 py-1 text-xs font-semibold uppercase text-tr-on-surface">
+        <span className="inline-block rounded-md bg-tr-surface-container-high px-2.5 py-1 text-xs font-semibold uppercase ">
           {prize.numberOfWinners}
         </span>
       ),
     },
     {
       id: "action",
-      header: "Action",
+      header: "Actions",
+      align: "center",
       cell: (prize) => (
-        <Button
-          // disabled={claimWinner.isPending}
-          onClick={() => handleDeletePrize(prize.id)}
-          className={cn(
-            "rounded-lg px-4 py-2 w-full max-w-25 text-xs font-black uppercase tracking-wider transition-all shadow-xs",
-            "bg-tr-secondary text-tr-on-primary hover:bg-tr-secondary/90 hover:shadow-md active:scale-95",
-          )}
-        >
-          Delete
-        </Button>
+        <>
+          <Button
+            disabled={deletePrize.isPending}
+            onClick={() => handleDeletePrize(prize.id)}
+            className={cn(
+              "px-2 py-2 text-xs text-secondary-container uppercase tracking-wider transition-all shadow-none",
+              "bg-inherit",
+            )}
+          >
+            {deletePrize.isPending ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <Edit className={" transition-all hover:text-secondary-container/75 "} />
+            )}
+          </Button>
+          <Button
+            disabled={deletePrize.isPending}
+            onClick={() => handleDeletePrize(prize.id)}
+            className={cn(
+              "px-2 py-2 text-xs text-error-container uppercase tracking-wider transition-all shadow-none",
+              "bg-inherit",
+            )}
+          >
+            {deletePrize.isPending ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <Trash2 className={" transition-all hover:text-error-container/80 "} />
+            )}
+          </Button>
+        </>
       ),
     },
   ];
@@ -106,7 +129,7 @@ export function Prizes() {
           onPageChange: table.setPage,
         }}
         emptyState={{
-          icon: Trophy,
+          icon: Gift,
           title: "No prizes found",
           description: "There are currently no prize records to display.",
           searchDescription: "No results match your search parameters. Try a different query.",
