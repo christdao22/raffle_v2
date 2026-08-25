@@ -9,7 +9,7 @@ import {
   Label,
   Select,
 } from "@raffle_v2/ui";
-import { Edit, Gift, Loader2, Plus, Trash2, Trophy } from "lucide-react";
+import { Edit, Gift, Plus, Trash2, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { SubmitButton } from "../components/Button/SubmitButton";
 import ConfirmationModal from "../components/Custom/ConfirmationModal";

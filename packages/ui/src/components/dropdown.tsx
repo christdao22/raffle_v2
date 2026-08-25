@@ -84,7 +84,7 @@ export function Dropdown({
       {isOpen && (
         <div
           className={cn(
-            "absolute z-50 mt-2 min-w-[180px] overflow-hidden rounded-2xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest p-1.5 shadow-xl font-sans text-tr-on-surface animate-in fade-in zoom-in-95 duration-150",
+            "absolute z-50 mt-2 min-w-45 overflow-hidden rounded-2xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest p-1.5 shadow-xl font-sans text-tr-on-surface animate-in fade-in zoom-in-95 duration-150",
             align === "right" ? "right-0 origin-top-right" : "left-0 origin-top-left",
             className,
           )}

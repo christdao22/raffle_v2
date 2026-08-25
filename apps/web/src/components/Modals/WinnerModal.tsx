@@ -74,7 +74,7 @@ export function WinnerModal({
         )}
       >
         {/* Background */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.08] bg-[radial-gradient(#0b4db8_1px,transparent_1px)] [background-size:18px_18px]" />
+        <div className="absolute inset-0 pointer-events-none opacity-[0.08] bg-[radial-gradient(#0b4db8_1px,transparent_1px)] bg-size-[18px_18px]" />
 
         {/* Close */}
         <Button
@@ -119,8 +119,8 @@ export function WinnerModal({
             className={cn(
               "relative w-full max-w-8xl mt-8 rounded-3xl border transition-all duration-700 ease-in-out overflow-hidden ",
               showWinner
-                ? "min-h-[220px] border-tr-secondary/10 bg-tr-secondary/5"
-                : "min-h-[520px] scale-[1.02] border-tr-primary-container/40 bg-tr-secondary shadow-2xl",
+                ? "min-h-55 border-tr-secondary/10 bg-tr-secondary/5"
+                : "min-h-130 scale-[1.02] border-tr-primary-container/40 bg-tr-secondary shadow-2xl",
             )}
           >
             {/* Drawing glow */}
@@ -141,7 +141,7 @@ export function WinnerModal({
                       Our Lucky Winner
                     </p>
 
-                    <h2 className="font-display font-black text-4xl sm:text-7xl lg:text-9xl uppercase tracking-tight text-tr-primary leading-none break-words text-center">
+                    <h2 className="font-display font-black text-4xl sm:text-7xl lg:text-9xl uppercase tracking-tight text-tr-primary leading-none wrap-break-word text-center">
                       {p?.fullname ?? "Winner"}
                     </h2>
 
