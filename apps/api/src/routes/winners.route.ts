@@ -8,6 +8,7 @@ import {
 } from "@raffle_v2/shared";
 import {
   claimWinnerHandler,
+  deleteWinnerHandler,
   listUnclaimedWinnersHandler,
   listWinnersHandler,
 } from "../controller/winner.controller";
@@ -197,6 +198,39 @@ export const claimWinnerRoute = createRoute({
   },
 });
 
+export const deleteWinnerRoute = createRoute({
+  method: "delete",
+  path: "/delete/{id}",
+  tags: ["Winners"],
+  summary: "Remove winner",
+  middleware: [requireAuth],
+  request: {
+    params: z.object({
+      id: z.string().uuid(),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+          }),
+        },
+      },
+      description: "Winners successfully removed",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "Incomplete or invalid path parameters",
+    },
+  },
+});
+
 const winnersRoute = app
   // 1. GET Candidates (Excludes existing winners & filters by regionIds if provided)
   .openapi(getDrawRoute, async (c) => {
@@ -267,6 +301,7 @@ const winnersRoute = app
   })
   .openapi(listWinnersRoute, listWinnersHandler)
   .openapi(listUnclaimedWinnersRoute, listUnclaimedWinnersHandler)
-  .openapi(claimWinnerRoute, claimWinnerHandler);
+  .openapi(claimWinnerRoute, claimWinnerHandler)
+  .openapi(deleteWinnerRoute, deleteWinnerHandler);
 
 export default winnersRoute;

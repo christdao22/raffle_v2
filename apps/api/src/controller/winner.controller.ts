@@ -16,6 +16,7 @@ import type { AppEnv } from "../lib/context";
 import { paginate } from "../lib/pagination";
 import type {
   claimWinnerRoute,
+  deleteWinnerRoute,
   listUnclaimedWinnersRoute,
   listWinnersRoute,
 } from "../routes/winners.route";
@@ -206,6 +207,23 @@ export const claimWinnerHandler: RouteHandler<typeof claimWinnerRoute, AppEnv> =
     .update(winners)
     .set({ isReceived: true, receivedAt: new Date(), givenByUserId: user.id })
     .where(eq(winners.id, winnerId));
+
+  return c.json({ success: true }, 200);
+};
+
+export const deleteWinnerHandler: RouteHandler<typeof deleteWinnerRoute, AppEnv> = async (c) => {
+  const { id } = c.req.valid("param");
+
+  const [existing] = await db
+    .select()
+    .from(winners)
+    .where(and(eq(winners.id, id), isNull(winners.deletedAt)));
+
+  if (!existing) {
+    return c.json({ message: "Winner not found" }, 400);
+  }
+
+  await db.update(winners).set({ deletedAt: new Date() }).where(eq(winners.id, id));
 
   return c.json({ success: true }, 200);
 };

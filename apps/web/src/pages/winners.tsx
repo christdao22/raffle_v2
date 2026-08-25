@@ -1,15 +1,16 @@
 import type { Winner } from "@raffle_v2/shared";
-import { Button, cn, DataTable, type DataTableColumn } from "@raffle_v2/ui";
-import { Check, CheckCircle2, Clock, TrendingUp, Trophy } from "lucide-react";
+import { Button, Chip, cn, DataTable, type DataTableColumn } from "@raffle_v2/ui";
+import { Check, CircleArrowRight, CircleX, Clock, TrendingUp, Trophy } from "lucide-react";
+import { toast } from "sonner";
 import ConfirmationModal from "../components/Custom/ConfirmationModal";
 import { StatCard } from "../components/Custom/StatCard";
 import Layout from "../components/layout";
 import { useTableState } from "../hooks/datatable/use-table-state";
 import { useConfirmationModal } from "../hooks/use-confirmation-modal";
-import { useClaimWinnerMutation, useWinners } from "../hooks/use-winners";
+import { useClaimWinnerMutation, useDeleteWinner, useWinners } from "../hooks/use-winners";
 
 export function Winners() {
-  const table = useTableState({ pageSize: 2 });
+  const table = useTableState({ pageSize: 10 });
 
   const { data: winners, isLoading: isWinnerLoading } = useWinners({
     page: table.page,
@@ -19,6 +20,7 @@ export function Winners() {
 
   const claimConfirmation = useConfirmationModal();
   const claimWinner = useClaimWinnerMutation();
+  const deleteWinner = useDeleteWinner();
 
   const total: number = winners?.meta.pagination.total ?? 0;
   const receivedCount = winners?.meta?.stats?.receivedCount ?? 0;
@@ -30,9 +32,23 @@ export function Winners() {
       title: "Claim Prize?",
       description: "Are you sure you want to process this prize claim?",
       confirmText: "Confirm Claim",
-      variant: "info",
+      variant: "warning",
       onConfirm: async () => {
         claimWinner.mutate({ winnerId: id });
+        toast.success("claimed successfully!");
+      },
+    });
+  };
+
+  const handleDeleteWinner = (id: string) => {
+    claimConfirmation.openConfirmModal({
+      title: "Remove Winner?",
+      description: "Are you sure you want to delete this winner?",
+      confirmText: "Confirm Delete",
+      variant: "danger",
+      onConfirm: async () => {
+        deleteWinner.mutate(id);
+        toast.success("deleted successfully!");
       },
     });
   };
@@ -43,12 +59,8 @@ export function Winners() {
       header: "Winner",
       cell: (winner) => (
         <div>
-          <p className="font-display text-[14px] font-black uppercase text-tr-secondary group-hover:text-tr-primary transition-colors">
-            {winner.person.fullname}
-          </p>
-          <p className="mt-0.5 text-[11px] font-mono text-tr-on-surface-variant/80">
-            ID: {winner.id}
-          </p>
+          <p>{winner.person.fullname}</p>
+          <p className="mt-0.5 text-[11px] font-mono text-tr-on-surface-variant/80">{winner.id}</p>
         </div>
       ),
     },
@@ -57,12 +69,10 @@ export function Winners() {
       header: "Prize",
       cell: (winner) => (
         <div>
-          <p className="font-display text-[14px] font-bold text-sm uppercase text-tr-primary">
-            {winner.prize?.prize}
-          </p>
+          <p>{winner.prize?.prize}</p>
           {winner.prize?.sponsor && (
-            <p className="mt-0.5 text-[11px] text-tr-on-surface-variant">
-              Sponsored by <span className="font-semibold">{winner.prize.sponsor}</span>
+            <p className="mt-0.5 text-[11px] font-mono text-tr-on-surface-variant/80">
+              {winner.prize.sponsor}
             </p>
           )}
         </div>
@@ -71,27 +81,25 @@ export function Winners() {
     {
       id: "division",
       header: "Division",
-      cell: (winner) => (
-        <span className="inline-block rounded-md bg-tr-surface-container-high px-2.5 py-1 text-xs font-semibold uppercase text-tr-on-surface">
-          {winner?.person?.region?.region ?? "—"}
-        </span>
-      ),
+      align: "center",
+      cell: (winner) => <Chip>{winner?.person?.region?.region ?? "—"}</Chip>,
     },
     {
       id: "status",
       header: "Status",
+      align: "center",
       cell: (winner) => (
         <>
           {winner.isReceived ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-tr-secondary-container/20 border border-tr-secondary-container/30 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-tr-secondary">
-              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+            <Chip variant={"secondary"} className={"gap-1"}>
+              <CircleArrowRight className="h-3.5 w-3.5 shrink-0" />
               Claimed
-            </span>
+            </Chip>
           ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-tr-tertiary-container/15 border border-tr-tertiary-container/30 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-tr-tertiary">
+            <Chip variant={"error"} className={"gap-1"}>
               <Clock className="h-3.5 w-3.5 shrink-0 animate-pulse" />
               Unclaimed
-            </span>
+            </Chip>
           )}
         </>
       ),
@@ -99,19 +107,37 @@ export function Winners() {
     {
       id: "action",
       header: "Action",
+      align: "center",
       cell: (winner) => (
-        <Button
-          disabled={winner.isReceived || claimWinner.isPending}
-          onClick={() => handleClaimPrize(winner.id)}
-          className={cn(
-            "rounded-lg px-4 py-2 w-full max-w-25 text-xs font-black uppercase tracking-wider transition-all shadow-xs",
-            winner.isReceived
-              ? "cursor-not-allowed bg-tr-surface-container-high text-tr-on-surface-variant/60 shadow-none opacity-80"
-              : "bg-tr-secondary text-tr-on-primary hover:bg-tr-secondary/90 hover:shadow-md active:scale-95",
+        <>
+          <Button
+            disabled={winner.isReceived || claimWinner.isPending}
+            onClick={() => handleClaimPrize(winner.id)}
+            className={cn(
+              "px-1 py-2 text-xs text-secondary-container uppercase tracking-wider transition-all shadow-none",
+              "bg-inherit",
+              winner.isReceived
+                ? "cursor-not-allowed text-tr-on-surface-variant/60 shadow-none opacity-80"
+                : "hover:scale-110 hover:text-secondary-container/95",
+            )}
+          >
+            <CircleArrowRight className="w-6" />
+          </Button>
+          {!winner.isReceived && (
+            <Button
+              disabled={winner.isReceived || claimWinner.isPending}
+              onClick={() => handleDeleteWinner(winner.id)}
+              className={cn(
+                "px-1 py-2 text-xs text-error-container uppercase tracking-wider transition-all shadow-none",
+                "bg-inherit",
+              )}
+            >
+              <CircleX
+                className={" transition-all hover:text-error-container/80 hover:scale-110 w-6"}
+              />
+            </Button>
           )}
-        >
-          {winner.isReceived ? "Claimed" : "Claim"}
-        </Button>
+        </>
       ),
     },
   ];

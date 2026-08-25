@@ -177,3 +177,24 @@ export function useClaimWinnerMutation() {
     },
   });
 }
+
+export function useDeleteWinner() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await api.winners.delete[":id"].$delete({
+        param: { id },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to remove winner");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: winnerKeys.all });
+    },
+  });
+}
