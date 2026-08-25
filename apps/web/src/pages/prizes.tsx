@@ -1,5 +1,14 @@
 import type { Prize } from "@raffle_v2/shared";
-import { Button, cn, DataTable, type DataTableColumn, Input, Label, Select } from "@raffle_v2/ui";
+import {
+  Button,
+  Chip,
+  cn,
+  DataTable,
+  type DataTableColumn,
+  Input,
+  Label,
+  Select,
+} from "@raffle_v2/ui";
 import { Edit, Gift, Loader2, Plus, Trash2, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { SubmitButton } from "../components/Button/SubmitButton";
@@ -76,7 +85,7 @@ export function Prizes() {
       title: "Edit Prize?",
       description: "Are you sure you want to edit this prize?",
       confirmText: "Confirm Edit",
-      variant: "warning",
+      variant: "info",
       onConfirm: async () => {
         resetForm(selectedPrize);
         formModal.openModal(selectedPrize);
@@ -130,21 +139,13 @@ export function Prizes() {
       id: "type",
       header: "Type",
       align: "center",
-      cell: (prize) => (
-        <span className="inline-block rounded-md bg-tr-tertiary px-2.5 py-1 text-xs font-semibold">
-          {prize.type}
-        </span>
-      ),
+      cell: (prize) => <Chip>{prize.type}</Chip>,
     },
     {
       id: "number-of-items",
       header: "Number of Items",
       align: "center",
-      cell: (prize) => (
-        <span className="inline-block rounded-md bg-tr-surface-container-high px-2.5 py-1 text-xs font-semibold uppercase ">
-          {prize.numberOfWinners}
-        </span>
-      ),
+      cell: (prize) => <Chip variant={"outline"}>{prize.numberOfWinners}</Chip>,
     },
     {
       id: "action",
@@ -156,29 +157,25 @@ export function Prizes() {
             disabled={deletePrize.isPending}
             onClick={() => handleEditPrize(prize)}
             className={cn(
-              "px-2 py-2 text-xs text-secondary-container uppercase tracking-wider transition-all shadow-none",
+              "px-1 py-2 text-xs text-secondary-container uppercase tracking-wider transition-all shadow-none",
               "bg-inherit",
             )}
           >
-            {deletePrize.isPending ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Edit className={" transition-all hover:text-secondary-container/75 w-4"} />
-            )}
+            <Edit
+              className={" transition-all hover:text-secondary-container/95 hover:scale-110 w-5"}
+            />
           </Button>
           <Button
             disabled={deletePrize.isPending}
             onClick={() => handleDeletePrize(prize.id)}
             className={cn(
-              "px-2 py-2 text-xs text-error-container uppercase tracking-wider transition-all shadow-none",
+              "px-1 py-2 text-xs text-error-container uppercase tracking-wider transition-all shadow-none",
               "bg-inherit",
             )}
           >
-            {deletePrize.isPending ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Trash2 className={" transition-all hover:text-error-container/80 w-4"} />
-            )}
+            <Trash2
+              className={" transition-all hover:text-error-container/80 hover:scale-110 w-5"}
+            />
           </Button>
         </>
       ),
