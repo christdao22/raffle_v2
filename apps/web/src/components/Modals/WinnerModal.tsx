@@ -104,7 +104,7 @@ export function WinnerModal({
             </div>
 
             <p className="font-display font-extrabold text-sm uppercase tracking-[0.2em] text-tr-primary">
-              National Teacher's Day
+              National Teachers' Month Kick-off
             </p>
 
             <h3 className="mt-1 font-display font-black text-4xl sm:text-6xl uppercase tracking-tight text-tr-secondary leading-none">

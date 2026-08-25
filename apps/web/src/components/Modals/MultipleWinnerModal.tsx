@@ -138,7 +138,7 @@ export function MultipleWinnersModal({
               </div>
 
               <p className="font-display font-extrabold text-xs sm:text-sm uppercase tracking-[0.2em] text-tr-primary">
-                National Teacher's Day
+                National Teachers' Month Kick-off
               </p>
 
               <h1 className="mt-1 font-display font-black text-3xl sm:text-5xl lg:text-5xl uppercase tracking-tight text-tr-secondary leading-none">
