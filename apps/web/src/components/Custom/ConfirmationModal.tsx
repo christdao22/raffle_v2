@@ -1,5 +1,5 @@
 import { AlertTriangle, Loader2, X } from "lucide-react";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 export interface ConfirmationModalProps {
   isOpen: boolean;
@@ -56,7 +56,7 @@ export default function ConfirmationModal({
   }[variant];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-60 flex items-center justify-center p-4">
       {/* Backdrop */}
       <button
         type="button"
@@ -80,7 +80,7 @@ export default function ConfirmationModal({
         {/* Header Icon + Content */}
         <div className="flex items-start gap-4">
           <div
-            className={`w-12 h-12 rounded-md flex items-center justify-center border flex-shrink-0 ${variantStyles.iconBg}`}
+            className={`w-12 h-12 rounded-md flex items-center justify-center border shrink-0 ${variantStyles.iconBg}`}
           >
             <AlertTriangle className="w-6 h-6" />
           </div>

@@ -6,8 +6,11 @@ import {
   getPrizeHandler,
   listPrizesHandler,
   selectPrizeHandler,
+  updatePrizeHandler,
 } from "../controller/prize.controller";
 import type { AppEnv } from "../lib/context";
+import { requireAuth } from "../middleware/auth";
+import { requireRole } from "../middleware/rbac";
 
 const app = new OpenAPIHono<AppEnv>();
 
@@ -59,6 +62,7 @@ export const createPrizeRoute = createRoute({
   method: "post",
   path: "/",
   tags: ["Prizes"],
+  middleware: [requireAuth, requireRole("admin")] as const,
   summary: "Create a new prize tier",
   request: {
     body: {
@@ -105,6 +109,33 @@ export const deletePrizeRoute = createRoute({
   },
 });
 
+export const updatePrizeRoute = createRoute({
+  method: "patch",
+  path: "/update/{id}",
+  tags: ["Prizes"],
+  middleware: [requireAuth, requireRole("admin")] as const,
+  summary: "Update prize tier",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: prizeSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: z.object({ success: z.boolean() }) } },
+      description: "Prize successfully updated",
+    },
+    400: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "The user is not allowed or the prize was not found",
+    },
+  },
+});
+
 export const selectPrizeRoute = createRoute({
   method: "post",
   path: "/select",
@@ -141,6 +172,7 @@ const routes = app
   .openapi(getPrizeRoute, getPrizeHandler)
   .openapi(createPrizeRoute, createPrizeHandler)
   .openapi(deletePrizeRoute, deletePrizeHandler)
+  .openapi(updatePrizeRoute, updatePrizeHandler)
   .openapi(selectPrizeRoute, selectPrizeHandler);
 
 export default routes;

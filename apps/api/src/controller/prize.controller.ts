@@ -9,6 +9,7 @@ import type {
   getPrizeRoute,
   listPrizesRoute,
   selectPrizeRoute,
+  updatePrizeRoute,
 } from "../routes/prizes.route";
 // Fixed file import path: prizes.routes instead of prizes.route
 
@@ -30,7 +31,10 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
     count: () => db.$count(prizes, countWhereClause),
     query: async ({ limit, offset }) => {
       const rows = await db.query.prizes.findMany({
-        where: (fields, { and: andWhere, ilike: ilikeWhere, isNull: isNullWhere, sql: sqlWhere }) => {
+        where: (
+          fields,
+          { and: andWhere, ilike: ilikeWhere, isNull: isNullWhere, sql: sqlWhere },
+        ) => {
           const conditions = [
             isNullWhere(fields.deletedAt),
             sqlWhere`${fields.numberOfWinners} > (
@@ -87,10 +91,7 @@ export const getPrizeHandler: RouteHandler<typeof getPrizeRoute, AppEnv> = async
 export const createPrizeHandler: RouteHandler<typeof createPrizeRoute, AppEnv> = async (c) => {
   const body = c.req.valid("json");
 
-  const newPrize = {
-    id: crypto.randomUUID(),
-    ...body,
-  };
+  const [newPrize] = await db.insert(prizes).values(body).returning();
 
   return c.json(newPrize, 201);
 };
@@ -105,6 +106,33 @@ export const deletePrizeHandler: RouteHandler<typeof deletePrizeRoute, AppEnv> =
   }
 
   await db.update(prizes).set({ deletedAt: new Date() }).where(eq(prizes.id, prizeId));
+
+  return c.json({ success: true }, 200);
+};
+
+export const updatePrizeHandler: RouteHandler<typeof updatePrizeRoute, AppEnv> = async (c) => {
+  const { id, prize, numberOfWinners, sponsor, imageUrl, sponsorImage, type } = c.req.valid("json");
+
+  const [existing] = await db
+    .select()
+    .from(prizes)
+    .where(and(eq(prizes.id, id), isNull(prizes.deletedAt)));
+
+  if (!existing) {
+    return c.json({ message: "Prize not found" }, 400);
+  }
+
+  await db
+    .update(prizes)
+    .set({
+      prize,
+      numberOfWinners,
+      sponsor: sponsor ?? null,
+      imageUrl: imageUrl ?? null,
+      sponsorImage: sponsorImage ?? null,
+      type: type ?? null,
+    })
+    .where(eq(prizes.id, id));
 
   return c.json({ success: true }, 200);
 };

@@ -44,6 +44,7 @@ export interface DataTableHeader {
   icon?: LucideIcon;
   title: string;
   subtitle?: string;
+  action?: ReactNode;
 }
 
 interface DataTableProps<T> {
@@ -112,9 +113,11 @@ export function DataTable<T>({
                 </div>
               )}
               <div>
-                <h2 className="font-display text-lg font-black uppercase tracking-tight text-tr-secondary">
-                  {header.title}
-                </h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="font-display text-lg font-black uppercase tracking-tight text-tr-secondary">
+                    {header.title}
+                  </h2>
+                </div>
                 {header.subtitle && (
                   <p className="mt-0.5 text-xs text-tr-on-surface-variant">{header.subtitle}</p>
                 )}
@@ -134,6 +137,7 @@ export function DataTable<T>({
               />
             </div>
           )}
+          {header?.action}
         </div>
       )}
 

@@ -1,3 +1,4 @@
+import type { Prize } from "@raffle_v2/shared";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api-client";
 
@@ -110,6 +111,41 @@ export function useDeletePrize() {
       if (context?.previousItems) {
         queryClient.setQueryData(prizeKeys.lists(), context.previousItems);
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: prizeKeys.all });
+    },
+  });
+}
+
+export function useUpdatePrize() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Prize) => {
+      const { id } = data;
+      const res = await api.prizes.update[":id"].$patch({
+        param: { id },
+        json: data,
+      });
+      return res.json();
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: prizeKeys.all });
+    },
+  });
+}
+
+export function useCreatePrize() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Omit<Prize, "id">) => {
+      const res = await api.prizes.$post({ json: data });
+      if (!res.ok) {
+        throw new Error("Failed to create prize");
+      }
+      return res.json();
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: prizeKeys.all });
