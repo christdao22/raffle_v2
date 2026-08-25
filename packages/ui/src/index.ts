@@ -3,6 +3,7 @@ export * from "./common/Skeleton/TableSkeleton";
 export * from "./components/badge";
 export * from "./components/button";
 export * from "./components/card";
+export * from "./components/chip";
 export * from "./components/dropdown";
 export * from "./components/input";
 export * from "./components/label";
