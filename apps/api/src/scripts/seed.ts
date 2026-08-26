@@ -1,6 +1,16 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join, parse } from "node:path";
 import { db, eq } from "@raffle_v2/db";
 import { persons, prizes, regions, user } from "@raffle_v2/db/schema";
 import { auth } from "../lib/auth";
+
+type EmployeeRecord = {
+  fullname: string;
+  schoolsDivision: string;
+  station: string;
+  designation: string;
+  email: string | null;
+};
 
 /**
  * Goes through Better Auth's real sign-up flow for the admin user,
@@ -61,7 +71,7 @@ async function main() {
   // 3. REGIONS SEEDING (5 Regions)
   // ==========================================
   console.log("Seeding regions...");
-  const seededRegions = await db
+  await db
     .insert(regions)
     .values([
       { region: "Region IX", regionName: "Zamboanga Peninsula" },
@@ -74,12 +84,9 @@ async function main() {
         regionName: "Bangsamoro Autonomous Region in Muslim Mindanao",
       },
     ])
-    .onConflictDoNothing()
-    .returning();
+    .onConflictDoNothing();
 
-  // Handle case where regions were already seeded
-  const activeRegions =
-    seededRegions.length > 0 ? seededRegions : await db.query.regions.findMany();
+  const activeRegions = await db.query.regions.findMany();
 
   // ==========================================
   // 4. PRIZES SEEDING (5 Prizes)
@@ -127,80 +134,55 @@ async function main() {
     .onConflictDoNothing();
 
   // ==========================================
-  // 5. PERSONS / PARTICIPANTS SEEDING (10 Employees)
+  // 5. PERSONS / PARTICIPANTS SEEDING
   // ==========================================
   console.log("Seeding persons...");
 
-  if (activeRegions.length >= 5) {
-    await db
-      .insert(persons)
-      .values([
-        {
-          employeeId: "EMP001",
+  const regionByName = new Map(
+    activeRegions.map((activeRegion) => [activeRegion.region, activeRegion]),
+  );
+  const employeeDirectory = join(process.cwd(), "src/scripts/employee");
+  const employeeValues = readdirSync(employeeDirectory)
+    .filter((fileName) => fileName.endsWith(".json"))
+    .flatMap((fileName) => {
+      const regionName = parse(fileName).name;
+      const region = regionByName.get(regionName);
+
+      if (!region) {
+        throw new Error(`No database region matches employee file: ${fileName}`);
+      }
+
+      const employees = JSON.parse(
+        readFileSync(join(employeeDirectory, fileName), "utf8"),
+      ) as EmployeeRecord[];
+
+      return employees.map((employee, index) => {
+        const employeeId = `${regionName.replace(/\s+/g, "-").toUpperCase()}-${String(index + 1).padStart(3, "0")}`;
+        const email = employee.email?.trim() || `${employeeId.toLowerCase()}@deped.gov.ph`;
+
+        return {
+          employeeId,
           image: "",
-          fullname: "Juan Dela Cruz",
-          regionId: activeRegions[0].id,
-        },
-        {
-          employeeId: "EMP001",
-          image: "",
-          fullname: "Maria Clara Santos",
-          regionId: activeRegions[0].id,
-        },
-        {
-          employeeId: "EMP001",
-          image: "",
-          fullname: "Jose Rizal Reyes",
-          regionId: activeRegions[1].id,
-        },
-        {
-          employeeId: "EMP001",
-          image: "",
-          fullname: "Ana Marie Dizon",
-          regionId: activeRegions[1].id,
-        },
-        {
-          employeeId: "EMP001",
-          image: "",
-          fullname: "Carlos P. Garcia",
-          regionId: activeRegions[2].id,
-        },
-        {
-          employeeId: "EMP001",
-          image: "",
-          fullname: "Lea Salonga",
-          regionId: activeRegions[2].id,
-        },
-        {
-          employeeId: "EMP001",
-          image: "",
-          fullname: "Manny Pacquiao",
-          regionId: activeRegions[3].id,
-        },
-        {
-          employeeId: "EMP001",
-          image: "",
-          fullname: "Catriona Gray",
-          regionId: activeRegions[3].id,
-        },
-        {
-          employeeId: "EMP001",
-          image: "",
-          fullname: "Pia Wurtzbach",
-          regionId: activeRegions[4].id,
-        },
-        {
-          employeeId: "EMP001",
-          image: "",
-          fullname: "Arnel Pineda",
-          regionId: activeRegions[4].id,
-        },
-      ])
-      .onConflictDoNothing();
+          fullname: employee.fullname.trim(),
+          regionId: region.id,
+          schoolsDivision: employee.schoolsDivision.trim(),
+          station: employee.station.trim(),
+          designation: employee.designation.trim(),
+          email,
+        };
+      });
+    });
+
+  if (employeeValues.length > 0) {
+    await db.insert(persons).values(employeeValues).onConflictDoNothing();
   }
+
+  console.log(`Prepared ${employeeValues.length} participants from employee files.`);
 
   console.log("🎉 Complete seeding finished successfully!");
   process.exit(0);
 }
 
-main().catch((err) => {});
+main().catch((e) => {
+  console.log(e);
+});

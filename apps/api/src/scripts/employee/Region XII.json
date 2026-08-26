@@ -1,0 +1,737 @@
+[
+  {
+    "fullname": "ROGER DELA CRUZ",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Ginatilan Elementary School",
+    "designation": "Head Teacher III",
+    "email": "roger.delacruz001@deped.gov.ph"
+  },
+  {
+    "fullname": "PINKY  HITOSIS",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Ginatilan Elementary School",
+    "designation": "Teacher III",
+    "email": "pinky.deleon005@deped.gov.ph"
+  },
+  {
+    "fullname": "SHARON GONDALES",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Kidapawan City National High School",
+    "designation": "Master Teacher II",
+    "email": "sharon.gondales001@deped.gov.ph"
+  },
+  {
+    "fullname": "ATRENE LONZAGA",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Kidapawan City National High School",
+    "designation": "Head Teacher I",
+    "email": "atrene.lonzaga@deped.gov.ph"
+  },
+  {
+    "fullname": "REMAR  SINO",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Kidapawan City National High School",
+    "designation": "Teacher VI",
+    "email": "remar.sino@deped.gov.ph"
+  },
+  {
+    "fullname": "SHARON  VALLE",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Kidapawan City Pilot ES",
+    "designation": "Teacher VI",
+    "email": "sharonjane.biton@deped.gov.ph"
+  },
+  {
+    "fullname": "NELIDA COLLADOS",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Kidapawan City Pilot ES",
+    "designation": "Master Teacher III",
+    "email": "nelida.collados@deped.gov.ph"
+  },
+  {
+    "fullname": "DANILO SUMAIN",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Manongol National HS",
+    "designation": "Teacher III",
+    "email": "danilo.sumain001@deped.gov.ph"
+  },
+  {
+    "fullname": "JESSA MAE SOLIS",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Malinan Elementary School",
+    "designation": "Head Teacher I",
+    "email": "jessamae.solis@deped.gov.ph"
+  },
+  {
+    "fullname": "JOSELLE ZAMBAS",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Sumbac Elementary School",
+    "designation": "Head Teacher I",
+    "email": "joselle.zambas@deped.gov.ph"
+  },
+  {
+    "fullname": "REYNA ALILING",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Nuangan Integrated School",
+    "designation": "Teacher VI",
+    "email": "reyna.aliling@deped.gov.ph"
+  },
+  {
+    "fullname": "ROSELLE  RIVAC",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Manongol National HS",
+    "designation": "Teacher VII",
+    "email": "roselle.rivac@deped.gov.ph"
+  },
+  {
+    "fullname": "ROSELLE NARAL",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Binoligan Integrated School",
+    "designation": "Teacher III",
+    "email": "roselle.naral@deped.gov.ph"
+  },
+  {
+    "fullname": "ROMEL ANISCAL",
+    "schoolsDivision": "KIDAPAWAN CITY",
+    "station": "Marbel Elementary School",
+    "designation": "Master Teacher II",
+    "email": "romel.aniscal001@deped.gov.ph"
+  },
+  {
+    "fullname": "Nemia Togonon",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Purok Reyes CES",
+    "designation": "Teacher II",
+    "email": "nemia.togonon001@deped.gov.ph"
+  },
+  {
+    "fullname": "Amefiel Lacandula",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Malaya NHS",
+    "designation": "Teacher I",
+    "email": "amefiel.lacandula@deped.gov.ph"
+  },
+  {
+    "fullname": "Sharon Enestois",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Haliland IS",
+    "designation": "Teacher III",
+    "email": "sharon.enestois@deped.gov.ph"
+  },
+  {
+    "fullname": "Joseph Almocera",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Seven Lakes ES- Kabog Ext.",
+    "designation": "Teacher III",
+    "email": "joseph.almocera@deped.gov.ph"
+  },
+  {
+    "fullname": "Joycee Flores",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Puti ES",
+    "designation": "Teacher I",
+    "email": "joycee.flores@deped.gov.ph"
+  },
+  {
+    "fullname": "Shaira Dapatnapo",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "San Jose NHS Lapu NHS Annex",
+    "designation": "Teacher III",
+    "email": "shaira.binas@deped.gov.ph"
+  },
+  {
+    "fullname": "Richelle Mae Morales",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Defensor ES",
+    "designation": "Teacher I",
+    "email": "richellemae.morales@deped.gov.ph"
+  },
+  {
+    "fullname": "Mary Ann Ebuetada",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Talahik IS",
+    "designation": "Teacher I",
+    "email": "maryann.ebuetada@deped.gov.ph"
+  },
+  {
+    "fullname": "Cheryl Herrera",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "PANAY ELEMENTARY SCHOOL",
+    "designation": "Teacher III",
+    "email": "cheryl.herrera001@deped.gov.ph"
+  },
+  {
+    "fullname": "Asher Bueno",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Guinsang -an NHS",
+    "designation": "Teacher III",
+    "email": "asher.bueno@deped.gov.ph"
+  },
+  {
+    "fullname": "Rizaldy Diel",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Tampakan National HS",
+    "designation": "Teacher VI",
+    "email": "rizaldy.diel001@deped.gov.ph"
+  },
+  {
+    "fullname": "Nathan Bangoc",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Liberty ES",
+    "designation": "Teacher III",
+    "email": "nathan.banggoc@deped.gov.ph"
+  },
+  {
+    "fullname": "Donessa Gail Kalim",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Datal Bila IS",
+    "designation": "Teacher I",
+    "email": "donessagail.kalim@deped.gov.ph"
+  },
+  {
+    "fullname": "Jeanly Jaleco",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Tboli NHS",
+    "designation": "Teacher I",
+    "email": "jeanly.jaleco@deped.gov.ph"
+  },
+  {
+    "fullname": "Theirmai Laco",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Lunen IS",
+    "designation": "Teacher III",
+    "email": "theirmai.laco@deped.gov.ph"
+  },
+  {
+    "fullname": "Jester Gatinao",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Juan Loreto Tamayo IS",
+    "designation": "Teacher III",
+    "email": "jester.gatinao@deped.gov.ph"
+  },
+  {
+    "fullname": "Alpha Cerbo",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Tantangan National Trade HS",
+    "designation": "Teacher III",
+    "email": "alpha.cerbo@deped.gov.ph"
+  },
+  {
+    "fullname": "Katherine Osita",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Tantangan District ",
+    "designation": "Master Teacher I",
+    "email": "katherine.osita@deped.gov.ph"
+  },
+  {
+    "fullname": "Jezrel Tolondon",
+    "schoolsDivision": "SOUTH COTABATO",
+    "station": "Schools Division of South Cotabato",
+    "designation": "Teacher 1 (Probationary)",
+    "email": "jezreltolondon1995@gmail.com"
+  },
+  {
+    "fullname": "Jaynald Camarillo",
+    "schoolsDivision": "COTABATO",
+    "station": "SDO COTABATO",
+    "designation": "Teacher",
+    "email": "jaynald.camarillo@deped.gov.ph"
+  },
+  {
+    "fullname": "Lloyd Dacara",
+    "schoolsDivision": "COTABATO",
+    "station": "SDO COTABATO",
+    "designation": "Teacher",
+    "email": "lloyd.dacara@deped.gov.ph"
+  },
+  {
+    "fullname": "Celia Lorenzo",
+    "schoolsDivision": "COTABATO",
+    "station": "PIGCAWAYAN CES",
+    "designation": "Teacher 1",
+    "email": "celia.lorenzo@deped.gov.ph"
+  },
+  {
+    "fullname": "April Rose Osorio",
+    "schoolsDivision": "COTABATO",
+    "station": "LANAO KURAN ES",
+    "designation": "Teacher 1",
+    "email": "aprilrose.bucog@deped.gov.ph"
+  },
+  {
+    "fullname": "Roselyn Cabaya",
+    "schoolsDivision": "COTABATO",
+    "station": "KAWILIHAN ES",
+    "designation": "Teacher III",
+    "email": "roselyn.cabaya@deped.gov.ph"
+  },
+  {
+    "fullname": "Josephine Ancheta",
+    "schoolsDivision": "COTABATO",
+    "station": "KIBUDOC ES",
+    "designation": "Teacher III",
+    "email": "josephine.ancheta001@deped.gov.ph"
+  },
+  {
+    "fullname": "Jefrey Simblante",
+    "schoolsDivision": "COTABATO",
+    "station": "BAO ES",
+    "designation": "Teacher",
+    "email": "jeffrey.simblante@deped.gov.ph"
+  },
+  {
+    "fullname": "Rean Bacan",
+    "schoolsDivision": "COTABATO",
+    "station": "BALINDONG ES",
+    "designation": "Teacher I",
+    "email": "rean.bacan@deped.gov.ph"
+  },
+  {
+    "fullname": "Joyce Sillador",
+    "schoolsDivision": "COTABATO",
+    "station": "KIBUDTUNGAN CES",
+    "designation": "Teacher III",
+    "email": "joyce.sillador@deped.gov.ph"
+  },
+  {
+    "fullname": "Ronie Cagungao",
+    "schoolsDivision": "COTABATO",
+    "station": "KATIDTUAN CES",
+    "designation": "Teacher III",
+    "email": "ronie.cagungao@deped.gov.ph"
+  },
+  {
+    "fullname": "Vilma Idul",
+    "schoolsDivision": "COTABATO",
+    "station": "ERNESTO REYES HS",
+    "designation": "Teacher I",
+    "email": "vilma.idul@deped.gov.ph"
+  },
+  {
+    "fullname": "Jestoni Pendon",
+    "schoolsDivision": "COTABATO",
+    "station": "DATU CELO ES",
+    "designation": "Teacher I",
+    "email": "jestoni.pendon@deped.gov.ph"
+  },
+  {
+    "fullname": "Janna Mae Doloso",
+    "schoolsDivision": "COTABATO",
+    "station": "ALIBAYON ES",
+    "designation": "Teacher I",
+    "email": "jannamae.clarito@deped.gov.ph"
+  },
+  {
+    "fullname": "Shirly Caagoy",
+    "schoolsDivision": "COTABATO",
+    "station": "NEW CEBU ES",
+    "designation": "Teacher III",
+    "email": "shirly.caagoy@deped.gov.ph"
+  },
+  {
+    "fullname": "Maria Estralla Flauta",
+    "schoolsDivision": "COTABATO",
+    "station": "MAKILALA NHS",
+    "designation": "Teacher V",
+    "email": "Mariaestrella.flauta@deped.gov.ph"
+  },
+  {
+    "fullname": "Marevic Rumbaoa",
+    "schoolsDivision": "COTABATO",
+    "station": "AGRICULTURE CES",
+    "designation": "Teacher I",
+    "email": "marevic.rumbaoa@deped.gov.ph"
+  },
+  {
+    "fullname": "Dave Paradillo Ursua",
+    "schoolsDivision": "COTABATO",
+    "station": "DALIPE ES",
+    "designation": "Teacher 1",
+    "email": "dave.ursua@deped.gov.ph"
+  },
+  {
+    "fullname": "Merlyn Alas",
+    "schoolsDivision": "COTABATO",
+    "station": "KATIPUNAN ES",
+    "designation": "Teacher I",
+    "email": "merlyn.alas@deped.gov.ph"
+  },
+  {
+    "fullname": "Nenita Pagurayan",
+    "schoolsDivision": "COTABATO",
+    "station": "BANISILAN NHS",
+    "designation": "Teacher",
+    "email": "Nenita.pagurayan@deped.gov.ph"
+  },
+  {
+    "fullname": "Yhenilyn Camacho",
+    "schoolsDivision": "COTABATO",
+    "station": "MAGBOK ES",
+    "designation": "Teacher I",
+    "email": "yhenilyn.camacho@deped.gov.ph"
+  },
+  {
+    "fullname": "Nelly Gomez",
+    "schoolsDivision": "COTABATO",
+    "station": "CALAWAG ES",
+    "designation": "Teacher",
+    "email": "nelly.gomez@deped.gov.ph"
+  },
+  {
+    "fullname": "Janice Mae Rivera",
+    "schoolsDivision": "COTABATO",
+    "station": "PIGCAWAYAN NHS",
+    "designation": "Master Teacher II",
+    "email": "janicemae.rivera@deped.gov.ph"
+  },
+  {
+    "fullname": "Godofredo Villa",
+    "schoolsDivision": "KORONADAL CITY ",
+    "station": "Marbel 3 ES",
+    "designation": "MT I, Pres. - Elem. Teachers Association",
+    "email": "godofredo.villa001@deped.gov.ph"
+  },
+  {
+    "fullname": "Llannier Ysidore Coloyan",
+    "schoolsDivision": "KORONADAL CITY ",
+    "station": "Bacongco NHS",
+    "designation": "Teacher I",
+    "email": "llannier.ysidore@deped.gov.ph"
+  },
+  {
+    "fullname": "Aljun Ballado",
+    "schoolsDivision": "TACURONG CITY",
+    "station": "Amado Fernandez Sr. Central School",
+    "designation": "Teacher I",
+    "email": "aljun.ballado@deped.gov.ph"
+  },
+  {
+    "fullname": "Gengelyn Ochinang",
+    "schoolsDivision": "TACURONG CITY",
+    "station": "Dr. Manuel J Grino Memorial Central School",
+    "designation": "Master Teacher II",
+    "email": "gengelyn.ochinang001@deped.gov.ph"
+  },
+  {
+    "fullname": "Johalibrassim Lu",
+    "schoolsDivision": "TACURONG CITY",
+    "station": "Abang-Suizo Integrated School",
+    "designation": "Teacher IV",
+    "email": "johalibrassim.lu@deped.gov.ph"
+  },
+  {
+    "fullname": "Lucy Padillo",
+    "schoolsDivision": "TACURONG CITY",
+    "station": "Rajah Muda ES- BEAM",
+    "designation": "Master Teacher III",
+    "email": "lucy.padillo@deped.gov.ph"
+  },
+  {
+    "fullname": "Jason Carvajal",
+    "schoolsDivision": "TACURONG CITY",
+    "station": "New Isabela Central Elementary School",
+    "designation": "Teacher I",
+    "email": "jason.carvajal@deped.gov.ph"
+  },
+  {
+    "fullname": "Lloyd Dalayap",
+    "schoolsDivision": "TACURONG CITY",
+    "station": "Tacurong National High School",
+    "designation": "Master Teacher II",
+    "email": "lloyd.dalayap@deped.gov.ph"
+  },
+  {
+    "fullname": "Melody Fernandez",
+    "schoolsDivision": "TACURONG CITY",
+    "station": "Tacurong Pilot Elementary School",
+    "designation": "Master Teacher II",
+    "email": "melody.fernandez003@deped.gov.ph"
+  },
+  {
+    "fullname": "Mark Ian Lansita",
+    "schoolsDivision": "TACURONG CITY",
+    "station": "Apolinario S. Bernardo NHS",
+    "designation": "Teacher VI",
+    "email": "markian.lansita@deped.gov.ph"
+  },
+  {
+    "fullname": "Edmar Penuela",
+    "schoolsDivision": "TACURONG CITY",
+    "station": "Virginia F Grino NHS",
+    "designation": "Teacher VI",
+    "email": "edmar.penuela@deped.gov.ph"
+  },
+  {
+    "fullname": "Eugene Carl Peñera",
+    "schoolsDivision": "TACURONG CITY",
+    "station": "San Emmanuel NHS",
+    "designation": "Teacher V",
+    "email": "eugenecarl.penera@deped.gov.p"
+  },
+  {
+    "fullname": "ALBERTO STA IGLESIA",
+    "schoolsDivision": "SARANGANI",
+    "station": "GLAN SCHOOL OF ARTS AND TRADE",
+    "designation": "Teacher V",
+    "email": "alberto.staiglesia@deped.gov.ph"
+  },
+  {
+    "fullname": "HENRY AROZ",
+    "schoolsDivision": "SARANGANI",
+    "station": "GLAN SCHOOL OF ARTS AND TRADE",
+    "designation": "Teacher III",
+    "email": "henry.aroz@deped.gov.ph"
+  },
+  {
+    "fullname": "JEWEL BACALLAN",
+    "schoolsDivision": "SARANGANI",
+    "station": "GLAN SCHOOL OF ARTS AND TRADE",
+    "designation": "Teacher III",
+    "email": "jewel.bacallan@deped.gov.ph"
+  },
+  {
+    "fullname": "HAYDEE CONTAOI",
+    "schoolsDivision": "SARANGANI",
+    "station": "GLAN SCHOOL OF ARTS AND TRADE",
+    "designation": "Master Teacher I",
+    "email": "haydee.contaoi@deped.gov.ph"
+  },
+  {
+    "fullname": "ROLICEL TRIBUNALO",
+    "schoolsDivision": "SARANGANI",
+    "station": "ALABEL NATIONAL HIGH SCHOOL",
+    "designation": "Master Teacher 1",
+    "email": "rolicel.tribunalo@deped.gov.ph"
+  },
+  {
+    "fullname": "LOVELY JANE TALAMERA",
+    "schoolsDivision": "SARANGANI",
+    "station": "ALABEL NATIONAL HIGH SCHOOL",
+    "designation": "Teacher VI",
+    "email": "lovelyjane.martin@deped.gov.ph"
+  },
+  {
+    "fullname": "VERFE TUYOGON",
+    "schoolsDivision": "SARANGANI",
+    "station": "ALABEL NATIONAL HIGH SCHOOL",
+    "designation": "Teacher lll",
+    "email": "verfe.tuyogon@deped.gov.ph"
+  },
+  {
+    "fullname": "MARELL NAUNGAYAN",
+    "schoolsDivision": "SARANGANI",
+    "station": "ALABEL NATIONAL HIGH SCHOOL",
+    "designation": "Teacher VI",
+    "email": "marell.regidor@deped.gov.ph"
+  },
+  {
+    "fullname": "CHARIEGIL BAYLON",
+    "schoolsDivision": "SARANGANI",
+    "station": "JAMES L CHIONGBIAN NATIONAL TRADE SCHOOL",
+    "designation": "Teacher I",
+    "email": "chariegil.baylon001@deped.gov.ph"
+  },
+  {
+    "fullname": "MARCELINO SABABAN JR.",
+    "schoolsDivision": "SARANGANI",
+    "station": "JAMES L CHIONGBIAN NATIONAL TRADE SCHOOL",
+    "designation": "Teacher III",
+    "email": "marcelinojr.sababan@deped.gov.ph"
+  },
+  {
+    "fullname": "DENMARK AVISO",
+    "schoolsDivision": "SARANGANI",
+    "station": "JAMES L CHIONGBIAN NATIONAL TRADE SCHOOL",
+    "designation": "Teacher II",
+    "email": "denmark.aviso@deped.gov.ph"
+  },
+  {
+    "fullname": "VENUS ENUMERABLES",
+    "schoolsDivision": "SARANGANI",
+    "station": "JAMES L CHIONGBIAN NATIONAL TRADE SCHOOL",
+    "designation": "Master Teacher I",
+    "email": "venus.enumerables@deped.gov.ph"
+  },
+  {
+    "fullname": "ORLY GANTALA",
+    "schoolsDivision": "SARANGANI",
+    "station": "COLON NATIONAL HIGH SCHOOL",
+    "designation": "Teacher I",
+    "email": "orly.gantala@deped.gov.ph"
+  },
+  {
+    "fullname": "MYPEARL GOYHA",
+    "schoolsDivision": "SARANGANI",
+    "station": "COLON NATIONAL HIGH SCHOOL",
+    "designation": "Master Teacher II",
+    "email": "mypearl.goyha001@deped.gov.ph"
+  },
+  {
+    "fullname": "JELICA PANTUJAN",
+    "schoolsDivision": "SARANGANI",
+    "station": "COLON NATIONAL HIGH SCHOOL",
+    "designation": "Teacher III",
+    "email": "jelica.llego@deped.gov.ph"
+  },
+  {
+    "fullname": "REMA LEAH AMAGAN",
+    "schoolsDivision": "SARANGANI",
+    "station": "COLON NATIONAL HIGH SCHOOL",
+    "designation": "Teacher III",
+    "email": "remaleah.abaquita@deped.gov.ph"
+  },
+  {
+    "fullname": "MARNALYN BARCENAS",
+    "schoolsDivision": "SARANGANI",
+    "station": "COLON NATIONAL HIGH SCHOOL",
+    "designation": "Teacher I",
+    "email": "marnalyn.barcenas@deped.gov.ph"
+  },
+  {
+    "fullname": "ENTAN AMELODIN",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "BAGUMBAYAN CES",
+    "designation": "Master Teacher I",
+    "email": "entan.amelodin@deped.gov.ph"
+  },
+  {
+    "fullname": "ROSE GELLAMUCHO",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "DORIN ELEMENTARY SCHOOL",
+    "designation": "Teacher III",
+    "email": "rose.gellamucho@deped.gov.ph"
+  },
+  {
+    "fullname": "JANET AYSON",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "MAYO IS",
+    "designation": "Teacher I",
+    "email": "janet.hambala@deped.gov.ph"
+  },
+  {
+    "fullname": "JUBELLE COLLADO",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "COLUMBIO CS",
+    "designation": "Teacher II",
+    "email": "jubelle.collado@deped.gov.ph"
+  },
+  {
+    "fullname": "MERRY JOY FIGURACION",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "COLUMBIO CS",
+    "designation": "Teacher I",
+    "email": "merryjoy.figuracion@deped.gov.ph"
+  },
+  {
+    "fullname": "JOMAR MACASAYON",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "MALOK INTEGRATED SCHOOL",
+    "designation": "Teacher I",
+    "email": "jomar.macasayon@deped.gov.ph"
+  },
+  {
+    "fullname": "ALMAN JAINAR",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "ISULAN CENTRAL SCHOOL SPED CENTER",
+    "designation": "Teacher II",
+    "email": "alman.jainar@deped.gov.ph"
+  },
+  {
+    "fullname": "CHRISTIAN SIAOTONG",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "MAPANTIG ELEMENTARY SCHOOL",
+    "designation": "Teacher III",
+    "email": "christian.siaotong@deped.gov.ph"
+  },
+  {
+    "fullname": "FITZROY CEZAR DAGOL",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "ISULAN CENTRAL SCHOOL SPED CENTER",
+    "designation": "Teacher IV",
+    "email": "fitzroycezar.dagol@deped.gov.ph"
+  },
+  {
+    "fullname": "CLAUDINE MAGBANUA",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "VILLA CLARA NATIONAL HIGH SCHOOL",
+    "designation": "Teacher I",
+    "email": "claudine.magbanua@deped.gov.ph"
+  },
+  {
+    "fullname": "JASPER DELA CRUZ",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "ANTONIO-CARIDAD LOZADA NHS",
+    "designation": "Teacher I",
+    "email": "jasper.delacruz@deped.gov.ph"
+  },
+  {
+    "fullname": "MARY ANN GONZAGA",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "KALAMANSIG NHS",
+    "designation": "Master Teacher II",
+    "email": "maryann.gonzaga1@deped.gov.ph"
+  },
+  {
+    "fullname": "ROLITA BELMORES",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "DATU GUIABAR PILOT SCHOOL",
+    "designation": "Teacher III",
+    "email": "rolita.belmores@deped.gov.ph"
+  },
+  {
+    "fullname": "NORHANA AMELODIN",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "LAMBAYONG CES",
+    "designation": "Teacher I",
+    "email": "norhana.amelodin@deped.gov.ph"
+  },
+  {
+    "fullname": "LADY JOY GALANZA",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "ALAMADA SABAWA ES",
+    "designation": "Teacher I",
+    "email": "ladyjoy.galanza@deped.gov.ph"
+  },
+  {
+    "fullname": "JOVIE VILLANUEVA",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "KEYTODAC CENTRAL SCHOOL",
+    "designation": "Teacher I",
+    "email": "jovie.villanueva002@deped.gov.ph"
+  },
+  {
+    "fullname": "MURIELLE ANGELA LANO",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "PASANDALAN IS",
+    "designation": "Teacher III",
+    "email": "murielleangela.lano@deped.gov.ph"
+  },
+  {
+    "fullname": "ELY SUMAGAYSAY",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "PALAVILLA INTEGRATED SCHOOL",
+    "designation": "Master Teacher II",
+    "email": "ely.sumagaysay001@deped.gov.ph"
+  },
+  {
+    "fullname": "TJ SOMEWHERE JAVIER",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "PALAVILLA INTEGRATED SCHOOL",
+    "designation": "Teacher III",
+    "email": "tj.javier@deped.gov.ph"
+  },
+  {
+    "fullname": "WARREN JOHN DIMALANTA",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "KATIKU CENTRAL ES",
+    "designation": "Teacher III",
+    "email": "warrenjohn.dimalanta@deped.gov.ph"
+  },
+  {
+    "fullname": "EBTISSAM BLAO",
+    "schoolsDivision": "SULTAN KUDARAT",
+    "station": "BAYAWA ES",
+    "designation": "Master Teacher I",
+    "email": "ebtissam.blao@deped.gov.ph"
+  }
+]

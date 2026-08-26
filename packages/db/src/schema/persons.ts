@@ -13,6 +13,10 @@ export const persons = pgTable("persons", {
     .references(() => regions.id, {
       onDelete: "cascade",
     }),
+  schoolsDivision: text("schools_division").notNull(),
+  station: text("station").notNull(),
+  designation: text("designation").notNull(),
+  email: text("email").notNull(),
   isEligible: boolean("is_eligible").default(true).notNull(),
 });
 
