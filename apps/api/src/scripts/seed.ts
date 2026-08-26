@@ -71,20 +71,24 @@ async function main() {
   // 3. REGIONS SEEDING (5 Regions)
   // ==========================================
   console.log("Seeding regions...");
-  await db
-    .insert(regions)
-    .values([
-      { region: "Region IX", regionName: "Zamboanga Peninsula" },
-      { region: "Region X", regionName: "Northern Mindanao" },
-      { region: "Region XI", regionName: "Davao Region" },
-      { region: "Region XII", regionName: "SOCCSKSARGEN" },
-      { region: "Region XIII", regionName: "Caraga" },
-      {
-        region: "BARMM",
-        regionName: "Bangsamoro Autonomous Region in Muslim Mindanao",
-      },
-    ])
-    .onConflictDoNothing();
+  const regionValues = [
+    { region: "Region IX", regionName: "Zamboanga Peninsula" },
+    { region: "Region X", regionName: "Northern Mindanao" },
+    { region: "Region XI", regionName: "Davao Region" },
+    { region: "Region XII", regionName: "SOCCSKSARGEN" },
+    { region: "Region XIII", regionName: "Caraga" },
+    {
+      region: "BARMM",
+      regionName: "Bangsamoro Autonomous Region in Muslim Mindanao",
+    },
+  ];
+  const existingRegions = await db.query.regions.findMany();
+  const existingRegionNames = new Set(existingRegions.map((region) => region.region));
+  const regionsToInsert = regionValues.filter((region) => !existingRegionNames.has(region.region));
+
+  if (regionsToInsert.length > 0) {
+    await db.insert(regions).values(regionsToInsert);
+  }
 
   const activeRegions = await db.query.regions.findMany();
 
@@ -92,46 +96,99 @@ async function main() {
   // 4. PRIZES SEEDING (5 Prizes)
   // ==========================================
   console.log("Seeding prizes...");
-  await db
-    .insert(prizes)
-    .values([
-      {
-        prize: 'Grand Prize: MacBook Pro M3 16"',
-        imageUrl: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-        sponsor: "Tech Corp",
-        sponsorImage: "https://via.placeholder.com/150",
-        numberOfWinners: 1,
-      },
-      {
-        prize: "iPhone 15 Pro Max",
-        imageUrl: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab",
-        sponsor: "Mobile Solutions Inc.",
-        sponsorImage: "https://via.placeholder.com/150",
-        numberOfWinners: 2,
-      },
-      {
-        prize: "Sony WH-1000XM5 Headphones",
-        imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
-        sponsor: "Audio Direct",
-        sponsorImage: "https://via.placeholder.com/150",
-        numberOfWinners: 3,
-      },
-      {
-        prize: "Nintendo Switch OLED",
-        imageUrl: "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e",
-        sponsor: "GameStop Philippines",
-        sponsorImage: "https://via.placeholder.com/150",
-        numberOfWinners: 5,
-      },
-      {
-        prize: "$100 Shopping Gift Card",
-        imageUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48",
-        sponsor: "HR Employee Perks",
-        sponsorImage: "https://via.placeholder.com/150",
-        numberOfWinners: 10,
-      },
-    ])
-    .onConflictDoNothing();
+  const prizeValues = [
+    {
+      prize: "LAPTOP",
+      sponsor: "CITY SAVINGS BANK",
+      numberOfWinners: 5,
+      type: "MAJOR PRIZE",
+      imageUrl: "/laptop.png",
+    },
+    {
+      prize: "SMART PHONE",
+      sponsor: "CITY SAVINGS BANK",
+      numberOfWinners: 3,
+      type: "MAJOR PRIZE",
+      imageUrl: "/smartphone.png",
+    },
+    {
+      prize: "PRINTER",
+      sponsor: "CITY SAVINGS BANK",
+      numberOfWinners: 3,
+      type: "MAJOR PRIZE",
+      imageUrl: "/printer.png",
+    },
+    {
+      prize: "TABLET",
+      sponsor: "CITY SAVINGS BANK",
+      numberOfWinners: 2,
+      type: "MAJOR PRIZE",
+      imageUrl: "/tablet.png",
+    },
+    {
+      prize: "BLUETOOTH SPEAKER",
+      sponsor: "CITY SAVINGS BANK",
+      numberOfWinners: 1,
+      type: "MINOR PRIZE",
+      imageUrl: "/bluetooth speaker.png",
+    },
+    {
+      prize: "5K WORTH OF GC (500/head)",
+      sponsor: "JOLLIBEE GROUP FOUNDATION",
+      numberOfWinners: 10,
+      type: "MINOR PRIZE",
+      imageUrl: "/jolibee gc.png",
+    },
+    {
+      prize: "25K WORTH OF GC (500/head)",
+      sponsor: "RONALD MCDONALD HOUSE OF CHARITIES PHILIPPINES",
+      numberOfWinners: 50,
+      type: "MINOR PRIZE",
+      imageUrl: "/mcdo gc.png",
+    },
+    {
+      prize: "1 CASE OF ALASKA 300g POWDERED MILK",
+      sponsor: "ALASKA MILK CORPORATION",
+      numberOfWinners: 4,
+      type: "MINOR PRIZE",
+      imageUrl: "/alaska.png",
+    },
+    {
+      prize: "1 CASE OF FRUITTI YO ORANGE",
+      sponsor: "ALASKA MILK CORPORATION",
+      numberOfWinners: 2,
+      type: "MINOR PRIZE",
+      imageUrl: "/orange.png",
+    },
+    {
+      prize: "1 CASE OF FRUITTI YO APPLE",
+      sponsor: "ALASKA MILK CORPORATION",
+      numberOfWinners: 2,
+      type: "MINOR PRIZE",
+      imageUrl: "/green-apple.png",
+    },
+    {
+      prize: "1 CASE OF FRUITTI YO STRAWBERRY",
+      sponsor: "ALASKA MILK CORPORATION",
+      numberOfWinners: 2,
+      type: "MINOR PRIZE",
+      imageUrl: "/strawberry.png",
+    },
+    {
+      prize: "VOUCHERS, FOOD CERTIFICATES, ETC.",
+      sponsor: "GOKONGWEI BROTHERS FOUNDATION, INC.",
+      numberOfWinners: 13,
+      type: "MINOR PRIZE",
+      imageUrl: "/Gokongwei.png",
+    },
+  ];
+  const existingPrizes = await db.query.prizes.findMany();
+  const existingPrizeNames = new Set(existingPrizes.map((prize) => prize.prize));
+  const prizesToInsert = prizeValues.filter((prize) => !existingPrizeNames.has(prize.prize));
+
+  if (prizesToInsert.length > 0) {
+    await db.insert(prizes).values(prizesToInsert);
+  }
 
   // ==========================================
   // 5. PERSONS / PARTICIPANTS SEEDING
@@ -173,11 +230,19 @@ async function main() {
       });
     });
 
-  if (employeeValues.length > 0) {
-    await db.insert(persons).values(employeeValues).onConflictDoNothing();
+  const existingPersons = await db.query.persons.findMany({
+    columns: { employeeId: true },
+  });
+  const existingEmployeeIds = new Set(existingPersons.map((person) => person.employeeId));
+  const personsToInsert = employeeValues.filter(
+    (person) => !existingEmployeeIds.has(person.employeeId),
+  );
+
+  if (personsToInsert.length > 0) {
+    await db.insert(persons).values(personsToInsert);
   }
 
-  console.log(`Prepared ${employeeValues.length} participants from employee files.`);
+  console.log(`Prepared ${personsToInsert.length} new participants from employee files.`);
 
   console.log("🎉 Complete seeding finished successfully!");
   process.exit(0);
