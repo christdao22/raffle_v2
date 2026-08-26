@@ -126,6 +126,27 @@ export function useLiveSocket(
   useEffect(() => {
     if (initialEvents && !hydratedRef.current) {
       dispatch({ type: "HYDRATE", events: initialEvents });
+
+      const modalClosed = Boolean(initialEvents.MODAL_CLOSED);
+      const latestWinners = initialEvents.WINNERS?.payload as { persons?: Person[] } | undefined;
+      if (!modalClosed && latestWinners?.persons?.length) {
+        dispatch({ type: "WINNERS", persons: latestWinners.persons });
+      }
+
+      const latestCountdown = initialEvents.COUNTDOWN?.payload as
+        | { duration?: number; startedAt?: number }
+        | undefined;
+      if (!modalClosed && !latestWinners?.persons?.length && latestCountdown) {
+        const { duration, startedAt } = latestCountdown;
+        if (typeof duration === "number" && typeof startedAt === "number") {
+          const remaining = Math.max(0, Math.ceil(duration - (Date.now() - startedAt) / 1000));
+          dispatch({ type: "COUNTDOWN_START", remaining });
+          countdownTickRef.current = setInterval(() => {
+            dispatch({ type: "COUNTDOWN_TICK" });
+          }, 1000);
+        }
+      }
+
       hydratedRef.current = true;
     }
   }, [initialEvents]);

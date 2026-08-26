@@ -1,6 +1,6 @@
 import type { Prize } from "@raffle_v2/shared";
 import { Card, cn } from "@raffle_v2/ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LiveScreenDisplayMode from "../components/Custom/LiveScreenDisplayMode";
 import { PrizeSelectorCard } from "../components/Custom/PrizeSelectorCard";
 import RaffleConfigCard from "../components/Custom/RaffleConfig";
@@ -10,6 +10,8 @@ import { usePrizes } from "../hooks/use-prizes";
 import { useRegions } from "../hooks/use-regions";
 
 export function Dashboard() {
+  const savedPrizeId = localStorage.getItem("raffle:selected-prize");
+  const savedRegionIds = localStorage.getItem("raffle:selected-regions");
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10,
@@ -22,8 +24,34 @@ export function Dashboard() {
   });
 
   // Track ID instead of copying the full object into state
-  const [selectedPrizeId, setSelectedPrizeId] = useState<string>();
-  const [regionId, setRegionId] = useState<string[]>();
+  const [selectedPrizeId, setSelectedPrizeId] = useState<string | undefined>(
+    savedPrizeId ?? undefined,
+  );
+  const [regionId, setRegionId] = useState<string[] | undefined>(() => {
+    if (!savedRegionIds) return undefined;
+    try {
+      const parsed = JSON.parse(savedRegionIds);
+      return Array.isArray(parsed) ? parsed : undefined;
+    } catch {
+      return undefined;
+    }
+  });
+
+  useEffect(() => {
+    if (selectedPrizeId) {
+      localStorage.setItem("raffle:selected-prize", selectedPrizeId);
+    } else {
+      localStorage.removeItem("raffle:selected-prize");
+    }
+  }, [selectedPrizeId]);
+
+  useEffect(() => {
+    if (regionId) {
+      localStorage.setItem("raffle:selected-regions", JSON.stringify(regionId));
+    } else {
+      localStorage.removeItem("raffle:selected-regions");
+    }
+  }, [regionId]);
 
   const { data: regions } = useRegions({
     page: 1,

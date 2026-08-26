@@ -1,5 +1,5 @@
 import type { Prize } from "@raffle_v2/shared";
-import { Dice5, RefreshCw, Save, Trash2, Trophy, User, X } from "lucide-react";
+import { Dice5, OctagonX, RefreshCw, Save, Trash2, Trophy, User, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   useSetCloseModal,
@@ -69,6 +69,18 @@ export default function DrawResultModal({
   const displayCountdown = useSetDisplayCountdown();
   const closeLiveWinner = useSetCloseModal();
 
+  useEffect(() => {
+    if (!isOpen || revealed) return;
+
+    const preventRefresh = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", preventRefresh);
+    return () => window.removeEventListener("beforeunload", preventRefresh);
+  }, [isOpen, revealed]);
+
   const candidates = useMemo(() => {
     const rawCandidates = data ?? [];
     return rawCandidates.filter((person) => !excludedIds.includes(person.id));
@@ -122,6 +134,11 @@ export default function DrawResultModal({
     displayWinners.mutate({ persons: [], drawDuration }); // clear live display
     closeLiveWinner.mutate();
     onClose();
+  };
+
+  const handleForceStop = () => {
+    if (tickRef.current) clearTimeout(tickRef.current);
+    handleClose();
   };
 
   const handleSaveWinners = () => {
@@ -236,13 +253,24 @@ export default function DrawResultModal({
 
         {/* Footer Actions */}
         <div className="p-4 border-t border-slate-800 bg-[#080d1a] flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="px-3 py-2 text-xs font-bold text-slate-400 hover:text-white transition-colors"
-          >
-            Cancel
-          </button>
+          {!revealed ? (
+            <button
+              type="button"
+              onClick={handleForceStop}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-md transition-colors"
+            >
+              <OctagonX className="w-3.5 h-3.5" />
+              Force Stop Drawing
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleClose}
+              className="px-3 py-2 text-xs font-bold text-slate-400 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+          )}
 
           <div className="flex items-center gap-2">
             <button
