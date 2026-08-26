@@ -60,38 +60,72 @@ export function MultipleWinnersModal({
 
   const getGridClass = () => {
     if (winnerCount === 2) {
-      return "grid-cols-2";
+      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-1";
     }
 
     if (winnerCount <= 4) {
-      return "grid-cols-2";
+      return "grid-cols-1 md:grid-cols-2";
     }
 
     if (winnerCount <= 6) {
-      return "grid-cols-2 lg:grid-cols-3";
+      return "grid-cols-1 lg:grid-cols-3";
     }
 
-    return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5";
+    return "grid-cols-1 sm:grid-cols-3 lg:grid-cols-5";
   };
 
   const getNameSize = () => {
     if (winnerCount <= 2) {
-      return "text-4xl sm:text-6xl";
+      return "text-2xl lg:text-5xl xl:text-9xl";
     }
 
     if (winnerCount <= 4) {
-      return "text-3xl sm:text-5xl";
+      return "text-2xl xl:text-7xl";
     }
 
     if (winnerCount <= 6) {
-      return "text-xl sm:text-4xl";
+      return "text-2xl xl:text-5xl";
     }
 
-    return "text-base sm:text-4xl";
+    return "text-2xl lg:text-xl xl:text-4xl";
   };
 
+  const getCongratsSize = () => {
+    if (winnerCount <= 2) {
+      return "text-2xl lg:text-3xl xl:text-7xl";
+    }
+
+    if (winnerCount <= 4) {
+      return "text-2xl lg:text-3xl xl:text-6xl";
+    }
+
+    if (winnerCount <= 6) {
+      return "text-2xl lg:text-3xl xl:text-5xl";
+    }
+
+    return "text-2xl lg:text-3xl xl:text-4xl";
+  };
+
+  const getPrizeSize = () => {
+    if (winnerCount <= 2) {
+      return "text-base lg:text-7xl";
+    }
+
+    if (winnerCount <= 4) {
+      return "text-base lg:text-6xl";
+    }
+
+    if (winnerCount <= 6) {
+      return "text-base lg:text-5xl";
+    }
+
+    return "text-base lg:text-3xl";
+  };
+
+  //
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-tr-surface/85 backdrop-blur-md animate-in fade-in duration-300 p-6 sm:p-10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-tr-surface/85 backdrop-blur-md animate-in fade-in duration-300 p-0">
       {showConfetti && showWinner && <Confetti recycle={true} numberOfPieces={100} />}
 
       <div
@@ -141,7 +175,12 @@ export function MultipleWinnersModal({
                 National Teachers' Month Kick-off
               </p>
 
-              <h1 className="mt-1 font-display font-black text-3xl sm:text-5xl lg:text-5xl uppercase tracking-tight text-tr-secondary leading-none">
+              <h1
+                className={cn(
+                  "mt-1 font-display font-black uppercase tracking-tight text-tr-secondary leading-none",
+                  getCongratsSize(),
+                )}
+              >
                 Congratulations!
               </h1>
 
@@ -153,7 +192,7 @@ export function MultipleWinnersModal({
 
           <div
             className={cn(
-              "relative flex min-h-0 w-full flex-1 justify-center overflow-hidden rounded-3xl border transition-all duration-700 items-center",
+              "relative flex min-h-0 w-full flex-1 justify-center overflow-y-auto rounded-3xl border transition-all duration-700 items-center",
               showWinner
                 ? "mt-6 border-tr-secondary/10 bg-tr-secondary/5"
                 : "mt-0 border-tr-primary-container/40 bg-tr-secondary shadow-2xl",
@@ -201,29 +240,34 @@ export function MultipleWinnersModal({
             {/* Winners */}
 
             {showWinner && (
-              <div className="relative z-10 w-full px-4 py-8 sm:px-8 ">
+              <div className="relative z-10 h-full w-full px-4 py-8 sm:px-8">
                 <div className="mb-6 flex items-center justify-center gap-2">
                   <Trophy className="h-5 w-5 text-tr-tertiary-container" />
 
-                  <p className="font-display font-bold text-xs sm:text-sm uppercase tracking-[0.2em] text-tr-on-surface-variant">
+                  <p className="font-display font-bold text-xs sm:text-sm xl:text-xl  uppercase tracking-[0.2em] text-tr-on-surface-variant">
                     {winnerCount} Lucky Winners
                   </p>
 
                   <Trophy className="h-5 w-5 text-tr-tertiary-container" />
                 </div>
-                <div className="text-center mb-5">
-                  <h4 className="font-display font-black text-base sm:text-5xl uppercase text-tr-primary truncate leading-tight text-center">
+                <div className="text-center mb-5 ">
+                  <h4
+                    className={cn(
+                      "font-display font-black uppercase text-tr-primary truncate leading-tight text-center",
+                      getPrizeSize(),
+                    )}
+                  >
                     {prizeTitle}
                   </h4>
                   <span className="text-xl font-semibold text-tr-on-surface-variant">
                     Sponsored: {sponsoredBy}
                   </span>
                 </div>
-                <div className={cn("mx-auto grid w-full max-w-8xl gap-4", getGridClass())}>
+                <div className={cn("mx-auto grid w-full max-w-8xl gap-4  pb-4", getGridClass())}>
                   {winners.map((person, index) => (
                     <div
                       key={person.id}
-                      className="group relative flex min-h-28 flex-col items-center justify-center overflow-hidden rounded-2xl border border-tr-outline-variant/20 bg-tr-surface-container-lowest/95 px-4 py-5 text-center shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-lg"
+                      className="group relative flex min-h-28 flex-col items-center justify-center rounded-2xl border border-tr-outline-variant/20 bg-tr-surface-container-lowest/95 px-4 py-5 text-center shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-lg"
                     >
                       {/* Top accent */}
 
@@ -243,7 +287,7 @@ export function MultipleWinnersModal({
                       {/* Region */}
 
                       {person.region?.region && (
-                        <div className="mt-3 rounded-full bg-tr-primary-container/10 border border-tr-primary-container/20 px-3 py-1 text-[10px] font-bold uppercase text-tr-primary">
+                        <div className="mt-3 rounded-full bg-tr-primary-container/10 border border-tr-primary-container/20 px-3 py-1 font-bold uppercase text-tr-primary text-xs md:text-md">
                           {person.region.region}
                         </div>
                       )}
