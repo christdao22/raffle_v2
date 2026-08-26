@@ -51,8 +51,8 @@ export function LiveDraw() {
             <img src="/deped-logo-philippines.png" alt="Deped Logo" className="w-20" />
             <h2 className="text-4xl font-bold text-white tracking-tighter">
               <span className="text-tr-secondary">NATIONAL</span>{" "}
-              <span className="text-tr-primary">TEACHER'S</span>{" "}
-              <span className="text-tr-tertiary-fixed-dim">DAY</span>
+              <span className="text-tr-primary">TEACHERS'</span>{" "}
+              <span className="text-tr-tertiary-fixed-dim">MONTH KICK-OFF</span>
             </h2>
           </div>
 
