@@ -133,14 +133,14 @@ async function main() {
       imageUrl: "/bluetooth speaker.png",
     },
     {
-      prize: "5K WORTH OF GC (500/head)",
+      prize: "500 WORTH OF GC",
       sponsor: "JOLLIBEE GROUP FOUNDATION",
       numberOfWinners: 10,
       type: "MINOR PRIZE",
       imageUrl: "/jolibee gc.png",
     },
     {
-      prize: "25K WORTH OF GC (500/head)",
+      prize: "500 WORTH OF GC",
       sponsor: "RONALD MCDONALD HOUSE OF CHARITIES PHILIPPINES",
       numberOfWinners: 50,
       type: "MINOR PRIZE",
