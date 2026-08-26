@@ -63,7 +63,7 @@ export function WinnerModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-tr-surface/85 backdrop-blur-md animate-in fade-in duration-300 p-12">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-tr-surface/85 backdrop-blur-md animate-in fade-in duration-300 p-4">
       {showConfetti && showWinner && <Confetti recycle={true} numberOfPieces={50} />}
 
       <div
@@ -103,11 +103,11 @@ export function WinnerModal({
               <img src="/deped-logo-philippines.png" alt="DepEd" className="w-24" />
             </div>
 
-            <p className="font-display font-extrabold text-sm uppercase tracking-[0.2em] text-tr-primary">
+            <p className="font-display font-extrabold text-md uppercase tracking-[0.2em] text-tr-primary">
               National Teachers' Month Kick-off
             </p>
 
-            <h3 className="mt-1 font-display font-black text-4xl sm:text-6xl uppercase tracking-tight text-tr-secondary leading-none">
+            <h3 className="mt-1 font-display font-black text-3xl lg:text-5xl xl:text-7xl  uppercase tracking-tight text-tr-secondary leading-none">
               Congratulations!
             </h3>
 
@@ -141,12 +141,12 @@ export function WinnerModal({
                       Our Lucky Winner
                     </p>
 
-                    <h2 className="font-display font-black text-4xl sm:text-7xl lg:text-9xl uppercase tracking-tight text-tr-primary leading-none wrap-break-word text-center">
+                    <h2 className="font-display font-black text-5xl sm:text-6xl md:text-7xl xl:text-9xl uppercase tracking-tight text-tr-primary leading-none wrap-break-word text-center">
                       {p?.fullname ?? "Winner"}
                     </h2>
 
                     {p?.region && (
-                      <div className="mt-5 rounded-full bg-tr-primary-container/10 border border-tr-primary-container/20 px-5 py-2 text-sm font-bold uppercase text-tr-primary">
+                      <div className="mt-5 rounded-full bg-tr-primary-container/10 border border-tr-primary-container/20 px-5 py-2 text-xl font-bold uppercase text-tr-primary">
                         {p.region.region}
                       </div>
                     )}
@@ -161,7 +161,7 @@ export function WinnerModal({
                   {/* <div className="font-mono font-black text-4xl sm:text-6xl lg:text-8xl tracking-tight text-tr-on-secondary text-center drop-shadow-lg">
                     {randomText || "• • • • • • • • • • • •"}
                   </div> */}
-                  <span className="flex items-center justify-center gap-3  text-5xl sm:text-8xl lg:text-9xl text-white">
+                  <span className="flex items-center justify-center gap-3  text-3xl lg:text-6xl xl:text-9xl text-white">
                     {Array.from({ length: 10 }).map((_, index) => (
                       <span
                         // biome-ignore lint/suspicious/noArrayIndexKey: for dot animation
@@ -183,8 +183,8 @@ export function WinnerModal({
           {/* PRIZE */}
           <div
             className={cn(
-              "w-full max-w-3xl transition-all duration-700",
-              !showWinner ? "mt-6 opacity-50 scale-95" : "mt-6 opacity-100 scale-100",
+              "w-full max-w-7xl transition-all duration-700",
+              !showWinner ? "mt-6 scale-90" : "mt-6 opacity-100 scale-100",
             )}
           >
             <div className="relative overflow-hidden rounded-2xl border border-tr-tertiary-container/30 bg-tr-surface-container-low shadow-sm">
@@ -200,15 +200,15 @@ export function WinnerModal({
                 )}
 
                 <div className="min-w-0 text-left">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-tr-primary">
+                  <span className="text-sm xl:text-xl font-bold uppercase tracking-[0.18em] text-tr-primary">
                     Featured Prize
                   </span>
 
-                  <h4 className="font-display font-black text-lg sm:text-xl uppercase text-tr-secondary truncate leading-tight">
+                  <h4 className="font-display font-black text-lg sm:text-xl md:text-2xl xl:text-5xl  uppercase text-tr-secondary truncate leading-tight">
                     {prizeTitle}
                   </h4>
 
-                  <span className="text-xs font-semibold text-tr-on-surface-variant">
+                  <span className="text-xs md:text-lg font-semibold text-tr-on-surface-variant">
                     Sponsored: {sponsor}
                   </span>
                 </div>

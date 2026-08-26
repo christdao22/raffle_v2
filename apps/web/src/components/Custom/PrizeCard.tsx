@@ -18,7 +18,7 @@ export function PrizeCard({ currentPrize, className, count = 1 }: PrizeCardProps
             <div className="inline-flex items-center gap-2 rounded-full border border-tr-primary-container/40 bg-tr-surface/80 px-4 py-1.5 backdrop-blur-md shadow-sm">
               <span className="h-2.5 w-2.5 rounded-full bg-tr-primary animate-pulse" />
               <span className="font-display text-xs font-extrabold uppercase tracking-widest text-tr-secondary sm:text-sm">
-                {currentPrize.type} Prize
+                {currentPrize.type}
               </span>
             </div>
           ) : (
@@ -41,20 +41,20 @@ export function PrizeCard({ currentPrize, className, count = 1 }: PrizeCardProps
                 </span>
               </div>
               {/* Balanced Title Scale */}
-              <h2 className="font-display text-3xl font-black uppercase leading-[0.92] tracking-tight text-tr-secondary sm:text-5xl md:text-6xl lg:text-7xl break-words">
+              <h2 className="font-display text-3xl lg:text-4xl xl:text-8xl font-black uppercase leading-[0.92] tracking-tight text-tr-secondary wrap-break-word">
                 {currentPrize?.prize ?? "Select a Prize"}
               </h2>
             </div>
 
-            <div className="h-1.5 w-28 rounded-full bg-gradient-to-r from-tr-primary via-tr-primary-container to-transparent" />
+            <div className="h-1.5 w-28 rounded-full bg-linear-to-r from-tr-primary via-tr-primary-container to-transparent" />
 
             {/* Sponsor Callout */}
             {currentPrize?.sponsor && (
               <div className="inline-flex max-w-max flex-col rounded-xl border border-tr-primary-container/30 bg-tr-surface-container/50 p-4 backdrop-blur-md">
-                <span className="font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-tr-primary/90 sm:text-xs">
+                <span className="font-sans font-bold uppercase tracking-[0.2em] text-tr-primary/90 text-xs xl:text-xl">
                   Sponsored By
                 </span>
-                <span className="font-display text-base font-black text-tr-secondary sm:text-xl lg:text-2xl mt-0.5">
+                <span className="font-display font-black text-tr-secondary mt-0.5 text-md xl:text-3xl">
                   {currentPrize.sponsor}
                 </span>
               </div>
@@ -62,7 +62,7 @@ export function PrizeCard({ currentPrize, className, count = 1 }: PrizeCardProps
           </div>
 
           {/* Right Column: Display Stage Showcase */}
-          <div className="relative flex min-h-[260px] items-center justify-center lg:min-h-[360px]">
+          <div className="relative flex min-h-65 items-center justify-center lg:min-h-[360px]">
             {/* Stage Ambient Glow */}
             <div className="absolute h-56 w-56 rounded-full bg-tr-primary/25 blur-3xl lg:h-72 lg:w-72" />
             <div className="absolute h-40 w-40 rounded-full bg-tr-primary-container/30 blur-2xl lg:h-52 lg:w-52" />
@@ -75,7 +75,7 @@ export function PrizeCard({ currentPrize, className, count = 1 }: PrizeCardProps
               <img
                 src={currentPrize.imageUrl}
                 alt={currentPrize.prize}
-                className="prize-float relative z-10 max-h-56 max-w-full object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)] transition-transform duration-500 hover:scale-105 sm:max-h-72 lg:max-h-88"
+                className="prize-float relative z-10 max-h-56 max-w-full object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)] transition-transform duration-500 hover:scale-105 sm:max-h-72 lg:max-h-100"
               />
             ) : (
               <div className="relative z-10 flex h-48 w-48 items-center justify-center rounded-2xl border border-dashed border-tr-primary-container/40 bg-tr-surface/30">

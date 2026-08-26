@@ -36,8 +36,6 @@ export function LiveDraw() {
 
   const { data: currentPrize, isLoading: isPrizeLoading } = usePrize(selectedPrizeId ?? "");
 
-  console.log(displayType);
-
   if (isPrizeLoading) {
     return <p>Loading</p>;
   }
@@ -49,7 +47,7 @@ export function LiveDraw() {
           <div className="flex gap-3 items-center">
             <img src="/Bagong-Pilipinas.png" alt="Deped Logo" className="w-15" />
             <img src="/deped-logo-philippines.png" alt="Deped Logo" className="w-20" />
-            <h2 className="text-4xl font-bold text-white tracking-tighter">
+            <h2 className="lg:text-3xl xl:text-4xl font-bold text-white tracking-tighter">
               <span className="text-tr-secondary">NATIONAL</span>{" "}
               <span className="text-tr-primary">TEACHERS'</span>{" "}
               <span className="text-tr-tertiary-fixed-dim">MONTH KICK-OFF</span>
@@ -102,7 +100,7 @@ export function LiveDraw() {
 
             {displayType === "live-unclaimed" && (
               <>
-                <div className="flex flex-col gap-6 lg:col-span-9 space-y-6 h-full">
+                <div className="flex flex-col gap-6 lg:col-span-9 space-y-6 h-[83dvh]">
                   <PrizeCard currentPrize={currentPrize} count={count} />
                 </div>
                 <div className="flex flex-col gap-6 lg:col-span-3 space-y-6 h-full">

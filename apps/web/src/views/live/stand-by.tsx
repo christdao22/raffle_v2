@@ -34,7 +34,7 @@ export function StandBy({
 
         {/* Main Content */}
         <div className="relative z-10 space-y-6 max-w-7xl">
-          <h1 className="font-display text-8xl sm:text-9xl md:text-[11rem] lg:text-[14rem] font-black uppercase leading-none tracking-tighter text-tr-secondary select-none">
+          <h1 className="font-display text-6xl lg:text-9xl font-black uppercase leading-none tracking-tighter text-tr-secondary select-none">
             {title}
           </h1>
 
