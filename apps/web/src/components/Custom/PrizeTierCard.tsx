@@ -41,7 +41,12 @@ export const PrizeTierCard = React.forwardRef<HTMLButtonElement, PrizeTierCardPr
         {/* Thumbnail / Icon Display */}
         <div className="relative shrink-0 w-11 h-11 rounded-md bg-surface-container-lowest border border-outline-variant/20 overflow-hidden flex items-center justify-center text-on-surface-variant">
           {tier.image_url ? (
-            <img src={tier.image_url} alt={tier.prize} className="w-full h-full object-cover" />
+            <img
+              src={tier.image_url}
+              alt={tier.prize}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
           ) : tier.icon ? (
             tier.icon
           ) : (

@@ -34,8 +34,13 @@ export default function Layout({
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-8 py-6 border-b border-slate-800/40 bg-[#0d1326]/50 backdrop-blur-sm z-10">
           {/* Left: Title & Status */}
           <div className="flex gap-3 items-center">
-            <img src="/Bagong-Pilipinas.png" alt="Deped Logo" className="w-10" />
-            <img src="/deped-logo-philippines.png" alt="Deped Logo" className="w-10" />
+            <img src="/Bagong-Pilipinas.png" alt="Deped Logo" className="w-10" loading="lazy" />
+            <img
+              src="/deped-logo-philippines.png"
+              alt="Deped Logo"
+              className="w-10"
+              loading="lazy"
+            />
             <h2 className="text-xl font-bold text-white tracking-tight">{pageTitle}</h2>
             {statusText && (
               <div className="flex items-center gap-2 mt-1.5">

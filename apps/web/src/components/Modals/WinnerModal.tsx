@@ -98,9 +98,14 @@ export function WinnerModal({
             )}
           >
             <div className="flex items-center justify-center gap-3 mb-5">
-              <img src="/Bagong-Pilipinas.png" alt="Bagong Pilipinas" className="w-20" />
+              <img
+                src="/Bagong-Pilipinas.png"
+                alt="Bagong Pilipinas"
+                className="w-20"
+                loading="lazy"
+              />
 
-              <img src="/deped-logo-philippines.png" alt="DepEd" className="w-24" />
+              <img src="/deped-logo-philippines.png" alt="DepEd" className="w-24" loading="lazy" />
             </div>
 
             <p className="font-display font-extrabold text-md uppercase tracking-[0.2em] text-tr-primary">
@@ -195,6 +200,7 @@ export function WinnerModal({
                       src={prizeImageUrl}
                       alt={prizeTitle}
                       className="h-full w-full object-contain p-1.5"
+                      loading="lazy"
                     />
                   </div>
                 )}

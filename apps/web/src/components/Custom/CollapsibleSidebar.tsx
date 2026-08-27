@@ -76,7 +76,7 @@ export default function CollapsibleSidebar() {
         {/* Brand Logo & Name */}
         <div className={`flex items-center gap-3 mb-10 ${isCollapsed ? "justify-center" : "px-2"}`}>
           <div className="w-12 h-12 bg-[#FFD000] rounded-md flex-shrink-0 flex items-center justify-center text-[#0d1326] shadow-lg shadow-yellow-500/10">
-            <img src="/deped-logo-philippines.png" width="40" alt="DEPED Logo" />
+            <img src="/deped-logo-philippines.png" width="40" alt="DEPED Logo" loading="lazy" />
           </div>
 
           {!isCollapsed && (

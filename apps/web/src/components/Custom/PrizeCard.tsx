@@ -75,6 +75,7 @@ export function PrizeCard({ currentPrize, className, count = 1 }: PrizeCardProps
               <img
                 src={currentPrize.imageUrl}
                 alt={currentPrize.prize}
+                loading="lazy"
                 className="prize-float relative z-10 max-h-56 max-w-full object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)] transition-transform duration-500 hover:scale-105 sm:max-h-72 lg:max-h-100"
               />
             ) : (

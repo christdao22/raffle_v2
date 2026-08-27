@@ -45,8 +45,13 @@ export function LiveDraw() {
       <div className="flex-1 flex flex-col h-full relative">
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-8 py-4 bg-tr-background backdrop-blur-sm z-10">
           <div className="flex gap-3 items-center">
-            <img src="/Bagong-Pilipinas.png" alt="Deped Logo" className="w-15" />
-            <img src="/deped-logo-philippines.png" alt="Deped Logo" className="w-20" />
+            <img src="/Bagong-Pilipinas.png" alt="Deped Logo" className="w-15" loading="lazy" />
+            <img
+              src="/deped-logo-philippines.png"
+              alt="Deped Logo"
+              className="w-20"
+              loading="lazy"
+            />
             <h2 className="lg:text-3xl xl:text-4xl font-bold text-white tracking-tighter">
               <span className="text-tr-secondary">NATIONAL</span>{" "}
               <span className="text-tr-primary">TEACHERS'</span>{" "}
@@ -70,6 +75,7 @@ export function LiveDraw() {
                     src={sessionData.user.image}
                     alt="Profile"
                     className="w-full h-full rounded-full object-cover"
+                    loading="lazy"
                   />
                 ) : (
                   <User className="w-5 h-5 fill-current" />
@@ -81,10 +87,10 @@ export function LiveDraw() {
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 relative">
           <div className="absolute bottom-0 left-0 w-100 h-100 rotate-90 pointer-events-none opacity-90 overflow-hidden">
-            <img src="/iso.png" alt="iso" />
+            <img src="/iso.png" alt="iso" loading="lazy" />
           </div>
           <div className="absolute right-0 top-0 w-50 h-50 rotate-270 pointer-events-none opacity-90 overflow-hidden">
-            <img src="/iso.png" alt="iso" />
+            <img src="/iso.png" alt="iso" loading="lazy" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full h-full">

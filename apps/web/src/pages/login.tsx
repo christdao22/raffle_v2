@@ -34,7 +34,12 @@ export function Login() {
       {/* Top Left Logo Brand */}
       <header className="flex items-center gap-2.5 z-10">
         <div className="w-15 flex items-center justify-center text-on-primary-container ">
-          <img src="/deped-logo-philippines.png" alt="DepEd logo" className="w-auto h-auto" />
+          <img
+            src="/deped-logo-philippines.png"
+            alt="DepEd logo"
+            className="w-auto h-auto"
+            loading="lazy"
+          />
         </div>
         <span className="font-sans font-bold text-sm tracking-wider text-primary">
           RAFFLE SYSTEM

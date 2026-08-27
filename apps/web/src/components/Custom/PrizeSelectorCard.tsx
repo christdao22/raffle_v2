@@ -240,6 +240,7 @@ export function PrizeSelectorCard({
                   <img
                     src={prize.imageUrl}
                     alt={prize.prize}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                 ) : (
