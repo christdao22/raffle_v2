@@ -1,5 +1,6 @@
 import type { RouteHandler } from "@hono/zod-openapi";
-import { and, db, eq, ilike, isNull, prizes, sql } from "@raffle_v2/db";
+import { and, db, eq, ilike, isNull, prizes, sql, winners } from "@raffle_v2/db";
+import { canDeletePrize } from "../guard/prize-delete.guard";
 import type { AppEnv } from "../lib/context";
 import { paginate } from "../lib/pagination";
 import { broadcastEvent } from "../lib/ws";
@@ -103,6 +104,12 @@ export const deletePrizeHandler: RouteHandler<typeof deletePrizeRoute, AppEnv> =
 
   if (!existing) {
     return c.json({ message: "Prize not found" }, 400);
+  }
+
+  const winnerCount = await db.$count(winners, eq(winners.prizeId, prizeId));
+
+  if (!canDeletePrize(winnerCount)) {
+    return c.json({ message: "Cannot delete a prize that has winners assigned." }, 400);
   }
 
   await db.update(prizes).set({ deletedAt: new Date() }).where(eq(prizes.id, prizeId));

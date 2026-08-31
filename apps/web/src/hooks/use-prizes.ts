@@ -1,5 +1,6 @@
 import type { Prize } from "@raffle_v2/shared";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "../lib/api-client";
 
 interface UsePrizesParams {
@@ -94,23 +95,44 @@ export function useDeletePrize() {
       const res = await api.prizes.delete.$delete({
         json: { prizeId },
       });
+
+      if (!res.ok) {
+        let message = "Failed to delete prize";
+
+        try {
+          const errorData = (await res.clone().json()) as Record<string, unknown> | null;
+          const maybeMessage = errorData?.message;
+
+          if (typeof maybeMessage === "string") {
+            message = maybeMessage;
+          }
+        } catch {}
+
+        throw new Error(message);
+      }
+
       return res.json();
     },
     onMutate: async (deletedId) => {
       await queryClient.cancelQueries({ queryKey: prizeKeys.lists() });
-      const previousItems = queryClient.getQueryData(prizeKeys.lists());
-      queryClient.setQueryData(prizeKeys.lists(), (old: any) => {
+      const previousItems = queryClient.getQueryData<Prize[]>(prizeKeys.lists());
+      queryClient.setQueryData<Prize[]>(prizeKeys.lists(), (old) => {
         if (!old) return [];
 
-        return old.filter((prize: any) => prize.id !== deletedId);
+        return old.filter((prize) => prize.id !== deletedId);
       });
 
       return { previousItems };
     },
-    onError: (err, deletedId, context) => {
+    onSuccess: () => {
+      toast.success("Deleted successfully!");
+    },
+    onError: (error, _deletedId, context) => {
       if (context?.previousItems) {
         queryClient.setQueryData(prizeKeys.lists(), context.previousItems);
       }
+
+      toast.error(error instanceof Error ? error.message : "Failed to delete prize");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: prizeKeys.all });

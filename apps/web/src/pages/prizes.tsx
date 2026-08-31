@@ -75,7 +75,6 @@ export function Prizes() {
       variant: "danger",
       onConfirm: async () => {
         deletePrize.mutate(id);
-        toast.success("Deleted successfully!");
       },
     });
   };
