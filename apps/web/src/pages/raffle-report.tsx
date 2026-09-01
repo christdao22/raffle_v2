@@ -190,6 +190,9 @@ export function RaffleReportPage() {
                   </tbody>
                 </table>
               </div>
+              <div className="mt-4 text-sm font-semibold text-slate-200">
+                Total Unclaimed Prize Units: {reportData.summary.unclaimedPrizeUnits}
+              </div>
             </Card>
 
             <Card className={cn("p-6")}>
@@ -231,7 +234,7 @@ export function RaffleReportPage() {
               </div>
             </Card>
 
-            {/* {reportData.invalidatedWinners.length > 0 && (
+            {reportData.invalidatedWinners.length > 0 && (
               <Card className={cn("p-6")}>
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-xl font-bold text-white">Invalidated Winners</h3>
@@ -266,42 +269,7 @@ export function RaffleReportPage() {
                   </table>
                 </div>
               </Card>
-            )} */}
-
-            {/* {reportData.unclaimedPrizes.length > 0 && (
-              <Card className={cn("p-6")}>
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-white">Unclaimed Prizes</h3>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-left text-sm">
-                    <thead className="bg-slate-800 text-slate-300">
-                      <tr>
-                        <th className="px-3 py-2">Prize</th>
-                        <th className="px-3 py-2">Sponsor</th>
-                        <th className="px-3 py-2">Allocated</th>
-                        <th className="px-3 py-2">Awarded</th>
-                        <th className="px-3 py-2">Unclaimed</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {reportData.unclaimedPrizes.map((item) => (
-                        <tr key={item.prize} className="border-t border-slate-700 text-slate-200">
-                          <td className="px-3 py-3">{item.prize}</td>
-                          <td className="px-3 py-3">{item.sponsor ?? "-"}</td>
-                          <td className="px-3 py-3">{item.allocated}</td>
-                          <td className="px-3 py-3">{item.awarded}</td>
-                          <td className="px-3 py-3">{item.unclaimed}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="mt-4 text-sm font-semibold text-slate-200">
-                  Total Unclaimed Prize Units: {reportData.summary.unclaimedPrizeUnits}
-                </div>
-              </Card>
-            )} */}
+            )}
           </>
         )}
       </div>
