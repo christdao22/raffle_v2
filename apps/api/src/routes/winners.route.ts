@@ -1,5 +1,6 @@
+import { randomInt } from "node:crypto";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { and, db, eq, inArray, notInArray, persons, regions, sql, winners } from "@raffle_v2/db";
+import { and, db, eq, inArray, notInArray, persons, regions, winners } from "@raffle_v2/db";
 import {
   paginatedResponseSchema,
   paginationQuerySchema,
@@ -16,6 +17,121 @@ import type { AppEnv } from "../lib/context";
 import { requireAuth } from "../middleware/auth";
 
 const app = new OpenAPIHono<AppEnv>();
+
+export function normalizeRegionIds(regionId?: string | string[]) {
+  const values = Array.isArray(regionId)
+    ? regionId
+    : typeof regionId === "string"
+      ? regionId.split(",")
+      : [];
+
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}
+
+export function secureRandomIndex(maxExclusive: number) {
+  if (!Number.isInteger(maxExclusive) || maxExclusive <= 0) {
+    throw new Error("Random index range must be a positive integer");
+  }
+
+  return randomInt(0, maxExclusive);
+}
+
+export function selectEligibleWinnerIds({
+  participants,
+  numberOfWinners,
+  regionIds,
+  rng = secureRandomIndex,
+  selectedParticipantIds = new Set<string>(),
+}: {
+  participants: Array<{ id: string; regionId: string; isEligible: boolean }>;
+  numberOfWinners: number;
+  regionIds?: string[];
+  rng?: (maxExclusive: number) => number;
+  selectedParticipantIds?: Set<string>;
+}) {
+  if (!Number.isInteger(numberOfWinners) || numberOfWinners <= 0) {
+    throw new Error("numberOfWinners must be greater than 0");
+  }
+
+  const normalizedRegionIds = normalizeRegionIds(regionIds ?? []);
+  const candidatePools = new Map<string, string[]>();
+
+  for (const participant of participants) {
+    if (!participant.isEligible) continue;
+    if (selectedParticipantIds.has(participant.id)) continue;
+    if (normalizedRegionIds.length > 0 && !normalizedRegionIds.includes(participant.regionId)) {
+      continue;
+    }
+
+    const pool = candidatePools.get(participant.regionId) ?? [];
+    pool.push(participant.id);
+    candidatePools.set(participant.regionId, pool);
+  }
+
+  const activeRegions =
+    normalizedRegionIds.length > 0 ? normalizedRegionIds : [...candidatePools.keys()];
+  const availableEligibleParticipants = [...candidatePools.values()].reduce(
+    (sum, pool) => sum + pool.length,
+    0,
+  );
+
+  if (availableEligibleParticipants === 0) {
+    throw new Error("No eligible participants found matching the criteria");
+  }
+
+  if (numberOfWinners > availableEligibleParticipants) {
+    throw new Error("Requested winners exceed available eligible participants");
+  }
+
+  const selectedWinnerIds: string[] = [];
+
+  while (selectedWinnerIds.length < numberOfWinners) {
+    const remainingRegions = activeRegions.filter(
+      (regionId) => (candidatePools.get(regionId)?.length ?? 0) > 0,
+    );
+
+    if (remainingRegions.length === 0) {
+      break;
+    }
+
+    const shuffledRegions = [...remainingRegions];
+    for (let i = shuffledRegions.length - 1; i > 0; i -= 1) {
+      const j = rng(i + 1);
+      const currentRegion = shuffledRegions[i]!;
+      const swapRegion = shuffledRegions[j]!;
+      shuffledRegions[i] = swapRegion;
+      shuffledRegions[j] = currentRegion;
+    }
+
+    let roundSelected = false;
+
+    for (const regionId of shuffledRegions) {
+      if (selectedWinnerIds.length >= numberOfWinners) break;
+
+      const regionPool = candidatePools.get(regionId);
+      if (!regionPool || regionPool.length === 0) continue;
+
+      const selectedIndex = rng(regionPool.length);
+      const [nextWinnerId] = regionPool.splice(selectedIndex, 1);
+
+      if (!nextWinnerId) continue;
+
+      selectedWinnerIds.push(nextWinnerId);
+      selectedParticipantIds.add(nextWinnerId);
+      roundSelected = true;
+    }
+
+    if (!roundSelected) {
+      break;
+    }
+  }
+
+  if (selectedWinnerIds.length < numberOfWinners) {
+    throw new Error("No eligible participants found matching the criteria");
+  }
+
+  return selectedWinnerIds;
+}
 
 // Updated Person output schema
 export const winnerPersonSchema = z.object({
@@ -236,31 +352,32 @@ const winnersRoute = app
   .openapi(getDrawRoute, async (c) => {
     const { prizeId, numberOfWinners, regionId } = c.req.valid("query");
 
-    if (prizeId === undefined || numberOfWinners === undefined || regionId === undefined) {
+    if (prizeId === undefined || numberOfWinners === undefined) {
       return c.json({ message: "Missing required parameter" }, 400);
     }
 
+    const normalizedRegionIds = normalizeRegionIds(regionId);
     const existingWinners = await db.select({ personId: winners.personId }).from(winners);
-
     const excludedPersonIds = existingWinners.map((w) => w.personId);
 
-    const conditions = [];
+    const conditions = [eq(persons.isEligible, true)];
 
     if (excludedPersonIds.length > 0) {
       conditions.push(notInArray(persons.id, excludedPersonIds));
     }
 
-    if (regionId && regionId.length > 0) {
-      conditions.push(inArray(persons.regionId, regionId));
+    if (normalizedRegionIds.length > 0) {
+      conditions.push(inArray(persons.regionId, normalizedRegionIds));
     }
 
-    const candidatePersons = await db
+    const eligiblePersons = await db
       .select({
         id: persons.id,
         fullname: persons.fullname,
         employeeId: persons.employeeId,
         image: persons.image,
         isEligible: persons.isEligible,
+        regionId: persons.regionId,
         region: {
           id: regions.id,
           region: regions.region,
@@ -269,9 +386,22 @@ const winnersRoute = app
       })
       .from(persons)
       .innerJoin(regions, eq(persons.regionId, regions.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(sql`RANDOM()`)
-      .limit(numberOfWinners);
+      .where(and(...conditions));
+
+    const selectedParticipantIds = new Set<string>();
+    const chosenIds = selectEligibleWinnerIds({
+      participants: eligiblePersons.map((person) => ({
+        id: person.id,
+        regionId: person.regionId,
+        isEligible: person.isEligible,
+      })),
+      numberOfWinners,
+      regionIds: normalizedRegionIds,
+      rng: secureRandomIndex,
+      selectedParticipantIds,
+    });
+
+    const candidatePersons = eligiblePersons.filter((person) => chosenIds.includes(person.id));
 
     if (candidatePersons.length === 0) {
       return c.json({ message: "No eligible candidates found matching the criteria" }, 400);
@@ -296,6 +426,10 @@ const winnersRoute = app
     }));
 
     const inserted = await db.insert(winners).values(recordsToInsert).returning();
+
+    if (inserted.length > 0) {
+      await db.update(persons).set({ isEligible: false }).where(inArray(persons.id, personIds));
+    }
 
     return c.json({ success: true, count: inserted.length }, 200);
   })
