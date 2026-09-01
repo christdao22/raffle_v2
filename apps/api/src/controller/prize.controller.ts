@@ -19,7 +19,7 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
 
   // Filter for db.$count
   const countFilter = sql`${prizes.numberOfWinners} > (
-    SELECT COUNT(*)::int FROM winners WHERE winners.prize_id = ${prizes.id}
+    SELECT COUNT(*)::int FROM winners WHERE winners.prize_id = ${prizes.id} AND winners.deleted_at IS NULL
   )`;
 
   const countWhereClause = search
@@ -39,7 +39,7 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
           const conditions = [
             isNullWhere(fields.deletedAt),
             sqlWhere`${fields.numberOfWinners} > (
-              SELECT COUNT(*)::int FROM winners WHERE winners.prize_id = ${fields.id}
+              SELECT COUNT(*)::int FROM winners WHERE winners.prize_id = ${fields.id} AND winners.deleted_at IS NULL
             )`,
           ];
 
@@ -57,6 +57,7 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
             columns: {
               id: true,
             },
+            where: (fields, { isNull: isNullWhere }) => isNullWhere(fields.deletedAt),
           },
         },
       });
