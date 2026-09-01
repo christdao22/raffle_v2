@@ -1,13 +1,20 @@
 import type { Winner } from "@raffle_v2/shared";
 import { Button, Chip, cn, DataTable, type DataTableColumn } from "@raffle_v2/ui";
-import { Check, CircleArrowRight, CircleX, Clock, TrendingUp, Trophy } from "lucide-react";
+import { Check, CircleArrowRight, CircleX, Clock, RefreshCcw, TrendingUp, Trophy } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import ConfirmationModal from "../components/Custom/ConfirmationModal";
+import { ReasonModal } from "../components/Custom/ReasonModal";
 import { StatCard } from "../components/Custom/StatCard";
 import Layout from "../components/layout";
 import { useTableState } from "../hooks/datatable/use-table-state";
 import { useConfirmationModal } from "../hooks/use-confirmation-modal";
-import { useClaimWinnerMutation, useDeleteWinner, useWinners } from "../hooks/use-winners";
+import {
+  useClaimWinnerMutation,
+  useDeleteWinner,
+  useRedrawWinner,
+  useWinners,
+} from "../hooks/use-winners";
 
 export function Winners() {
   const table = useTableState({ pageSize: 10 });
@@ -21,6 +28,13 @@ export function Winners() {
   const claimConfirmation = useConfirmationModal();
   const claimWinner = useClaimWinnerMutation();
   const deleteWinner = useDeleteWinner();
+  const redrawWinner = useRedrawWinner();
+
+  const [reasonModal, setReasonModal] = useState<{ open: boolean; mode: "delete" | "redraw"; winnerId: string | null }>({
+    open: false,
+    mode: "delete",
+    winnerId: null,
+  });
 
   const total: number = winners?.meta.pagination.total ?? 0;
   const receivedCount = winners?.meta?.stats?.receivedCount ?? 0;
@@ -41,16 +55,27 @@ export function Winners() {
   };
 
   const handleDeleteWinner = (id: string) => {
-    claimConfirmation.openConfirmModal({
-      title: "Remove Winner?",
-      description: "Are you sure you want to delete this winner?",
-      confirmText: "Confirm Delete",
-      variant: "danger",
-      onConfirm: async () => {
-        deleteWinner.mutate(id);
-        toast.success("deleted successfully!");
-      },
-    });
+    setReasonModal({ open: true, mode: "delete", winnerId: id });
+  };
+
+  const handleRedrawWinner = (id: string) => {
+    setReasonModal({ open: true, mode: "redraw", winnerId: id });
+  };
+
+  const handleReasonSubmit = async (reason: string) => {
+    if (!reasonModal.winnerId) return;
+
+    if (reasonModal.mode === "delete") {
+      await deleteWinner.mutateAsync({ id: reasonModal.winnerId, reason });
+      toast.success("Winner removed successfully!");
+    }
+
+    if (reasonModal.mode === "redraw") {
+      await redrawWinner.mutateAsync({ winnerId: reasonModal.winnerId, reason });
+      toast.success("Winner redraw completed successfully!");
+    }
+
+    setReasonModal({ open: false, mode: "delete", winnerId: null });
   };
 
   const columns: DataTableColumn<Winner>[] = [
@@ -137,6 +162,16 @@ export function Winners() {
               />
             </Button>
           )}
+          <Button
+            disabled={claimWinner.isPending || redrawWinner.isPending || deleteWinner.isPending}
+            onClick={() => handleRedrawWinner(winner.id)}
+            className={cn(
+              "px-1 py-2 text-xs text-secondary-container uppercase tracking-wider transition-all shadow-none",
+              "bg-inherit",
+            )}
+          >
+            <RefreshCcw className={"transition-all hover:text-secondary-container/95 hover:scale-110 w-6"} />
+          </Button>
         </>
       ),
     },
@@ -200,6 +235,26 @@ export function Winners() {
 
       {/* Modal Hook Confirmation */}
       <ConfirmationModal {...claimConfirmation.modalProps} />
+
+      <ReasonModal
+        open={reasonModal.open}
+        onOpenChange={(open) => setReasonModal((current) => ({ ...current, open }))}
+        title={reasonModal.mode === "delete" ? "Delete Winner" : "Redraw Winner"}
+        description={
+          reasonModal.mode === "delete"
+            ? "Please provide a reason for removing this winner."
+            : "Please provide a reason for performing a redraw for this winner."
+        }
+        label="Reason"
+        placeholder={
+          reasonModal.mode === "delete"
+            ? "Enter the reason for deleting this winner..."
+            : "Enter the reason for the redraw..."
+        }
+        submitLabel={reasonModal.mode === "delete" ? "Delete Winner" : "Confirm Redraw"}
+        onSubmit={handleReasonSubmit}
+        loading={deleteWinner.isPending || redrawWinner.isPending}
+      />
     </Layout>
   );
 }

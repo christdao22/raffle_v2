@@ -19,6 +19,7 @@ import type {
   deleteWinnerRoute,
   listUnclaimedWinnersRoute,
   listWinnersRoute,
+  redrawWinnerRoute,
 } from "../routes/winners.route";
 
 export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> = async (c) => {
@@ -207,6 +208,13 @@ export const claimWinnerHandler: RouteHandler<typeof claimWinnerRoute, AppEnv> =
 
 export const deleteWinnerHandler: RouteHandler<typeof deleteWinnerRoute, AppEnv> = async (c) => {
   const { id } = c.req.valid("param");
+  const { reason } = c.req.valid("json");
+
+  const trimmedReason = reason.trim();
+
+  if (!trimmedReason) {
+    return c.json({ message: "Reason is required." }, 400);
+  }
 
   const [existing] = await db
     .select()
@@ -217,9 +225,40 @@ export const deleteWinnerHandler: RouteHandler<typeof deleteWinnerRoute, AppEnv>
     return c.json({ message: "Winner not found" }, 400);
   }
 
-  await db.update(winners).set({ deletedAt: new Date() }).where(eq(winners.id, id));
+  await db
+    .update(winners)
+    .set({ deletedAt: new Date(), reason: trimmedReason })
+    .where(eq(winners.id, id));
 
   await db.update(persons).set({ isEligible: true }).where(eq(persons.id, existing.personId));
 
   return c.json({ success: true }, 200);
+};
+
+export const redrawWinnerHandler: RouteHandler<typeof redrawWinnerRoute, AppEnv> = async (c) => {
+  const { winnerId, reason } = c.req.valid("json");
+  const trimmedReason = reason.trim();
+
+  if (!trimmedReason) {
+    return c.json({ message: "Reason is required." }, 400);
+  }
+
+  const [existing] = await db
+    .select()
+    .from(winners)
+    .where(and(eq(winners.id, winnerId), isNull(winners.deletedAt)));
+
+  if (!existing) {
+    return c.json({ message: "Winner not found" }, 400);
+  }
+
+  const replacementWinner = await db
+    .update(winners)
+    .set({ reason: trimmedReason, deletedAt: new Date() })
+    .where(eq(winners.id, winnerId))
+    .returning();
+
+  await db.update(persons).set({ isEligible: true }).where(eq(persons.id, existing.personId));
+
+  return c.json({ success: true, winnerId: replacementWinner[0]?.id ?? winnerId }, 200);
 };

@@ -15,6 +15,7 @@ export const winners = pgTable("winners", {
   givenByUserId: text("given_by_user_id").references(() => user.id, { onDelete: "set null" }),
   isReceived: boolean("is_received").default(false).notNull(),
   receivedAt: timestamp("received_at"),
+  reason: text("reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   deletedAt: timestamp("deleted_at"),
 });

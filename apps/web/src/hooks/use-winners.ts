@@ -182,13 +182,55 @@ export function useDeleteWinner() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
       const res = await api.winners.delete[":id"].$delete({
         param: { id },
+        json: { reason },
       });
 
       if (!res.ok) {
-        throw new Error("Failed to remove winner");
+        let message = "Failed to remove winner";
+
+        try {
+          const errorData = (await res.clone().json()) as Record<string, unknown> | null;
+          const maybeMessage = errorData?.message;
+          if (typeof maybeMessage === "string") {
+            message = maybeMessage;
+          }
+        } catch {}
+
+        throw new Error(message);
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: winnerKeys.all });
+    },
+  });
+}
+
+export function useRedrawWinner() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ winnerId, reason }: { winnerId: string; reason: string }) => {
+      const res = await api.winners.redraw.$post({
+        json: { winnerId, reason },
+      });
+
+      if (!res.ok) {
+        let message = "Failed to redraw winner";
+
+        try {
+          const errorData = (await res.clone().json()) as Record<string, unknown> | null;
+          const maybeMessage = errorData?.message;
+          if (typeof maybeMessage === "string") {
+            message = maybeMessage;
+          }
+        } catch {}
+
+        throw new Error(message);
       }
 
       return res.json();

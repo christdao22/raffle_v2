@@ -8,6 +8,7 @@ export const winnerSchema = z.object({
   prize: prizeSchema,
   isReceived: z.boolean(),
   receivedAt: z.date().or(z.string().datetime()).nullable(),
+  reason: z.string().trim().max(1000).nullable().optional(),
   createdAt: z.date().or(z.string().datetime()),
 });
 

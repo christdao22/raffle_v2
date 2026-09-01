@@ -95,7 +95,7 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
       sponsor: prizes.sponsor,
       type: prizes.type,
       deletedAt: winners.deletedAt,
-      reason: sql<string>`'Deleted from winners list'`,
+      reason: winners.reason,
     })
     .from(winners)
     .innerJoin(persons, eq(winners.personId, persons.id))
