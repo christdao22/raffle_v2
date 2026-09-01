@@ -1,6 +1,6 @@
 import { randomInt } from "node:crypto";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { and, db, eq, inArray, notInArray, persons, regions, winners } from "@raffle_v2/db";
+import { and, db, eq, inArray, isNull, notInArray, persons, regions, winners } from "@raffle_v2/db";
 import {
   paginatedResponseSchema,
   paginationQuerySchema,
@@ -12,6 +12,7 @@ import {
   deleteWinnerHandler,
   listUnclaimedWinnersHandler,
   listWinnersHandler,
+  redrawWinnerHandler,
 } from "../controller/winner.controller";
 import type { AppEnv } from "../lib/context";
 import { requireAuth } from "../middleware/auth";
@@ -247,6 +248,48 @@ export const saveDrawRoute = createRoute({
   },
 });
 
+export const rejectDrawCandidatesRoute = createRoute({
+  method: "post",
+  path: "/draw/reject",
+  tags: ["Winners"],
+  summary: "Record rejected draw candidates",
+  middleware: [requireAuth],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            prizeId: z.string().uuid(),
+            personIds: z.array(z.string().uuid()).min(1),
+            reason: z.string().trim().min(1, "Reason is required.").max(1000),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            count: z.number(),
+          }),
+        },
+      },
+      description: "Rejected candidates recorded successfully",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "Rejected candidate request is invalid",
+    },
+  },
+});
+
 export const listWinnersRoute = createRoute({
   method: "get",
   path: "/",
@@ -324,6 +367,15 @@ export const deleteWinnerRoute = createRoute({
     params: z.object({
       id: z.string().uuid(),
     }),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            reason: z.string().trim().min(1, "Reason is required.").max(1000),
+          }),
+        },
+      },
+    },
   },
   responses: {
     200: {
@@ -347,6 +399,47 @@ export const deleteWinnerRoute = createRoute({
   },
 });
 
+export const redrawWinnerRoute = createRoute({
+  method: "post",
+  path: "/redraw",
+  tags: ["Winners"],
+  summary: "Create a redraw for an invalidated winner",
+  middleware: [requireAuth],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            winnerId: z.string().uuid(),
+            reason: z.string().trim().min(1, "Reason is required.").max(1000),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            winnerId: z.string().uuid().nullable().optional(),
+          }),
+        },
+      },
+      description: "Winner redraw completed successfully",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "Redraw request is invalid",
+    },
+  },
+});
+
 const winnersRoute = app
   // 1. GET Candidates (Excludes existing winners & filters by regionIds if provided)
   .openapi(getDrawRoute, async (c) => {
@@ -357,7 +450,10 @@ const winnersRoute = app
     }
 
     const normalizedRegionIds = normalizeRegionIds(regionId);
-    const existingWinners = await db.select({ personId: winners.personId }).from(winners);
+    const existingWinners = await db
+      .select({ personId: winners.personId })
+      .from(winners)
+      .where(isNull(winners.deletedAt));
     const excludedPersonIds = existingWinners.map((w) => w.personId);
 
     const conditions = [eq(persons.isEligible, true)];
@@ -433,9 +529,34 @@ const winnersRoute = app
 
     return c.json({ success: true, count: inserted.length }, 200);
   })
+  .openapi(rejectDrawCandidatesRoute, async (c) => {
+    const { prizeId, personIds, reason } = c.req.valid("json");
+    const user = c.get("user");
+
+    if (!user) {
+      return c.json({ message: "Not Allowed" }, 400);
+    }
+
+    const rejectedAt = new Date();
+    const rejectedCandidates = await db
+      .insert(winners)
+      .values(
+        personIds.map((personId) => ({
+          prizeId,
+          personId,
+          givenByUserId: user.id,
+          reason,
+          deletedAt: rejectedAt,
+        })),
+      )
+      .returning();
+
+    return c.json({ success: true, count: rejectedCandidates.length }, 200);
+  })
   .openapi(listWinnersRoute, listWinnersHandler)
   .openapi(listUnclaimedWinnersRoute, listUnclaimedWinnersHandler)
   .openapi(claimWinnerRoute, claimWinnerHandler)
-  .openapi(deleteWinnerRoute, deleteWinnerHandler);
+  .openapi(deleteWinnerRoute, deleteWinnerHandler)
+  .openapi(redrawWinnerRoute, redrawWinnerHandler);
 
 export default winnersRoute;

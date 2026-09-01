@@ -1,7 +1,15 @@
 import type { Winner } from "@raffle_v2/shared";
 import { Button, Chip, cn, DataTable, type DataTableColumn } from "@raffle_v2/ui";
-import { Check, CircleArrowRight, CircleX, Clock, RefreshCcw, TrendingUp, Trophy } from "lucide-react";
-import { useState } from "react";
+import {
+  Check,
+  CircleArrowRight,
+  CircleX,
+  Clock,
+  RefreshCcw,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import ConfirmationModal from "../components/Custom/ConfirmationModal";
 import { ReasonModal } from "../components/Custom/ReasonModal";
@@ -16,6 +24,72 @@ import {
   useWinners,
 } from "../hooks/use-winners";
 
+function WinnerReasonAction({ winnerId, mode }: { winnerId: string; mode: "delete" | "redraw" }) {
+  const [open, setOpen] = useState(false);
+  const deleteWinner = useDeleteWinner();
+  const redrawWinner = useRedrawWinner();
+
+  const handleSubmit = useCallback(
+    async (reason: string) => {
+      if (mode === "delete") {
+        await deleteWinner.mutateAsync({ id: winnerId, reason });
+        toast.success("Winner removed successfully!");
+      } else {
+        await redrawWinner.mutateAsync({ winnerId, reason });
+        toast.success("Winner redraw completed successfully!");
+      }
+
+      setOpen(false);
+    },
+    [deleteWinner, mode, redrawWinner, winnerId],
+  );
+
+  const isDelete = mode === "delete";
+  const isPending = deleteWinner.isPending || redrawWinner.isPending;
+
+  return (
+    <>
+      <Button
+        disabled={isPending}
+        onClick={() => setOpen(true)}
+        className={cn(
+          "px-1 py-2 text-xs uppercase tracking-wider transition-all shadow-none",
+          "bg-inherit",
+          isDelete
+            ? "text-error-container"
+            : "text-secondary-container hover:text-secondary-container/95",
+        )}
+      >
+        {isDelete ? (
+          <CircleX className="w-6 transition-all hover:scale-110" />
+        ) : (
+          <RefreshCcw className="w-6 transition-all hover:scale-110" />
+        )}
+      </Button>
+
+      <ReasonModal
+        open={open}
+        onOpenChange={setOpen}
+        title={isDelete ? "Delete Winner" : "Redraw Winner"}
+        description={
+          isDelete
+            ? "Please provide a reason for removing this winner."
+            : "Please provide a reason for performing a redraw for this winner."
+        }
+        label="Reason"
+        placeholder={
+          isDelete
+            ? "Enter the reason for deleting this winner..."
+            : "Enter the reason for the redraw..."
+        }
+        submitLabel={isDelete ? "Delete Winner" : "Confirm Redraw"}
+        onSubmit={handleSubmit}
+        loading={isPending}
+      />
+    </>
+  );
+}
+
 export function Winners() {
   const table = useTableState({ pageSize: 10 });
 
@@ -27,14 +101,6 @@ export function Winners() {
 
   const claimConfirmation = useConfirmationModal();
   const claimWinner = useClaimWinnerMutation();
-  const deleteWinner = useDeleteWinner();
-  const redrawWinner = useRedrawWinner();
-
-  const [reasonModal, setReasonModal] = useState<{ open: boolean; mode: "delete" | "redraw"; winnerId: string | null }>({
-    open: false,
-    mode: "delete",
-    winnerId: null,
-  });
 
   const total: number = winners?.meta.pagination.total ?? 0;
   const receivedCount = winners?.meta?.stats?.receivedCount ?? 0;
@@ -52,30 +118,6 @@ export function Winners() {
         toast.success("claimed successfully!");
       },
     });
-  };
-
-  const handleDeleteWinner = (id: string) => {
-    setReasonModal({ open: true, mode: "delete", winnerId: id });
-  };
-
-  const handleRedrawWinner = (id: string) => {
-    setReasonModal({ open: true, mode: "redraw", winnerId: id });
-  };
-
-  const handleReasonSubmit = async (reason: string) => {
-    if (!reasonModal.winnerId) return;
-
-    if (reasonModal.mode === "delete") {
-      await deleteWinner.mutateAsync({ id: reasonModal.winnerId, reason });
-      toast.success("Winner removed successfully!");
-    }
-
-    if (reasonModal.mode === "redraw") {
-      await redrawWinner.mutateAsync({ winnerId: reasonModal.winnerId, reason });
-      toast.success("Winner redraw completed successfully!");
-    }
-
-    setReasonModal({ open: false, mode: "delete", winnerId: null });
   };
 
   const columns: DataTableColumn<Winner>[] = [
@@ -149,29 +191,22 @@ export function Winners() {
             <CircleArrowRight className="w-6" />
           </Button>
           {!winner.isReceived && (
-            <Button
-              disabled={winner.isReceived || claimWinner.isPending}
-              onClick={() => handleDeleteWinner(winner.id)}
-              className={cn(
-                "px-1 py-2 text-xs text-error-container uppercase tracking-wider transition-all shadow-none",
-                "bg-inherit",
-              )}
-            >
-              <CircleX
-                className={" transition-all hover:text-error-container/80 hover:scale-110 w-6"}
-              />
-            </Button>
+            <>
+              {/* <Button
+                disabled={winner.isReceived || claimWinner.isPending}
+                onClick={() => handleDeleteWinner(winner.id)}
+                className={cn(
+                  "px-1 py-2 text-xs text-error-container uppercase tracking-wider transition-all shadow-none",
+                  "bg-inherit",
+                )}
+              >
+                <CircleX
+                  className={" transition-all hover:text-error-container/80 hover:scale-110 w-6"}
+                />
+              </Button> */}
+              <WinnerReasonAction winnerId={winner.id} mode="redraw" />
+            </>
           )}
-          <Button
-            disabled={claimWinner.isPending || redrawWinner.isPending || deleteWinner.isPending}
-            onClick={() => handleRedrawWinner(winner.id)}
-            className={cn(
-              "px-1 py-2 text-xs text-secondary-container uppercase tracking-wider transition-all shadow-none",
-              "bg-inherit",
-            )}
-          >
-            <RefreshCcw className={"transition-all hover:text-secondary-container/95 hover:scale-110 w-6"} />
-          </Button>
         </>
       ),
     },
@@ -235,26 +270,6 @@ export function Winners() {
 
       {/* Modal Hook Confirmation */}
       <ConfirmationModal {...claimConfirmation.modalProps} />
-
-      <ReasonModal
-        open={reasonModal.open}
-        onOpenChange={(open) => setReasonModal((current) => ({ ...current, open }))}
-        title={reasonModal.mode === "delete" ? "Delete Winner" : "Redraw Winner"}
-        description={
-          reasonModal.mode === "delete"
-            ? "Please provide a reason for removing this winner."
-            : "Please provide a reason for performing a redraw for this winner."
-        }
-        label="Reason"
-        placeholder={
-          reasonModal.mode === "delete"
-            ? "Enter the reason for deleting this winner..."
-            : "Enter the reason for the redraw..."
-        }
-        submitLabel={reasonModal.mode === "delete" ? "Delete Winner" : "Confirm Redraw"}
-        onSubmit={handleReasonSubmit}
-        loading={deleteWinner.isPending || redrawWinner.isPending}
-      />
     </Layout>
   );
 }

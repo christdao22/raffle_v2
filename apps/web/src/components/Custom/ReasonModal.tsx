@@ -1,6 +1,6 @@
 import { Button, cn } from "@raffle_v2/ui";
 import { Loader2, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
 export interface ReasonModalProps {
   open: boolean;
@@ -15,7 +15,7 @@ export interface ReasonModalProps {
   loading?: boolean;
 }
 
-export function ReasonModal({
+export const ReasonModal = memo(function ReasonModal({
   open,
   onOpenChange,
   title,
@@ -38,8 +38,10 @@ export function ReasonModal({
   }, [open]);
 
   useEffect(() => {
+    if (!open) return;
+
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && open && !loading) {
+      if (event.key === "Escape" && !loading) {
         onOpenChange(false);
       }
     };
@@ -64,7 +66,11 @@ export function ReasonModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="fixed inset-0" aria-hidden="true" onClick={() => !loading && onOpenChange(false)} />
+      <div
+        className="fixed inset-0"
+        aria-hidden="true"
+        onClick={() => !loading && onOpenChange(false)}
+      />
 
       <div className="relative z-10 w-full max-w-md rounded-2xl border border-slate-800 bg-[#0f172a] p-6 text-white shadow-2xl">
         <button
@@ -83,11 +89,15 @@ export function ReasonModal({
         </div>
 
         <div className="mt-5 space-y-3">
-          <label className="block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+          <label
+            htmlFor="reason"
+            className="block text-xs font-bold uppercase tracking-[0.2em] text-slate-400"
+          >
             {label}
           </label>
 
           <textarea
+            id="reason"
             value={reason}
             onChange={(event) => {
               setReason(event.target.value);
@@ -136,4 +146,4 @@ export function ReasonModal({
       </div>
     </div>
   );
-}
+});

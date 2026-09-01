@@ -17,6 +17,10 @@ interface SaveWinnersPayload {
   personIds: string[];
 }
 
+interface RejectDrawCandidatesPayload extends SaveWinnersPayload {
+  reason: string;
+}
+
 interface UseWinnersParams {
   page?: number;
   pageSize?: number;
@@ -153,6 +157,20 @@ export function useSaveWinnersMutation() {
       queryClient.invalidateQueries({ queryKey: prizeKeys.all });
       queryClient.invalidateQueries({ queryKey: regionKeys.all });
       display.mutate("standby");
+    },
+  });
+}
+
+export function useRejectDrawCandidatesMutation() {
+  return useMutation({
+    mutationFn: async (payload: RejectDrawCandidatesPayload) => {
+      const res = await api.winners.draw.reject.$post({ json: payload });
+
+      if (!res.ok) {
+        throw new Error("Failed to record rejected draw candidates");
+      }
+
+      return res.json();
     },
   });
 }
