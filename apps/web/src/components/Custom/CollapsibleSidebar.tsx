@@ -1,3 +1,4 @@
+import { DEFAULT_ROLE, type Role } from "@raffle_v2/shared";
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,9 +12,10 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
-import { signOut } from "../../lib/auth-client";
+import { signOut, useSession } from "../../lib/auth-client";
 
 export default function CollapsibleSidebar() {
+  const { data } = useSession();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -31,14 +33,19 @@ export default function CollapsibleSidebar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const navItems = [
-    { name: "DASHBOARD", icon: LayoutGrid, path: "/dashboard" },
-    { name: "PRIZES", icon: Gift, path: "/prizes" },
-    { name: "WINNERS", icon: Trophy, path: "/winners" },
-    { name: "REPORT", icon: FileText, path: "/report" },
-    // { name: "HISTORY", icon: History, path: "/history" },
-    // { name: "SETTINGS", icon: Settings, path: "/settings" },
-  ];
+  const navItems: Record<Role, Array<{ name: string; icon: typeof LayoutGrid; path: string }>> = {
+    admin: [
+      { name: "DASHBOARD", icon: LayoutGrid, path: "/dashboard" },
+      { name: "PRIZES", icon: Gift, path: "/prizes" },
+      { name: "WINNERS", icon: Trophy, path: "/winners" },
+      { name: "REPORT", icon: FileText, path: "/report" },
+    ],
+    attendant: [{ name: "WINNERS", icon: Trophy, path: "/winners" }],
+    guest: [],
+  };
+
+  const role = data?.user.role as Role | undefined;
+  const items = role && role in navItems ? navItems[role] : navItems[DEFAULT_ROLE];
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -75,7 +82,7 @@ export default function CollapsibleSidebar() {
       <div>
         {/* Brand Logo & Name */}
         <div className={`flex items-center gap-3 mb-10 ${isCollapsed ? "justify-center" : "px-2"}`}>
-          <div className="w-12 h-12 bg-[#FFD000] rounded-md flex-shrink-0 flex items-center justify-center text-[#0d1326] shadow-lg shadow-yellow-500/10">
+          <div className="w-12 h-12 bg-[#FFD000] rounded-md shrink-0 flex items-center justify-center text-[#0d1326] shadow-lg shadow-yellow-500/10">
             <img src="/deped-logo-philippines.png" width="40" alt="DEPED Logo" loading="lazy" />
           </div>
 
@@ -93,9 +100,8 @@ export default function CollapsibleSidebar() {
 
         {/* Navigation List */}
         <nav className="space-y-2">
-          {navItems.map((item) => {
+          {items.map((item) => {
             const Icon = item.icon;
-            // Matches active route based on current path
             const isActive = location.pathname.startsWith(item.path);
 
             return (
@@ -110,9 +116,7 @@ export default function CollapsibleSidebar() {
                 }`}
               >
                 <Icon
-                  className={`w-5 h-5 flex-shrink-0 ${
-                    isActive ? "text-[#0d1326]" : "text-slate-400"
-                  }`}
+                  className={`w-5 h-5 shrink-0 ${isActive ? "text-[#0d1326]" : "text-slate-400"}`}
                 />
 
                 {!isCollapsed && (
@@ -135,9 +139,9 @@ export default function CollapsibleSidebar() {
             } text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50`}
           >
             {isLoggingOut ? (
-              <Loader2 className="w-5 h-5 flex-shrink-0 animate-spin text-red-400" />
+              <Loader2 className="w-5 h-5 shrink-0 animate-spin text-red-400" />
             ) : (
-              <LogOut className="w-5 h-5 flex-shrink-0 text-slate-400" />
+              <LogOut className="w-5 h-5 shrink-0 text-slate-400" />
             )}
 
             {!isCollapsed && (
@@ -156,13 +160,13 @@ export default function CollapsibleSidebar() {
         }`}
       >
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           {!isCollapsed && (
             <span className="font-medium text-slate-300 whitespace-nowrap">Version 1.0</span>
           )}
         </div>
 
-        {!isCollapsed && <CloudCheck className="w-4 h-4 text-slate-400 flex-shrink-0" />}
+        {!isCollapsed && <CloudCheck className="w-4 h-4 text-slate-400 shrink-0" />}
       </div>
     </aside>
   );
