@@ -76,7 +76,8 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
       region: regions.region,
       prize: prizes.prize,
       sponsor: prizes.sponsor,
-      status: sql<string>`'Valid'`,
+      type: prizes.type,
+      createdAt: winners.createdAt,
     })
     .from(winners)
     .innerJoin(persons, eq(winners.personId, persons.id))
@@ -92,7 +93,8 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
       school: persons.schoolsDivision,
       prize: prizes.prize,
       sponsor: prizes.sponsor,
-      status: sql<string>`'Invalidated'`,
+      type: prizes.type,
+      deletedAt: winners.deletedAt,
       reason: sql<string>`'Deleted from winners list'`,
     })
     .from(winners)
@@ -112,8 +114,8 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
     summary,
     prizes: prizeRows.map((prize) => ({
       id: String(prize.id),
-      prize: prize.prize,
-      sponsor: prize.sponsor ?? null,
+      prize: prize.prize.toLowerCase(),
+      sponsor: prize.sponsor?.toLowerCase() ?? null,
       type: prize.type ?? null,
       allocated: Number(prize.allocated),
       awarded: Number(prize.awarded),
@@ -121,22 +123,24 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
     })),
     winners: winnerRows.map((winner, index) => ({
       drawNumber: index + 1,
-      winnerName: winner.winnerName,
-      position: winner.position,
-      school: winner.school,
-      division: winner.division,
+      winnerName: winner.winnerName.toLowerCase(),
+      position: winner.position.toLowerCase(),
+      school: winner.school.toLowerCase(),
+      division: winner.division.toLowerCase(),
       region: winner.region,
-      prize: winner.prize,
+      prize: winner.prize.toLowerCase(),
       sponsor: winner.sponsor,
-      status: winner.status,
+      type: winner.type,
+      drawnAt: winner.createdAt?.toISOString() ?? new Date().toISOString(),
     })),
     invalidatedWinners: invalidatedWinnerRows.map((winner, index) => ({
       drawNumber: index + 1,
-      winnerName: winner.winnerName,
-      school: winner.school,
-      prize: winner.prize,
-      sponsor: winner.sponsor,
-      status: winner.status,
+      winnerName: winner.winnerName.toLowerCase(),
+      school: winner.school.toLowerCase(),
+      prize: winner.prize.toLowerCase(),
+      sponsor: winner.sponsor?.toLowerCase(),
+      type: winner.type,
+      drawnAt: winner.deletedAt?.toISOString() ?? new Date().toISOString(),
       reason: winner.reason,
     })),
     unclaimedPrizes: prizeRows

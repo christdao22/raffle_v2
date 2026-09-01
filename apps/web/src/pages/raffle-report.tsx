@@ -34,6 +34,11 @@ function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US").format(value);
 }
 
+function capitalizeWords(value: string | null | undefined) {
+  if (!value) return "-";
+  return value.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 export function RaffleReportPage() {
   const [raffleId, setRaffleId] = useState("RFL-2026-001");
   const { data: report, isLoading, isError, error } = useReport(raffleId);
@@ -48,7 +53,7 @@ export function RaffleReportPage() {
         icon: Users,
       },
       {
-        label: "Eligible Participants",
+        label: "Remaining Eligible Participants",
         value: formatNumber(reportData.summary.eligibleParticipants),
         icon: Users,
       },
@@ -168,8 +173,8 @@ export function RaffleReportPage() {
                 <table className="min-w-full text-left text-sm">
                   <thead className="bg-slate-800 text-slate-300">
                     <tr>
-                      <th className="px-3 py-2">Prize</th>
-                      <th className="px-3 py-2">Sponsor</th>
+                      <th className="px-3 py-2 ">Prize</th>
+                      <th className="px-3 py-2 ">Sponsor</th>
                       <th className="px-3 py-2">Tier</th>
                       <th className="px-3 py-2">Allocated</th>
                       <th className="px-3 py-2">Awarded</th>
@@ -179,8 +184,8 @@ export function RaffleReportPage() {
                   <tbody>
                     {reportData.prizes.map((item) => (
                       <tr key={item.id} className="border-t border-slate-700 text-slate-200">
-                        <td className="px-3 py-3">{item.prize}</td>
-                        <td className="px-3 py-3">{item.sponsor ?? "-"}</td>
+                        <td className="px-3 py-3 capitalize">{capitalizeWords(item.prize)}</td>
+                        <td className="px-3 py-3 capitalize">{capitalizeWords(item.sponsor)}</td>
                         <td className="px-3 py-3">{item.type ?? "-"}</td>
                         <td className="px-3 py-3">{item.allocated}</td>
                         <td className="px-3 py-3">{item.awarded}</td>
@@ -197,38 +202,109 @@ export function RaffleReportPage() {
 
             <Card className={cn("p-6")}>
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-xl font-bold text-white">Winners</h3>
+                <h3 className="text-xl font-bold text-white">Major Prize Winners</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
                   <thead className="bg-slate-800 text-slate-300">
                     <tr>
-                      <th className="px-3 py-2">#</th>
-                      <th className="px-3 py-2">Winner</th>
-                      <th className="px-3 py-2">Position</th>
-                      <th className="px-3 py-2">School</th>
-                      <th className="px-3 py-2">Division</th>
-                      <th className="px-3 py-2">Region</th>
-                      <th className="px-3 py-2">Prize</th>
-                      <th className="px-3 py-2">Status</th>
+                      <th className="px-3 py-2 w-12">#</th>
+                      <th className="px-3 py-2 w-32">Winner</th>
+                      <th className="px-3 py-2 w-24">Position</th>
+                      <th className="px-3 py-2 w-40">School</th>
+                      <th className="px-3 py-2 w-32">Division</th>
+                      <th className="px-3 py-2 w-32">Region</th>
+                      <th className="px-3 py-2 w-40">Prize</th>
+                      <th className="px-3 py-2 w-48">Drawn At</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {reportData.winners.map((winner) => (
-                      <tr
-                        key={`${winner.drawNumber}-${winner.winnerName}`}
-                        className="border-t border-slate-700 text-slate-200"
-                      >
-                        <td className="px-3 py-3">{winner.drawNumber}</td>
-                        <td className="px-3 py-3">{winner.winnerName}</td>
-                        <td className="px-3 py-3">{winner.position ?? "-"}</td>
-                        <td className="px-3 py-3">{winner.school ?? "-"}</td>
-                        <td className="px-3 py-3">{winner.division ?? "-"}</td>
-                        <td className="px-3 py-3">{winner.region ?? "-"}</td>
-                        <td className="px-3 py-3">{winner.prize}</td>
-                        <td className="px-3 py-3">{winner.status}</td>
-                      </tr>
-                    ))}
+                    {reportData.winners
+                      .filter((w) => w.type === "MAJOR PRIZE")
+                      .map((winner) => (
+                        <tr
+                          key={`${winner.drawNumber}-${winner.winnerName}`}
+                          className="border-t border-slate-700 text-slate-200"
+                        >
+                          <td className="px-3 py-3 w-12">{winner.drawNumber}</td>
+                          <td className="capitalize px-3 py-3 w-32">{winner.winnerName}</td>
+                          <td className="capitalize px-3 py-3 w-24">{winner.position ?? "-"}</td>
+                          <td className="capitalize px-3 py-3 w-40 wrap-break-word">
+                            {winner.school ?? "-"}
+                          </td>
+                          <td className="capitalize px-3 py-3 w-32">{winner.division ?? "-"}</td>
+                          <td className="px-3 py-3 w-32">{winner.region ?? "-"}</td>
+                          <td className="capitalize px-3 py-3 w-40 wrap-break-word">
+                            {winner.prize}
+                          </td>
+                          <td className="px-3 py-3 w-48">
+                            {new Date(winner.drawnAt).toLocaleString("en-PH", {
+                              timeZone: "Asia/Manila",
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            <Card className={cn("p-6")}>
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-xl font-bold text-white">Minor Prize Winners</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left text-sm">
+                  <thead className="bg-slate-800 text-slate-300">
+                    <tr>
+                      <th className="px-3 py-2 w-12">#</th>
+                      <th className="px-3 py-2 w-32">Winner</th>
+                      <th className="px-3 py-2 w-24">Position</th>
+                      <th className="px-3 py-2 w-40">School</th>
+                      <th className="px-3 py-2 w-32">Division</th>
+                      <th className="px-3 py-2 w-32">Region</th>
+                      <th className="px-3 py-2 w-40">Prize</th>
+                      <th className="px-3 py-2 w-48">Drawn At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reportData.winners
+                      .filter((w) => w.type === "MINOR PRIZE")
+                      .map((winner) => (
+                        <tr
+                          key={`${winner.drawNumber}-${winner.winnerName}`}
+                          className="border-t border-slate-700 text-slate-200"
+                        >
+                          <td className="px-3 py-3 w-12">{winner.drawNumber}</td>
+                          <td className="capitalize px-3 py-3 w-32">{winner.winnerName}</td>
+                          <td className="capitalize px-3 py-3 w-24">{winner.position ?? "-"}</td>
+                          <td className="capitalize px-3 py-3 w-40 wrap-break-word">
+                            {winner.school ?? "-"}
+                          </td>
+                          <td className="capitalize px-3 py-3 w-32">{winner.division ?? "-"}</td>
+                          <td className="px-3 py-3 w-32">{winner.region ?? "-"}</td>
+                          <td className="capitalize px-3 py-3 w-40 wrap-break-word">
+                            {winner.prize}
+                          </td>
+                          <td className="px-3 py-3 w-48">
+                            {new Date(winner.drawnAt).toLocaleString("en-PH", {
+                              timeZone: "Asia/Manila",
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                            })}
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -246,8 +322,9 @@ export function RaffleReportPage() {
                         <th className="px-3 py-2">Draw #</th>
                         <th className="px-3 py-2">Winner</th>
                         <th className="px-3 py-2">School</th>
+                        <th className="px-3 py-2">Prize Type</th>
                         <th className="px-3 py-2">Prize</th>
-                        <th className="px-3 py-2">Status</th>
+                        <th className="px-3 py-2">Drawn At</th>
                         <th className="px-3 py-2">Reason</th>
                       </tr>
                     </thead>
@@ -258,10 +335,23 @@ export function RaffleReportPage() {
                           className="border-t border-slate-700 text-slate-200"
                         >
                           <td className="px-3 py-3">{winner.drawNumber}</td>
-                          <td className="px-3 py-3">{winner.winnerName}</td>
-                          <td className="px-3 py-3">{winner.school ?? "-"}</td>
-                          <td className="px-3 py-3">{winner.prize}</td>
-                          <td className="px-3 py-3">{winner.status}</td>
+                          <td className="px-3 py-3 capitalize">{winner.winnerName}</td>
+                          <td className="px-3 py-3 wrap-break-word capitalize">
+                            {winner.school ?? "-"}
+                          </td>
+                          <td className="px-3 py-3 wrap-break-word">{winner.type}</td>
+                          <td className="px-3 py-3 wrap-break-word capitalize">{winner.prize}</td>
+                          <td className="px-3 py-3">
+                            {new Date(winner.drawnAt).toLocaleString("en-PH", {
+                              timeZone: "Asia/Manila",
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                            })}
+                          </td>
                           <td className="px-3 py-3">{winner.reason ?? "-"}</td>
                         </tr>
                       ))}

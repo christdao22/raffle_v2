@@ -30,7 +30,8 @@ export const raffleReportWinnerSchema = z.object({
   region: z.string().optional().nullable(),
   prize: z.string(),
   sponsor: z.string().nullable().optional(),
-  status: z.string(),
+  type: z.string().nullable().optional(),
+  drawnAt: z.string(),
 });
 
 export const raffleReportInvalidatedWinnerSchema = z.object({
@@ -39,7 +40,8 @@ export const raffleReportInvalidatedWinnerSchema = z.object({
   school: z.string().optional().nullable(),
   prize: z.string(),
   sponsor: z.string().nullable().optional(),
-  status: z.string(),
+  type: z.string().nullable().optional(),
+  drawnAt: z.string(),
   reason: z.string().nullable().optional(),
 });
 
