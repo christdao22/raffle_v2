@@ -26,3 +26,5 @@ pnpm-debug.log*
 
 # vite
 apps/web/dist/
+
+graphify-out
