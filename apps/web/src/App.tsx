@@ -7,6 +7,7 @@ import { Dashboard } from "./pages/dashboard";
 import { LiveDraw } from "./pages/livedraw";
 import { Login } from "./pages/login";
 import { Prizes } from "./pages/prizes";
+import { RaffleReportPage } from "./pages/raffle-report";
 import { Register } from "./pages/register";
 import { Winners } from "./pages/winners";
 
@@ -29,6 +30,7 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/report" element={<RaffleReportPage />} />
         <Route path="/prizes" element={<Prizes />} />
         <Route path="/winners" element={<Winners />} />
         <Route path="/history" element={<ComingSoon />} />

@@ -2,12 +2,11 @@ import {
   ChevronLeft,
   ChevronRight,
   CloudCheck,
+  FileText,
   Gift,
-  History,
   LayoutGrid,
   Loader2,
   LogOut,
-  Settings,
   Trophy,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -36,6 +35,7 @@ export default function CollapsibleSidebar() {
     { name: "DASHBOARD", icon: LayoutGrid, path: "/dashboard" },
     { name: "PRIZES", icon: Gift, path: "/prizes" },
     { name: "WINNERS", icon: Trophy, path: "/winners" },
+    { name: "REPORT", icon: FileText, path: "/report" },
     // { name: "HISTORY", icon: History, path: "/history" },
     // { name: "SETTINGS", icon: Settings, path: "/settings" },
   ];

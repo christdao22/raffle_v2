@@ -6,5 +6,6 @@ export * from "./schemas/person";
 export * from "./schemas/prize";
 export * from "./schemas/region";
 export * from "./schemas/registration";
+export * from "./schemas/report";
 export * from "./schemas/school";
 export * from "./schemas/winner";
