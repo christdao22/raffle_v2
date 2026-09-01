@@ -1,6 +1,5 @@
 import { Button, cn } from "@raffle_v2/ui";
 import { Trophy, X } from "lucide-react";
-import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
 import type { Person } from "../Custom/DrawResultModal";
 
@@ -27,67 +26,56 @@ export function MultipleWinnersModal({
   showConfetti = true,
   className,
 }: MultipleWinnerModalProps) {
-  const [randomText, setRandomText] = useState("");
-
   const winners = persons.slice(0, 10);
   const showWinner = winners.length > 0;
 
   const isRevealing = isOpen && isDrawing && !showWinner;
 
-  useEffect(() => {
-    if (!isRevealing) {
-      setRandomText("");
-      return;
-    }
-
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-    const generateRandomText = () =>
-      Array.from({ length: 30 }, () =>
-        characters.charAt(Math.floor(Math.random() * characters.length)),
-      ).join(" ");
-
-    const interval = setInterval(() => {
-      setRandomText(generateRandomText());
-    }, 80);
-
-    return () => clearInterval(interval);
-  }, [isRevealing]);
-
   if (!isOpen) return null;
 
   const winnerCount = winners.length;
 
-  const getGridClass = () => {
+  const getCardWidthClass = () => {
     if (winnerCount === 2) {
-      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-1";
+      return "w-full lg:w-[calc(50%-0.5rem)]";
     }
 
     if (winnerCount <= 4) {
-      return "grid-cols-1 md:grid-cols-2";
+      return "w-full md:w-[calc(50%-0.5rem)]";
     }
 
-    if (winnerCount <= 6) {
-      return "grid-cols-1 lg:grid-cols-3";
+    if (winnerCount <= 8) {
+      return "w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]";
     }
 
-    return "grid-cols-1 sm:grid-cols-3 lg:grid-cols-5";
+    return "w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]";
   };
 
   const getNameSize = () => {
     if (winnerCount <= 2) {
-      return "text-2xl lg:text-5xl xl:text-9xl";
+      return "text-3xl sm:text-4xl xl:text-6xl";
     }
 
     if (winnerCount <= 4) {
-      return "text-2xl xl:text-7xl";
+      return "text-2xl sm:text-3xl xl:text-6xl";
     }
 
     if (winnerCount <= 6) {
-      return "text-2xl xl:text-5xl";
+      return "text-xl sm:text-2xl lg:text-3xl xl:text-5xl";
     }
 
-    return "text-2xl lg:text-xl xl:text-4xl";
+    if (winnerCount <= 8) {
+      return "text-xl lg:text-xl xl:text-5xl";
+    }
+
+    return "text-lg sm:text-xl lg:text-[18px] xl:text-4xl";
+  };
+
+  const getCardSize = () => {
+    if (winnerCount <= 2) return "min-h-52 sm:min-h-64";
+    if (winnerCount <= 4) return "min-h-fit lg:min-h-40 xl:min-h-60";
+    if (winnerCount <= 6) return "min-h-36 sm:min-h-60 lg:min-h-20 xl:min-h-60";
+    return "min-h-32 sm:min-h-36  lg:min-h-20 xl:min-h-50";
   };
 
   const getCongratsSize = () => {
@@ -103,7 +91,7 @@ export function MultipleWinnersModal({
       return "text-2xl lg:text-3xl xl:text-5xl";
     }
 
-    return "text-2xl lg:text-3xl xl:text-4xl";
+    return "text-2xl lg:text-2xl xl:text-4xl";
   };
 
   const getPrizeSize = () => {
@@ -116,10 +104,18 @@ export function MultipleWinnersModal({
     }
 
     if (winnerCount <= 6) {
-      return "text-base lg:text-5xl";
+      return "text-base lg:text-3xl xl:text-5xl";
     }
 
-    return "text-base lg:text-3xl";
+    return "text-base lg:text-xl xl:text-4xl";
+  };
+
+  const getSponsorSize = () => {
+    const sponsorLength = sponsoredBy.length;
+
+    if (sponsorLength > 60) return "text-sm sm:text-base lg:text-2xl";
+    if (sponsorLength > 35) return "text-base sm:text-lg lg:text-2xl";
+    return "text-lg sm:text-xl lg:text-lg  xl:text-3xl";
   };
 
   //
@@ -165,26 +161,25 @@ export function MultipleWinnersModal({
                 !showWinner ? "opacity-0 -translate-y-10" : "opacity-100 translate-y-0",
               )}
             >
-              <div className="mb-4 flex items-center justify-center gap-3">
+              <div className="flex items-center gap-6 justify-center">
                 <img
                   src="/Bagong-Pilipinas.png"
                   alt="Bagong Pilipinas"
-                  className="w-16 sm:w-20"
+                  className="w-14"
                   loading="lazy"
                 />
+
+                <p className="font-display font-extrabold text-xs sm:text-sm uppercase tracking-[0.2em] text-tr-primary">
+                  National Teachers' Month Kick-off
+                </p>
 
                 <img
                   src="/deped-logo-philippines.png"
                   alt="DepEd"
-                  className="w-20 sm:w-24"
+                  className="w-15"
                   loading="lazy"
                 />
               </div>
-
-              <p className="font-display font-extrabold text-xs sm:text-sm uppercase tracking-[0.2em] text-tr-primary">
-                National Teachers' Month Kick-off
-              </p>
-
               <h1
                 className={cn(
                   "mt-1 font-display font-black uppercase tracking-tight text-tr-secondary leading-none",
@@ -260,7 +255,7 @@ export function MultipleWinnersModal({
 
                   <Trophy className="h-5 w-5 text-tr-tertiary-container" />
                 </div>
-                <div className="text-center mb-5 ">
+                <div className="text-center mb-5 flex flex-col xl:gap-5">
                   <h4
                     className={cn(
                       "font-display font-black uppercase text-tr-primary truncate leading-tight text-center",
@@ -269,15 +264,24 @@ export function MultipleWinnersModal({
                   >
                     {prizeTitle}
                   </h4>
-                  <span className="text-xl font-semibold text-tr-on-surface-variant">
-                    Sponsored: {sponsoredBy}
+                  <span
+                    className={cn(
+                      "block max-w-full wrap-break-word font-semibold text-tr-on-surface-variant",
+                      getSponsorSize(),
+                    )}
+                  >
+                    {sponsoredBy}
                   </span>
                 </div>
-                <div className={cn("mx-auto grid w-full max-w-8xl gap-4  pb-4", getGridClass())}>
-                  {winners.map((person, index) => (
+                <div className="mx-auto flex w-full max-w-8xl flex-wrap justify-center gap-4 pb-4">
+                  {winners.map((person) => (
                     <div
                       key={person.id}
-                      className="group relative flex min-h-28 flex-col items-center justify-center rounded-2xl border border-tr-outline-variant/20 bg-tr-surface-container-lowest/95 px-4 py-5 text-center shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-lg"
+                      className={cn(
+                        "group relative flex flex-col items-center justify-center rounded-2xl border border-tr-outline-variant/20 bg-tr-surface-container-lowest/95 px-4 py-4 text-center shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-lg",
+                        getCardWidthClass(),
+                        getCardSize(),
+                      )}
                     >
                       {/* Top accent */}
 
@@ -287,7 +291,7 @@ export function MultipleWinnersModal({
 
                       <h2
                         className={cn(
-                          "max-w-full font-display font-black uppercase tracking-tight text-tr-secondary leading-tight wrap-break-word",
+                          "max-w-full font-display font-black uppercase  text-tr-secondary wrap-break-word leading-2.5",
                           getNameSize(),
                         )}
                       >
