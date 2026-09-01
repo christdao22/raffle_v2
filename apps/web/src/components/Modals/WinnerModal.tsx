@@ -31,34 +31,9 @@ export function WinnerModal({
   showConfetti = true,
   sponsor,
 }: WinnerModalProps) {
-  const [randomText, setRandomText] = useState("");
-
   const showWinner = persons.length > 0;
 
   const isRevealing = isOpen && !showWinner && (isDrawing || countdownRemaining !== null);
-
-  useEffect(() => {
-    if (!isRevealing) {
-      setRandomText("");
-      return;
-    }
-
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    const generateRandomText = () => {
-      return Array.from({ length: 20 }, () =>
-        characters.charAt(Math.floor(Math.random() * characters.length)),
-      ).join(" ");
-    };
-
-    const randomInterval = setInterval(() => {
-      setRandomText(generateRandomText());
-    }, 80);
-
-    return () => {
-      clearInterval(randomInterval);
-    };
-  }, [isRevealing]);
 
   if (!isOpen) return null;
 
@@ -163,9 +138,6 @@ export function WinnerModal({
                     The moment of truth...
                   </p>
 
-                  {/* <div className="font-mono font-black text-4xl sm:text-6xl lg:text-8xl tracking-tight text-tr-on-secondary text-center drop-shadow-lg">
-                    {randomText || "• • • • • • • • • • • •"}
-                  </div> */}
                   <span className="flex items-center justify-center gap-3  text-3xl lg:text-6xl xl:text-9xl text-white">
                     {Array.from({ length: 10 }).map((_, index) => (
                       <span
