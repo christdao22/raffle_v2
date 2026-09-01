@@ -129,13 +129,7 @@ export const listUnclaimedWinnersHandler: RouteHandler<
           isReceived: winners.isReceived,
           receivedAt: winners.receivedAt,
           createdAt: winners.createdAt,
-          person: {
-            id: persons.id,
-            fullname: persons.fullname,
-            employeeId: persons.employeeId,
-            image: persons.image,
-            isEligible: persons.isEligible,
-          },
+          person: persons,
           region: {
             id: regions.id,
             region: regions.region,
@@ -224,6 +218,8 @@ export const deleteWinnerHandler: RouteHandler<typeof deleteWinnerRoute, AppEnv>
   }
 
   await db.update(winners).set({ deletedAt: new Date() }).where(eq(winners.id, id));
+
+  await db.update(persons).set({ isEligible: true }).where(eq(persons.id, existing.personId));
 
   return c.json({ success: true }, 200);
 };
