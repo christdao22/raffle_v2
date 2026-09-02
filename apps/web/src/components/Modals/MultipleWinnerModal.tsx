@@ -1,6 +1,6 @@
 import type { Person } from "@raffle_v2/shared";
 import { cn } from "@raffle_v2/ui";
-import { Trophy } from "lucide-react";
+import { MapPin, Trophy } from "lucide-react";
 import Confetti from "react-confetti";
 
 export interface MultipleWinnerModalProps {
@@ -283,11 +283,22 @@ export function MultipleWinnersModal({
                         {person.fullname ?? "Winner"}
                       </h2>
 
-                      {/* Region */}
-
+                      {/* Location */}
                       {person.region?.region && (
-                        <div className="mt-3 rounded-full bg-tr-primary-container/10 border border-tr-primary-container/20 px-3 py-1 font-bold uppercase text-tr-primary text-xs md:text-md">
-                          {person.region.region} - {person.schoolsDivision} - {person.station}
+                        <div className="mt-4 flex max-w-full flex-col items-center gap-1">
+                          <div className="flex items-center gap-1.5 text-tr-primary">
+                            <MapPin className="h-3.5 w-3.5 shrink-0" />
+
+                            <span className="text-xs font-bold uppercase tracking-[0.12em] sm:text-sm">
+                              {person.region.region}
+                            </span>
+                          </div>
+
+                          {(person.schoolsDivision || person.station) && (
+                            <p className="max-w-full break-words text-[10px] font-medium uppercase tracking-wide text-tr-on-surface-variant sm:text-xs">
+                              {[person.schoolsDivision, person.station].filter(Boolean).join(" • ")}
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
