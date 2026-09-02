@@ -120,6 +120,7 @@ export function LiveDraw() {
               persons={persons}
               isOpen={isWinnerModalOpen}
               prizeTitle={currentPrize?.prize}
+              prizeType={currentPrize?.type}
               prizeImageUrl={currentPrize?.imageUrl}
               sponsor={currentPrize?.sponsor}
               sponsorImageUrl={currentPrize?.sponsorImage}
