@@ -34,7 +34,12 @@ export function WinnerModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-5 backdrop-blur-md">
       {showConfetti && showWinner && (
-        <Confetti recycle numberOfPieces={120} gravity={0.18} className="pointer-events-none" />
+        <Confetti
+          recycle
+          numberOfPieces={30}
+          gravity={0.18}
+          className="pointer-events-none w-full"
+        />
       )}
 
       <div

@@ -23,7 +23,7 @@ export function LiveDraw() {
     [queryClient],
   );
 
-  const { state, closeWinnerModal } = useLiveSocket(apiHost, handlePrizeSelected);
+  const { state } = useLiveSocket(apiHost, handlePrizeSelected);
   const { displayType, selectedPrizeId, persons, isWinnerModalOpen, count } = state;
 
   const { data: currentPrize, isLoading: isPrizeLoading } = usePrize(selectedPrizeId ?? "");
@@ -112,7 +112,6 @@ export function LiveDraw() {
             <MultipleWinnersModal
               persons={persons}
               isOpen={isWinnerModalOpen}
-              onClose={closeWinnerModal}
               prizeTitle={currentPrize?.prize}
               sponsoredBy={currentPrize?.sponsor ?? ""}
             />

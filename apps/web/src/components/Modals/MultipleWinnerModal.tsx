@@ -5,9 +5,6 @@ import Confetti from "react-confetti";
 
 export interface MultipleWinnerModalProps {
   isOpen?: boolean;
-  isDrawing?: boolean;
-  drawDuration?: number;
-  onClose?: () => void;
   persons?: Person[];
   prizeTitle?: string;
   prizeImageUrl?: string;
@@ -18,8 +15,6 @@ export interface MultipleWinnerModalProps {
 
 export function MultipleWinnersModal({
   isOpen = false,
-  isDrawing = false,
-  onClose,
   persons = [],
   prizeTitle = "NETHERBook Pro",
   sponsoredBy = "MAMBA",
@@ -28,8 +23,6 @@ export function MultipleWinnersModal({
 }: MultipleWinnerModalProps) {
   const winners = persons.slice(0, 10);
   const showWinner = winners.length > 0;
-
-  const isRevealing = isOpen && isDrawing && !showWinner;
 
   if (!isOpen) return null;
 
@@ -122,7 +115,14 @@ export function MultipleWinnersModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-tr-surface/85 backdrop-blur-md animate-in fade-in duration-300 p-0">
-      {showConfetti && showWinner && <Confetti recycle={true} numberOfPieces={100} />}
+      {showConfetti && showWinner && (
+        <Confetti
+          recycle
+          numberOfPieces={30}
+          gravity={0.18}
+          className="pointer-events-none w-full"
+        />
+      )}
 
       <div
         className={cn(
@@ -137,17 +137,6 @@ export function MultipleWinnersModal({
         <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-tr-primary-container/10 blur-3xl pointer-events-none" />
 
         <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-tr-error/10 blur-3xl pointer-events-none" />
-
-        {/* Close */}
-
-        {/* <Button
-          onClick={onClose}
-          disabled={isRevealing}
-          className="absolute top-4 right-4 z-40 flex h-9 w-9 items-center justify-center rounded-full bg-tr-surface-container-high/80 p-0 text-tr-on-surface-variant shadow-sm transition-all hover:bg-tr-surface-container-highest hover:text-tr-on-surface border-0"
-          aria-label="Close modal"
-        >
-          <X className="h-5 w-5" />
-        </Button> */}
 
         {/* Main */}
 
@@ -283,10 +272,6 @@ export function MultipleWinnersModal({
                         getCardSize(),
                       )}
                     >
-                      {/* Top accent */}
-
-                      <div className="absolute inset-x-0 top-0 h-1 bg-tr-secondary-container" />
-
                       {/* Winner */}
 
                       <h2
@@ -302,7 +287,7 @@ export function MultipleWinnersModal({
 
                       {person.region?.region && (
                         <div className="mt-3 rounded-full bg-tr-primary-container/10 border border-tr-primary-container/20 px-3 py-1 font-bold uppercase text-tr-primary text-xs md:text-md">
-                          {person.region.region}
+                          {person.region.region} - {person.schoolsDivision} - {person.station}
                         </div>
                       )}
                     </div>

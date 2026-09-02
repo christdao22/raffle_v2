@@ -1,7 +1,7 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { personSchema } from "@raffle_v2/shared";
 import type { AppEnv } from "../lib/context";
 import { broadcastEvent, getLatestEvents, getSocketCount } from "../lib/ws";
-import { winnerPersonSchema } from "./winners.route";
 
 const app = new OpenAPIHono<AppEnv>();
 
@@ -83,7 +83,7 @@ export const displayWinners = createRoute({
       content: {
         "application/json": {
           schema: z.object({
-            persons: z.array(winnerPersonSchema),
+            persons: z.array(personSchema),
             drawDuration: z.number(),
           }),
         },
@@ -96,7 +96,7 @@ export const displayWinners = createRoute({
         "application/json": {
           schema: z.object({
             success: z.boolean(),
-            persons: z.array(winnerPersonSchema),
+            persons: z.array(personSchema),
             drawDuration: z.number(),
           }),
         },

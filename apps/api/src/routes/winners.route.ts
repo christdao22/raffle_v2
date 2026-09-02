@@ -4,7 +4,7 @@ import { and, db, eq, inArray, isNull, notInArray, persons, regions, winners } f
 import {
   paginatedResponseSchema,
   paginationQuerySchema,
-  regionSchema,
+  personSchema,
   winnerSchema,
 } from "@raffle_v2/shared";
 import {
@@ -98,8 +98,11 @@ export function selectEligibleWinnerIds({
     const shuffledRegions = [...remainingRegions];
     for (let i = shuffledRegions.length - 1; i > 0; i -= 1) {
       const j = rng(i + 1);
-      const currentRegion = shuffledRegions[i]!;
-      const swapRegion = shuffledRegions[j]!;
+      const currentRegion = shuffledRegions[i];
+      const swapRegion = shuffledRegions[j];
+
+      if (!currentRegion || !swapRegion) continue;
+
       shuffledRegions[i] = swapRegion;
       shuffledRegions[j] = currentRegion;
     }
@@ -133,16 +136,6 @@ export function selectEligibleWinnerIds({
 
   return selectedWinnerIds;
 }
-
-// Updated Person output schema
-export const winnerPersonSchema = z.object({
-  id: z.string().uuid(),
-  fullname: z.string(),
-  employeeId: z.string(),
-  image: z.string(),
-  region: regionSchema,
-  isEligible: z.boolean(),
-});
 
 export const listWinnersQuerySchema = paginationQuerySchema.extend({
   search: z.string().trim().min(1).optional(),
@@ -182,7 +175,7 @@ export const getDrawRoute = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: z.array(winnerPersonSchema),
+          schema: z.array(personSchema),
         },
       },
       description: "Array of randomly selected eligible candidate persons",
@@ -474,6 +467,10 @@ const winnersRoute = app
         image: persons.image,
         isEligible: persons.isEligible,
         regionId: persons.regionId,
+        station: persons.station,
+        schoolsDivision: persons.schoolsDivision,
+        designation: persons.designation,
+        email: persons.email,
         region: {
           id: regions.id,
           region: regions.region,
