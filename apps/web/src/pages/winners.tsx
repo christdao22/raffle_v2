@@ -53,7 +53,7 @@ function WinnerReasonAction({ winnerId, mode }: { winnerId: string; mode: "delet
         disabled={isPending}
         onClick={() => setOpen(true)}
         className={cn(
-          "px-1 py-2 text-xs uppercase tracking-wider transition-all shadow-none",
+          "px-1 py-2 text-xs uppercase tracking-wider transition-colors shadow-none",
           "bg-inherit",
           isDelete
             ? "text-error-container"
@@ -61,9 +61,9 @@ function WinnerReasonAction({ winnerId, mode }: { winnerId: string; mode: "delet
         )}
       >
         {isDelete ? (
-          <CircleX className="w-6 transition-all hover:scale-110" />
+          <CircleX className="w-6 transition-transform hover:scale-110" />
         ) : (
-          <RefreshCcw className="w-6 transition-all hover:scale-110" />
+          <RefreshCcw className="w-6 transition-transform hover:scale-110" />
         )}
       </Button>
 
@@ -90,37 +90,14 @@ function WinnerReasonAction({ winnerId, mode }: { winnerId: string; mode: "delet
   );
 }
 
-export function Winners() {
-  const table = useTableState({ pageSize: 10 });
-
-  const { data: winners, isLoading: isWinnerLoading } = useWinners({
-    page: table.page,
-    pageSize: table.pageSize,
-    search: table.search,
-  });
-
-  const claimConfirmation = useConfirmationModal();
-  const claimWinner = useClaimWinnerMutation();
-
-  const total: number = winners?.meta.pagination.total ?? 0;
-  const receivedCount = winners?.meta?.stats?.receivedCount ?? 0;
-  const pendingCount = winners?.meta?.stats?.pendingCount ?? 0;
-  const receivedPercent = total > 0 ? Math.round((receivedCount / total) * 100) : 0;
-
-  const handleClaimPrize = (id: string) => {
-    claimConfirmation.openConfirmModal({
-      title: "Claim Prize?",
-      description: "Are you sure you want to process this prize claim?",
-      confirmText: "Confirm Claim",
-      variant: "warning",
-      onConfirm: async () => {
-        claimWinner.mutate({ winnerId: id });
-        toast.success("claimed successfully!");
-      },
-    });
-  };
-
-  const columns: DataTableColumn<Winner>[] = [
+function createWinnerColumns({
+  onClaim,
+  claimPending,
+}: {
+  onClaim: (id: string) => void;
+  claimPending: boolean;
+}): DataTableColumn<Winner>[] {
+  return [
     {
       id: "winner",
       header: "Winner",
@@ -155,21 +132,18 @@ export function Winners() {
       id: "status",
       header: "Status",
       align: "center",
-      cell: (winner) => (
-        <>
-          {winner.isReceived ? (
-            <Chip variant={"secondary"} className={"gap-1"}>
-              <CircleArrowRight className="h-3.5 w-3.5 shrink-0" />
-              Claimed
-            </Chip>
-          ) : (
-            <Chip variant={"error"} className={"gap-1"}>
-              <Clock className="h-3.5 w-3.5 shrink-0 animate-pulse" />
-              Unclaimed
-            </Chip>
-          )}
-        </>
-      ),
+      cell: (winner) =>
+        winner.isReceived ? (
+          <Chip variant="secondary" className="gap-1">
+            <CircleArrowRight className="h-3.5 w-3.5 shrink-0" />
+            Claimed
+          </Chip>
+        ) : (
+          <Chip variant="error" className="gap-1">
+            <Clock className="h-3.5 w-3.5 shrink-0 animate-pulse" />
+            Unclaimed
+          </Chip>
+        ),
     },
     {
       id: "action",
@@ -178,8 +152,8 @@ export function Winners() {
       cell: (winner) => (
         <>
           <Button
-            disabled={winner.isReceived || claimWinner.isPending}
-            onClick={() => handleClaimPrize(winner.id)}
+            disabled={winner.isReceived || claimPending}
+            onClick={() => onClaim(winner.id)}
             className={cn(
               "px-1 py-2 text-xs text-secondary-container uppercase tracking-wider transition-all shadow-none",
               "bg-inherit",
@@ -190,27 +164,63 @@ export function Winners() {
           >
             <CircleArrowRight className="w-6" />
           </Button>
-          {!winner.isReceived && (
-            <>
-              {/* <Button
-                disabled={winner.isReceived || claimWinner.isPending}
-                onClick={() => handleDeleteWinner(winner.id)}
-                className={cn(
-                  "px-1 py-2 text-xs text-error-container uppercase tracking-wider transition-all shadow-none",
-                  "bg-inherit",
-                )}
-              >
-                <CircleX
-                  className={" transition-all hover:text-error-container/80 hover:scale-110 w-6"}
-                />
-              </Button> */}
-              <WinnerReasonAction winnerId={winner.id} mode="redraw" />
-            </>
-          )}
+          {!winner.isReceived && <WinnerReasonAction winnerId={winner.id} mode="redraw" />}
         </>
       ),
     },
   ];
+}
+
+function getWinnerStats({
+  total,
+  receivedCount,
+  pendingCount,
+}: {
+  total: number;
+  receivedCount: number;
+  pendingCount: number;
+}) {
+  return {
+    receivedCount,
+    pendingCount,
+    receivedPercent: total > 0 ? Math.round((receivedCount / total) * 100) : 0,
+  };
+}
+
+export function Winners() {
+  const table = useTableState({ pageSize: 10 });
+
+  const { data: winners, isLoading: isWinnerLoading } = useWinners({
+    page: table.page,
+    pageSize: table.pageSize,
+    search: table.search,
+  });
+
+  const claimConfirmation = useConfirmationModal();
+  const claimWinner = useClaimWinnerMutation();
+
+  const total: number = winners?.meta.pagination.total ?? 0;
+  const receivedCount = winners?.meta?.stats?.receivedCount ?? 0;
+  const pendingCount = winners?.meta?.stats?.pendingCount ?? 0;
+  const { receivedPercent } = getWinnerStats({ total, receivedCount, pendingCount });
+
+  const handleClaimPrize = (id: string) => {
+    claimConfirmation.openConfirmModal({
+      title: "Claim Prize?",
+      description: "Are you sure you want to process this prize claim?",
+      confirmText: "Confirm Claim",
+      variant: "warning",
+      onConfirm: async () => {
+        await claimWinner.mutateAsync({ winnerId: id });
+        toast.success("Claimed successfully!");
+      },
+    });
+  };
+
+  const columns = createWinnerColumns({
+    onClaim: handleClaimPrize,
+    claimPending: claimWinner.isPending,
+  });
 
   return (
     <Layout pageTitle="Raffle Winners">

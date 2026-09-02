@@ -107,7 +107,7 @@ export const ReasonModal = memo(function ReasonModal({
             rows={5}
             disabled={loading}
             className={cn(
-              "w-full resize-none rounded-xl border bg-slate-950/70 px-3 py-3 text-sm text-white outline-none transition-colors placeholder:text-slate-500",
+              "w-full resize-none rounded-md border bg-slate-950/70 px-3 py-3 text-sm text-white outline-none placeholder:text-slate-500",
               error ? "border-red-500/80" : "border-slate-700 focus:border-amber-400",
               loading && "cursor-not-allowed opacity-70",
             )}
