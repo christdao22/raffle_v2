@@ -19,15 +19,6 @@ export interface Region {
   regionName: string;
 }
 
-export interface Person {
-  id: string;
-  fullname: string;
-  employeeId: string;
-  image: string;
-  region: Region;
-  isEligible: boolean;
-}
-
 interface DrawResultModalProps {
   isOpen: boolean;
   onClose: () => void;
