@@ -150,6 +150,18 @@ export function useUpdatePrize() {
         param: { id },
         json: data,
       });
+
+      if (!res.ok) {
+        let message = "Failed to update prize";
+
+        try {
+          const errorData = (await res.clone().json()) as Record<string, unknown> | null;
+          if (typeof errorData?.message === "string") message = errorData.message;
+        } catch {}
+
+        throw new Error(message);
+      }
+
       return res.json();
     },
     onSettled: () => {
@@ -165,7 +177,14 @@ export function useCreatePrize() {
     mutationFn: async (data: Omit<Prize, "id">) => {
       const res = await api.prizes.$post({ json: data });
       if (!res.ok) {
-        throw new Error("Failed to create prize");
+        let message = "Failed to create prize";
+
+        try {
+          const errorData = (await res.clone().json()) as Record<string, unknown> | null;
+          if (typeof errorData?.message === "string") message = errorData.message;
+        } catch {}
+
+        throw new Error(message);
       }
       return res.json();
     },

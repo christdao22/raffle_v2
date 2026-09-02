@@ -10,6 +10,7 @@ import {
   Select,
 } from "@raffle_v2/ui";
 import { Edit, Gift, Plus, Trash2, Trophy } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { SubmitButton } from "../components/Button/SubmitButton";
 import ConfirmationModal from "../components/Custom/ConfirmationModal";
@@ -32,127 +33,16 @@ type PrizeFormValues = {
   raffleMode: "Live" | "Pre-draw";
 };
 
-export function Prizes() {
-  const table = useTableState({ pageSize: 5 });
-  const confirmationModal = useConfirmationModal();
-  const formModal = useModal<PrizeFormValues>();
-  const form = useForm<PrizeFormValues>({
-    id: "",
-    prize: "",
-    numberOfWinners: 0,
-    sponsor: "",
-    type: "",
-    imageUrl: "",
-    sponsorImage: "",
-    raffleMode: "Live",
-  });
-
-  const deletePrize = useDeletePrize();
-  const createPrize = useCreatePrize();
-  const updatePrize = useUpdatePrize();
-
-  const emptyPrize: PrizeFormValues = {
-    id: "",
-    prize: "",
-    numberOfWinners: 1,
-    sponsor: "",
-    type: "",
-    imageUrl: "",
-    sponsorImage: "",
-    raffleMode: "Live",
-  };
-
-  const { data: prizes, isLoading: isPrizesLoading } = usePrizes({
-    page: table.page,
-    pageSize: table.pageSize,
-    search: table.search,
-  });
-
-  const resetForm = (data: Prize) => {
-    form.reset({
-      id: data.id,
-      prize: data.prize,
-      numberOfWinners: data.numberOfWinners,
-      sponsor: data.sponsor ?? "",
-      type: data.type ?? "",
-      imageUrl: data.imageUrl ?? "",
-      sponsorImage: data.sponsorImage ?? "",
-      raffleMode: data.raffleMode === "Pre-draw" ? "Pre-draw" : "Live",
-    });
-  };
-
-  const handleDeletePrize = (id: string) => {
-    confirmationModal.openConfirmModal({
-      title: "Delete Prize?",
-      description: "Are you sure you want to delete this prize?",
-      confirmText: "Confirm Delete",
-      variant: "danger",
-      onConfirm: async () => {
-        deletePrize.mutate(id);
-      },
-    });
-  };
-
-  const handleEditPrize = (selectedPrize: Prize) => {
-    confirmationModal.openConfirmModal({
-      title: "Edit Prize?",
-      description: "Are you sure you want to edit this prize?",
-      confirmText: "Confirm Edit",
-      variant: "info",
-      onConfirm: async () => {
-        resetForm(selectedPrize);
-        formModal.openModal({
-          id: selectedPrize.id,
-          prize: selectedPrize.prize,
-          numberOfWinners: selectedPrize.numberOfWinners,
-          sponsor: selectedPrize.sponsor ?? "",
-          type: selectedPrize.type ?? "",
-          imageUrl: selectedPrize.imageUrl ?? "",
-          sponsorImage: selectedPrize.sponsorImage ?? "",
-          raffleMode: selectedPrize.raffleMode === "Pre-draw" ? "Pre-draw" : "Live",
-        });
-      },
-    });
-  };
-
-  const handleAddPrize = () => {
-    resetForm(emptyPrize);
-    formModal.openModal(emptyPrize);
-  };
-
-  const handleSubmit = () => {
-    const isEditing = Boolean(form.values.id);
-    confirmationModal.openConfirmModal({
-      title: isEditing ? "Save Prize?" : "Add Prize?",
-      description: isEditing
-        ? "Are you sure you want to save this prize?"
-        : "Are you sure you want to add this prize?",
-      confirmText: isEditing ? "Confirm Save" : "Confirm Add",
-      variant: "warning",
-      onConfirm: async () => {
-        if (isEditing) {
-          updatePrize.mutate({
-            ...form.values,
-            imageUrl: form.values.imageUrl || null,
-            sponsorImage: form.values.sponsorImage || null,
-          });
-          toast.success("Updated successfully!");
-        } else {
-          const { id: _id, ...newPrize } = form.values;
-          createPrize.mutate({
-            ...newPrize,
-            imageUrl: newPrize.imageUrl || null,
-            sponsorImage: newPrize.sponsorImage || null,
-          });
-          toast.success("Added successfully!");
-        }
-        resetForm(form.values);
-        formModal.closeModal();
-      },
-    });
-  };
-
-  const columns: DataTableColumn<Prize>[] = [
+function createPrizeColumns({
+  onEdit,
+  onDelete,
+  deletePending,
+}: {
+  onEdit: (prize: Prize) => void;
+  onDelete: (id: string) => void;
+  deletePending: boolean;
+}): DataTableColumn<Prize>[] {
+  return [
     {
       id: "prize",
       header: "Prize Name",
@@ -196,25 +86,24 @@ export function Prizes() {
       header: "Prize Image",
       align: "center",
       cell: (prize) => (
-        <div className={"text-center"}>
+        <div className="text-center">
           {prize.imageUrl ? (
             <img
               src={prize.imageUrl}
               alt={prize.prize}
               loading="lazy"
               decoding="async"
-              className="h-full w-12 object-contain mx-auto"
+              className="mx-auto h-full w-12 object-contain"
             />
           ) : (
             <Gift
-              className="h-5 w-5 text-tr-on-surface-variant/60 text-center mx-auto"
+              className="mx-auto h-5 w-5 text-center text-tr-on-surface-variant/60"
               aria-hidden="true"
             />
           )}
         </div>
       ),
     },
-
     {
       id: "type",
       header: "Type",
@@ -223,9 +112,13 @@ export function Prizes() {
     },
     {
       id: "number-of-items",
-      header: "Number of Items",
+      header: "Items Left / Total",
       align: "center",
-      cell: (prize) => <Chip variant={"outline"}>{prize.numberOfWinners}</Chip>,
+      cell: (prize) => (
+        <Chip variant="outline">
+          {prize.numberOfItemsLeft ?? prize.numberOfWinners}/{prize.numberOfWinners} items
+        </Chip>
+      ),
     },
     {
       id: "action",
@@ -234,33 +127,161 @@ export function Prizes() {
       cell: (prize) => (
         <>
           <Button
-            disabled={deletePrize.isPending}
-            onClick={() => handleEditPrize(prize)}
+            disabled={deletePending}
+            onClick={() => onEdit(prize)}
             className={cn(
               "px-1 py-2 text-xs text-secondary-container uppercase tracking-wider transition-all shadow-none",
               "bg-inherit",
             )}
           >
-            <Edit
-              className={" transition-all hover:text-secondary-container/95 hover:scale-110 w-5"}
-            />
+            <Edit className="w-5 transition-all hover:scale-110 hover:text-secondary-container/95" />
           </Button>
           <Button
-            disabled={deletePrize.isPending}
-            onClick={() => handleDeletePrize(prize.id)}
+            disabled={deletePending}
+            onClick={() => onDelete(prize.id)}
             className={cn(
               "px-1 py-2 text-xs text-error-container uppercase tracking-wider transition-all shadow-none",
               "bg-inherit",
             )}
           >
-            <Trash2
-              className={" transition-all hover:text-error-container/80 hover:scale-110 w-5"}
-            />
+            <Trash2 className="w-5 transition-all hover:scale-110 hover:text-error-container/80" />
           </Button>
         </>
       ),
     },
   ];
+}
+
+function toPrizeFormValues(prize: Prize | PrizeFormValues): PrizeFormValues {
+  return {
+    id: prize.id,
+    prize: prize.prize,
+    numberOfWinners: prize.numberOfWinners,
+    sponsor: prize.sponsor ?? "",
+    type: prize.type ?? "",
+    imageUrl: prize.imageUrl ?? "",
+    sponsorImage: prize.sponsorImage ?? "",
+    raffleMode: prize.raffleMode === "Pre-draw" ? "Pre-draw" : "Live",
+  };
+}
+
+function toPrizePayload(values: PrizeFormValues) {
+  return {
+    ...values,
+    imageUrl: values.imageUrl || null,
+    sponsorImage: values.sponsorImage || null,
+  };
+}
+
+export function Prizes() {
+  const [formError, setFormError] = useState("");
+  const table = useTableState({ pageSize: 5 });
+  const confirmationModal = useConfirmationModal();
+  const formModal = useModal<PrizeFormValues>();
+  const form = useForm<PrizeFormValues>({
+    id: "",
+    prize: "",
+    numberOfWinners: 0,
+    sponsor: "",
+    type: "",
+    imageUrl: "",
+    sponsorImage: "",
+    raffleMode: "Live",
+  });
+
+  const deletePrize = useDeletePrize();
+  const createPrize = useCreatePrize();
+  const updatePrize = useUpdatePrize();
+
+  const emptyPrize: PrizeFormValues = {
+    id: "",
+    prize: "",
+    numberOfWinners: 1,
+    sponsor: "",
+    type: "",
+    imageUrl: "",
+    sponsorImage: "",
+    raffleMode: "Live",
+  };
+
+  const { data: prizes, isLoading: isPrizesLoading } = usePrizes({
+    page: table.page,
+    pageSize: table.pageSize,
+    search: table.search,
+  });
+
+  const resetForm = (data: Prize | PrizeFormValues) => {
+    form.reset(toPrizeFormValues(data));
+  };
+
+  const handleDeletePrize = (id: string) => {
+    confirmationModal.openConfirmModal({
+      title: "Delete Prize?",
+      description: "Are you sure you want to delete this prize?",
+      confirmText: "Confirm Delete",
+      variant: "danger",
+      onConfirm: async () => {
+        deletePrize.mutate(id);
+      },
+    });
+  };
+
+  const handleEditPrize = (selectedPrize: Prize) => {
+    confirmationModal.openConfirmModal({
+      title: "Edit Prize?",
+      description: "Are you sure you want to edit this prize?",
+      confirmText: "Confirm Edit",
+      variant: "info",
+      onConfirm: async () => {
+        setFormError("");
+        resetForm(selectedPrize);
+        formModal.openModal(toPrizeFormValues(selectedPrize));
+      },
+    });
+  };
+
+  const handleAddPrize = () => {
+    setFormError("");
+    resetForm(emptyPrize);
+    formModal.openModal(emptyPrize);
+  };
+
+  const handleSubmit = () => {
+    const isEditing = Boolean(form.values.id);
+    confirmationModal.openConfirmModal({
+      title: isEditing ? "Save Prize?" : "Add Prize?",
+      description: isEditing
+        ? "Are you sure you want to save this prize?"
+        : "Are you sure you want to add this prize?",
+      confirmText: isEditing ? "Confirm Save" : "Confirm Add",
+      variant: "warning",
+      onConfirm: async () => {
+        try {
+          if (isEditing) {
+            await updatePrize.mutateAsync(toPrizePayload(form.values));
+            toast.success("Updated successfully!");
+          } else {
+            const { id: _id, ...newPrize } = toPrizePayload(form.values);
+            await createPrize.mutateAsync(newPrize);
+            toast.success("Added successfully!");
+          }
+
+          setFormError("");
+          resetForm(form.values);
+          formModal.closeModal();
+        } catch (error) {
+          setFormError(error instanceof Error ? error.message : "Unable to save prize.");
+          confirmationModal.closeConfirmModal();
+        }
+      },
+    });
+  };
+
+  const columns = createPrizeColumns({
+    onEdit: handleEditPrize,
+    onDelete: handleDeletePrize,
+    deletePending: deletePrize.isPending,
+  });
 
   return (
     <Layout pageTitle="Raffle Prizes">
@@ -325,6 +346,14 @@ export function Prizes() {
       >
         {formModal.data && (
           <form id="edit-prize-form" className="space-y-5">
+            {formError && (
+              <div
+                role="alert"
+                className="rounded-md border border-error-container/40 bg-error-container/10 px-4 py-3 text-sm text-error-container"
+              >
+                {formError}
+              </div>
+            )}
             <div className="space-y-2">
               <Label
                 htmlFor="email"

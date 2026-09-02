@@ -68,7 +68,7 @@ export const createPrizeRoute = createRoute({
     body: {
       content: {
         "application/json": {
-          schema: prizeSchema.omit({ id: true, deletedAt: true }),
+          schema: prizeSchema.omit({ id: true, deletedAt: true, numberOfItemsLeft: true }),
         },
       },
     },
@@ -119,7 +119,7 @@ export const updatePrizeRoute = createRoute({
     body: {
       content: {
         "application/json": {
-          schema: prizeSchema.omit({ deletedAt: true }),
+          schema: prizeSchema.omit({ deletedAt: true, numberOfItemsLeft: true }),
         },
       },
     },

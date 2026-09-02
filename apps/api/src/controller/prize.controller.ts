@@ -64,7 +64,7 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
 
       return rows.map(({ winners: existingWinners, ...row }) => ({
         ...row,
-        numberOfWinners: Math.max(0, row.numberOfWinners - existingWinners.length),
+        numberOfItemsLeft: Math.max(0, row.numberOfWinners - existingWinners.length),
         sponsor: row.sponsor ?? "",
         imageUrl: row.imageUrl ?? undefined,
         sponsorImage: row.sponsorImage ?? undefined,
@@ -81,13 +81,27 @@ export const getPrizeHandler: RouteHandler<typeof getPrizeRoute, AppEnv> = async
   const prize = await db.query.prizes.findFirst({
     where: (fields, { and: andWhere, eq: eqWhere, isNull: isNullWhere }) =>
       andWhere(eqWhere(fields.id, id), isNullWhere(fields.deletedAt)),
+    with: {
+      winners: {
+        columns: { id: true },
+        where: (fields, { isNull: isNullWhere }) => isNullWhere(fields.deletedAt),
+      },
+    },
   });
 
   if (!prize) {
     return c.json({ message: "Prize not found" }, 404);
   }
 
-  return c.json(prize, 200);
+  const { winners: activeWinners, ...prizeData } = prize;
+
+  return c.json(
+    {
+      ...prizeData,
+      numberOfItemsLeft: Math.max(0, prize.numberOfWinners - activeWinners.length),
+    },
+    200,
+  );
 };
 
 export const createPrizeHandler: RouteHandler<typeof createPrizeRoute, AppEnv> = async (c) => {
@@ -95,7 +109,17 @@ export const createPrizeHandler: RouteHandler<typeof createPrizeRoute, AppEnv> =
 
   const [newPrize] = await db.insert(prizes).values(body).returning();
 
-  return c.json(newPrize, 201);
+  if (!newPrize) {
+    throw new Error("Prize creation did not return a record");
+  }
+
+  return c.json(
+    {
+      ...newPrize,
+      numberOfItemsLeft: newPrize.numberOfWinners,
+    },
+    201,
+  );
 };
 
 export const deletePrizeHandler: RouteHandler<typeof deletePrizeRoute, AppEnv> = async (c) => {
