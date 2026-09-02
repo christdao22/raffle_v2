@@ -49,13 +49,7 @@ export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> =
           isReceived: winners.isReceived,
           receivedAt: winners.receivedAt,
           createdAt: winners.createdAt,
-          person: {
-            id: persons.id,
-            fullname: persons.fullname,
-            employeeId: persons.employeeId,
-            image: persons.image,
-            isEligible: persons.isEligible,
-          },
+          person: persons,
           region: {
             id: regions.id,
             region: regions.region,

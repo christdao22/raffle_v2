@@ -23,6 +23,7 @@ import {
   useRedrawWinner,
   useWinners,
 } from "../hooks/use-winners";
+import { useSession } from "../lib/auth-client";
 
 function WinnerReasonAction({ winnerId, mode }: { winnerId: string; mode: "delete" | "redraw" }) {
   const [open, setOpen] = useState(false);
@@ -93,9 +94,11 @@ function WinnerReasonAction({ winnerId, mode }: { winnerId: string; mode: "delet
 function createWinnerColumns({
   onClaim,
   claimPending,
+  role,
 }: {
   onClaim: (id: string) => void;
   claimPending: boolean;
+  role: string;
 }): DataTableColumn<Winner>[] {
   return [
     {
@@ -104,7 +107,9 @@ function createWinnerColumns({
       cell: (winner) => (
         <div>
           <p>{winner.person.fullname}</p>
-          <p className="mt-0.5 text-[11px] font-mono text-tr-on-surface-variant/80">{winner.id}</p>
+          <p className="mt-0.5 text-[11px] font-mono text-tr-on-surface-variant/80">
+            {winner?.person?.region?.region ?? "—"} - {winner?.person.schoolsDivision}
+          </p>
         </div>
       ),
     },
@@ -123,11 +128,19 @@ function createWinnerColumns({
       ),
     },
     {
-      id: "division",
-      header: "Division",
+      id: "station",
+      header: "Station",
       align: "center",
-      cell: (winner) => <Chip>{winner?.person?.region?.region ?? "—"}</Chip>,
+      cell: (winner) => <Chip>{winner?.person.station}</Chip>,
     },
+
+    {
+      id: "designation",
+      header: "Designation",
+      align: "center",
+      cell: (winner) => <Chip>{winner.person.designation}</Chip>,
+    },
+
     {
       id: "status",
       header: "Status",
@@ -164,7 +177,9 @@ function createWinnerColumns({
           >
             <CircleArrowRight className="w-6" />
           </Button>
-          {!winner.isReceived && <WinnerReasonAction winnerId={winner.id} mode="redraw" />}
+          {!winner.isReceived && role === "admin" && (
+            <WinnerReasonAction winnerId={winner.id} mode="redraw" />
+          )}
         </>
       ),
     },
@@ -188,6 +203,7 @@ function getWinnerStats({
 }
 
 export function Winners() {
+  const { data } = useSession();
   const table = useTableState({ pageSize: 10 });
 
   const { data: winners, isLoading: isWinnerLoading } = useWinners({
@@ -220,6 +236,7 @@ export function Winners() {
   const columns = createWinnerColumns({
     onClaim: handleClaimPrize,
     claimPending: claimWinner.isPending,
+    role: data?.user?.role ?? "",
   });
 
   return (
