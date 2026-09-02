@@ -24,15 +24,7 @@ export function LiveDraw() {
   );
 
   const { state, closeWinnerModal } = useLiveSocket(apiHost, handlePrizeSelected);
-  const {
-    displayType,
-    selectedPrizeId,
-    persons,
-    isWinnerModalOpen,
-    isDrawing,
-    countdownRemaining,
-    count,
-  } = state;
+  const { displayType, selectedPrizeId, persons, isWinnerModalOpen, count } = state;
 
   const { data: currentPrize, isLoading: isPrizeLoading } = usePrize(selectedPrizeId ?? "");
 
@@ -128,9 +120,6 @@ export function LiveDraw() {
             <WinnerModal
               persons={persons}
               isOpen={isWinnerModalOpen}
-              isDrawing={isDrawing}
-              countdownRemaining={countdownRemaining}
-              onClose={closeWinnerModal}
               prizeTitle={currentPrize?.prize}
               prizeImageUrl={currentPrize?.imageUrl}
               sponsor={currentPrize?.sponsor}

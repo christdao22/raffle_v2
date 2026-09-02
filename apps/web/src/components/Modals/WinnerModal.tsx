@@ -1,16 +1,11 @@
 import type { Person } from "@raffle_v2/shared";
-import { Button, cn } from "@raffle_v2/ui";
-import { Trophy, X } from "lucide-react";
+import { cn } from "@raffle_v2/ui";
+import { Trophy } from "lucide-react";
 import Confetti from "react-confetti";
 
 export interface WinnerModalProps {
   isOpen?: boolean;
-  isDrawing?: boolean;
-  countdownRemaining?: number | null;
-  onClose?: () => void;
-  onClaim?: () => void;
   persons?: Person[];
-  division?: string;
   prizeTitle?: string;
   showConfetti?: boolean;
   prizeImageUrl?: string | null;
@@ -21,9 +16,6 @@ export interface WinnerModalProps {
 
 export function WinnerModal({
   isOpen = false,
-  isDrawing = false,
-  countdownRemaining = null,
-  onClose,
   persons = [],
   prizeTitle = "",
   prizeImageUrl = "",
@@ -33,7 +25,6 @@ export function WinnerModal({
   className,
 }: WinnerModalProps) {
   const showWinner = persons.length > 0;
-  const isRevealing = isOpen && !showWinner && (isDrawing || countdownRemaining !== null);
 
   if (!isOpen) return null;
 
@@ -48,7 +39,7 @@ export function WinnerModal({
 
       <div
         className={cn(
-          "relative flex h-[min(94vh,900px)] w-full max-w-[1500px] flex-col overflow-hidden rounded-3xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest text-tr-on-surface shadow-2xl",
+          "relative flex h-[min(94vh,900px)] w-full max-w-375 flex-col overflow-hidden rounded-3xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest text-tr-on-surface shadow-2xl",
           className,
         )}
       >
@@ -68,17 +59,6 @@ export function WinnerModal({
             <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-tr-tertiary-container/10 blur-3xl" />
           </>
         )}
-
-        {/* Close button */}
-        <Button
-          onClick={onClose}
-          disabled={isRevealing}
-          aria-label="Close modal"
-          variant="ghost"
-          className="absolute right-4 top-4 z-40 h-10 w-10 rounded-full bg-tr-surface-container-high/70 p-0 text-tr-on-surface-variant backdrop-blur hover:bg-tr-surface-container-highest hover:text-tr-on-surface"
-        >
-          <X className="h-5 w-5" />
-        </Button>
 
         {/* Content */}
         <div className="relative z-10 flex min-h-0 flex-1 flex-col">
@@ -119,9 +99,9 @@ export function WinnerModal({
           </header>
 
           {/* ================= MAIN ================= */}
-          <main className="flex min-h-0 flex-1 items-center justify-center px-4 sm:px-8 lg:px-12">
+          <main className="flex min-h-0 flex-1 w-full">
             {showWinner ? (
-              <div className="flex w-full max-w-312.5 min-h-0 flex-col items-center ">
+              <div className="flex w-full min-h-0 flex-col items-center ">
                 {/* Lucky winner label */}
                 <div className="mb-3 flex shrink-0 items-center gap-2 text-tr-tertiary-container sm:mb-4">
                   <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -144,7 +124,7 @@ export function WinnerModal({
                         src={prizeImageUrl}
                         alt={prizeTitle || "Prize"}
                         loading="lazy"
-                        className="relative z-10 h-full max-w-[280px] object-contain drop-shadow-[0_18px_25px_rgba(0,0,0,0.25)]"
+                        className="relative z-10 h-full max-w-70 object-contain drop-shadow-[0_18px_25px_rgba(0,0,0,0.25)]"
                       />
                     </div>
                   )}
@@ -211,7 +191,7 @@ export function WinnerModal({
                       >
                         <h2
                           className={cn(
-                            "max-w-full break-words font-display font-black uppercase leading-[0.9] tracking-tight text-tr-secondary",
+                            "max-w-full wrap-break-word font-display font-black uppercase leading-[0.9] tracking-tight text-tr-secondary",
                             multipleWinners
                               ? "text-3xl sm:text-4xl lg:text-5xl"
                               : "text-5xl sm:text-6xl lg:text-8xl xl:text-9xl",
@@ -239,7 +219,7 @@ export function WinnerModal({
               </div>
             ) : (
               /* ================= DRAWING ================= */
-              <div className="relative flex h-full w-full max-w-5xl flex-col items-center justify-center overflow-hidden rounded-3xl border border-tr-primary-container/30 bg-tr-secondary px-6 py-10 shadow-2xl">
+              <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-3xl border border-tr-primary-container/30 bg-tr-secondary px-6 py-10 shadow-2xl">
                 <div className="absolute inset-0 bg-tr-primary/10 animate-pulse" />
 
                 <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-tr-primary-container/15 blur-3xl sm:h-96 sm:w-96" />
