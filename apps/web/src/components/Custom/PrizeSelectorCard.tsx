@@ -222,7 +222,7 @@ export function PrizeSelectorCard({
               type="button"
               onClick={() => handlePrizeClick(prize.id)}
               className={cn(
-                "relative border border-slate-800/80 flex items-center gap-2.5 p-2 rounded-md text-left transition-all cursor-pointer select-none h-14",
+                "relative border border-slate-800/80 flex items-center gap-2.5 px-2 py-10 rounded-md text-left transition-all cursor-pointer select-none h-14",
                 "bg-surface-container-low/80 hover:bg-surface-container-high/60",
                 isSelected
                   ? "border-primary-container ring-1 ring-primary-container bg-surface-container-high shadow-[0_0_12px_rgba(255,215,0,0.15)]"
@@ -235,13 +235,13 @@ export function PrizeSelectorCard({
                 </div>
               )}
 
-              <div className="shrink-0 w-9 h-9 rounded-md bg-surface-container-lowest border border-outline-variant/20 overflow-hidden flex items-center justify-center">
-                {prize.imageUrl ? (
+              <div className="shrink-0 w-12 h-12 rounded-md bg-surface-container-lowest border border-outline-variant/20 overflow-hidden flex items-center justify-center">
+                {prize.imageUrl || prize.sponsorImage ? (
                   <img
-                    src={prize.imageUrl}
+                    src={prize.imageUrl ?? prize.sponsorImage ?? ""}
                     alt={prize.prize}
                     loading="lazy"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover bg-white"
                   />
                 ) : (
                   <Award className="w-4 h-4 text-on-surface-variant/60" />

@@ -14,7 +14,7 @@ export function Dashboard() {
   const savedRegionIds = localStorage.getItem("raffle:selected-regions");
   const [pagination, setPagination] = useState({
     page: 1,
-    pageSize: 10,
+    pageSize: 15,
   });
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
