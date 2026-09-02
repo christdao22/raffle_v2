@@ -10,6 +10,7 @@ export const prizes = pgTable("prizes", {
   sponsorImage: text("sponsor_image"),
   numberOfWinners: integer("number_of_winners").default(1).notNull(),
   type: text("type"),
+  raffleMode: text("raffle_mode"),
   deletedAt: timestamp("deleted_at"),
 });
 
