@@ -68,7 +68,7 @@ export function MultipleWinnersModal({
       return "text-xl lg:text-xl xl:text-5xl";
     }
 
-    return "text-lg sm:text-xl lg:text-[18px] xl:text-4xl";
+    return "text-lg sm:text-xl lg:text-[18px] xl:text-3xl";
   };
 
   const getCardSize = () => {
