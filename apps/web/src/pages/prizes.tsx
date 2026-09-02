@@ -21,32 +21,45 @@ import { useModal } from "../hooks/modal/useModal";
 import { useConfirmationModal } from "../hooks/use-confirmation-modal";
 import { useCreatePrize, useDeletePrize, usePrizes, useUpdatePrize } from "../hooks/use-prizes";
 
+type PrizeFormValues = {
+  id: string;
+  prize: string;
+  numberOfWinners: number;
+  sponsor: string;
+  type: string;
+  imageUrl: string;
+  sponsorImage: string;
+  raffleMode: "Live" | "Pre-draw";
+};
+
 export function Prizes() {
   const table = useTableState({ pageSize: 5 });
   const confirmationModal = useConfirmationModal();
-  const formModal = useModal<Prize>();
-  const form = useForm({
+  const formModal = useModal<PrizeFormValues>();
+  const form = useForm<PrizeFormValues>({
     id: "",
     prize: "",
     numberOfWinners: 0,
     sponsor: "",
     type: "",
-    imageUrl: null,
-    sponsorImage: null,
+    imageUrl: "",
+    sponsorImage: "",
+    raffleMode: "Live",
   });
 
   const deletePrize = useDeletePrize();
   const createPrize = useCreatePrize();
   const updatePrize = useUpdatePrize();
 
-  const emptyPrize: Prize = {
+  const emptyPrize: PrizeFormValues = {
     id: "",
     prize: "",
     numberOfWinners: 1,
     sponsor: "",
     type: "",
-    imageUrl: null,
-    sponsorImage: null,
+    imageUrl: "",
+    sponsorImage: "",
+    raffleMode: "Live",
   };
 
   const { data: prizes, isLoading: isPrizesLoading } = usePrizes({
@@ -62,8 +75,9 @@ export function Prizes() {
       numberOfWinners: data.numberOfWinners,
       sponsor: data.sponsor ?? "",
       type: data.type ?? "",
-      imageUrl: null,
-      sponsorImage: null,
+      imageUrl: data.imageUrl ?? "",
+      sponsorImage: data.sponsorImage ?? "",
+      raffleMode: data.raffleMode === "Pre-draw" ? "Pre-draw" : "Live",
     });
   };
 
@@ -87,7 +101,16 @@ export function Prizes() {
       variant: "info",
       onConfirm: async () => {
         resetForm(selectedPrize);
-        formModal.openModal(selectedPrize);
+        formModal.openModal({
+          id: selectedPrize.id,
+          prize: selectedPrize.prize,
+          numberOfWinners: selectedPrize.numberOfWinners,
+          sponsor: selectedPrize.sponsor ?? "",
+          type: selectedPrize.type ?? "",
+          imageUrl: selectedPrize.imageUrl ?? "",
+          sponsorImage: selectedPrize.sponsorImage ?? "",
+          raffleMode: selectedPrize.raffleMode === "Pre-draw" ? "Pre-draw" : "Live",
+        });
       },
     });
   };
@@ -108,11 +131,19 @@ export function Prizes() {
       variant: "warning",
       onConfirm: async () => {
         if (isEditing) {
-          updatePrize.mutate(form.values);
+          updatePrize.mutate({
+            ...form.values,
+            imageUrl: form.values.imageUrl || null,
+            sponsorImage: form.values.sponsorImage || null,
+          });
           toast.success("Updated successfully!");
         } else {
           const { id: _id, ...newPrize } = form.values;
-          createPrize.mutate(newPrize);
+          createPrize.mutate({
+            ...newPrize,
+            imageUrl: newPrize.imageUrl || null,
+            sponsorImage: newPrize.sponsorImage || null,
+          });
           toast.success("Added successfully!");
         }
         resetForm(form.values);
@@ -126,14 +157,64 @@ export function Prizes() {
       id: "prize",
       header: "Prize Name",
       cell: (prize) => (
-        <div>
-          <p className="">{prize.prize}</p>
-          <p className="mt-0.5 text-[11px] font-mono text-tr-on-surface-variant/80">
-            {prize.sponsor}
-          </p>
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-tr-outline-variant/40 bg-tr-surface-container p-1">
+            <div className="flex h-6 w-10 shrink-0 items-center justify-center overflow-hidden rounded border border-tr-outline-variant/30 bg-white p-0.5">
+              {prize.sponsorImage ? (
+                <img
+                  src={prize.sponsorImage}
+                  alt={`${prize.sponsor ?? "Sponsor"} logo`}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <span className="font-label text-[9px] font-bold uppercase text-tr-secondary">
+                  {(prize.sponsor ?? "NA")
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((word) => word[0])
+                    .join("")}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="min-w-0">
+            <p className="truncate font-semibold text-tr-on-surface">{prize.prize}</p>
+            <div className="mt-1 flex min-w-0 items-center gap-2">
+              <p className="truncate text-[11px] font-mono text-tr-on-surface-variant/80">
+                {prize.sponsor ?? "No sponsor"}
+              </p>
+            </div>
+          </div>
         </div>
       ),
     },
+    {
+      id: "prize-image",
+      header: "Prize Image",
+      align: "center",
+      cell: (prize) => (
+        <div className={"text-center"}>
+          {prize.imageUrl ? (
+            <img
+              src={prize.imageUrl}
+              alt={prize.prize}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-12 object-contain mx-auto"
+            />
+          ) : (
+            <Gift
+              className="h-5 w-5 text-tr-on-surface-variant/60 text-center mx-auto"
+              aria-hidden="true"
+            />
+          )}
+        </div>
+      ),
+    },
+
     {
       id: "type",
       header: "Type",
@@ -265,6 +346,22 @@ export function Prizes() {
             </div>
             <div className="space-y-2">
               <Label
+                htmlFor="prize-image-url"
+                className="block font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-wider"
+              >
+                Prize image URL
+              </Label>
+              <Input
+                type="url"
+                id="prize-image-url"
+                autoComplete="url"
+                {...form.register("imageUrl")}
+                className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-md py-3 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-secondary transition-all"
+                placeholder="https://example.com/prize-image.png"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label
                 htmlFor="no-of-items"
                 className="block font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-wider"
               >
@@ -305,6 +402,23 @@ export function Prizes() {
                 />
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="sponsor-image-url"
+                className="block font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-wider"
+              >
+                Sponsor image URL
+              </Label>
+              <Input
+                type="url"
+                id="sponsor-image-url"
+                autoComplete="url"
+                {...form.register("sponsorImage")}
+                className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-md py-3 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-secondary transition-all"
+                placeholder="https://example.com/sponsor-logo.png"
+              />
+            </div>
             <div className="space-y-2">
               <div className="relative flex items-center">
                 <Select
@@ -316,6 +430,24 @@ export function Prizes() {
                     { value: "Major Prize", label: "Major Prize" },
                   ]}
                   placeholder="Choose a type..."
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="relative flex items-center">
+                <Select
+                  label="Raffle mode"
+                  value={form.values.raffleMode}
+                  onChange={(nextValue) => {
+                    const mode: PrizeFormValues["raffleMode"] =
+                      nextValue === "Pre-draw" ? "Pre-draw" : "Live";
+                    form.setValue("raffleMode", mode);
+                  }}
+                  options={[
+                    { value: "Live", label: "Live" },
+                    { value: "Pre-draw", label: "Pre-draw" },
+                  ]}
+                  placeholder="Choose a raffle mode..."
                 />
               </div>
             </div>

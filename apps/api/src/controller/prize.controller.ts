@@ -119,7 +119,8 @@ export const deletePrizeHandler: RouteHandler<typeof deletePrizeRoute, AppEnv> =
 };
 
 export const updatePrizeHandler: RouteHandler<typeof updatePrizeRoute, AppEnv> = async (c) => {
-  const { id, prize, numberOfWinners, sponsor, imageUrl, sponsorImage, type } = c.req.valid("json");
+  const { id, prize, numberOfWinners, sponsor, imageUrl, sponsorImage, type, raffleMode } =
+    c.req.valid("json");
 
   const [existing] = await db
     .select()
@@ -139,6 +140,7 @@ export const updatePrizeHandler: RouteHandler<typeof updatePrizeRoute, AppEnv> =
       imageUrl: imageUrl ?? null,
       sponsorImage: sponsorImage ?? null,
       type: type ?? null,
+      raffleMode: raffleMode ?? null,
     })
     .where(eq(prizes.id, id));
 

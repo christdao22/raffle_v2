@@ -1,8 +1,7 @@
+import type { Person } from "@raffle_v2/shared";
 import { Button, cn } from "@raffle_v2/ui";
-import { X } from "lucide-react";
-import { Fragment, useEffect, useState } from "react";
+import { Trophy, X } from "lucide-react";
 import Confetti from "react-confetti";
-import type { Person } from "../Custom/DrawResultModal";
 
 export interface WinnerModalProps {
   isOpen?: boolean;
@@ -16,6 +15,7 @@ export interface WinnerModalProps {
   showConfetti?: boolean;
   prizeImageUrl?: string | null;
   sponsor?: string | null;
+  sponsorImageUrl?: string | null;
   className?: string;
 }
 
@@ -27,121 +27,232 @@ export function WinnerModal({
   persons = [],
   prizeTitle = "",
   prizeImageUrl = "",
-  className,
   showConfetti = true,
   sponsor,
+  sponsorImageUrl,
+  className,
 }: WinnerModalProps) {
   const showWinner = persons.length > 0;
-
   const isRevealing = isOpen && !showWinner && (isDrawing || countdownRemaining !== null);
 
   if (!isOpen) return null;
 
+  const winnerCount = persons.length;
+  const multipleWinners = winnerCount > 1;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-tr-surface/85 backdrop-blur-md animate-in fade-in duration-300 p-4">
-      {showConfetti && showWinner && <Confetti recycle={true} numberOfPieces={50} />}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-5 backdrop-blur-md">
+      {showConfetti && showWinner && (
+        <Confetti recycle numberOfPieces={120} gravity={0.18} className="pointer-events-none" />
+      )}
 
       <div
         className={cn(
-          "relative w-full max-w-8xl overflow-hidden rounded-3xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest shadow-2xl font-sans text-tr-on-surface transition-all duration-700",
-          showWinner ? "h-full" : "h-full",
+          "relative flex h-[min(94vh,900px)] w-full max-w-[1500px] flex-col overflow-hidden rounded-3xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest text-tr-on-surface shadow-2xl",
           className,
         )}
       >
-        {/* Background */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.08] bg-[radial-gradient(#0b4db8_1px,transparent_1px)] bg-size-[18px_18px]" />
+        {/* Background pattern */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.045]"
+          style={{
+            backgroundImage: "radial-gradient(circle, currentColor 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+          }}
+        />
 
-        {/* Close */}
+        {/* Ambient glow */}
+        {showWinner && (
+          <>
+            <div className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-tr-primary/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-tr-tertiary-container/10 blur-3xl" />
+          </>
+        )}
+
+        {/* Close button */}
         <Button
           onClick={onClose}
           disabled={isRevealing}
-          className="absolute top-4 right-4 z-40 w-9 h-9 rounded-full bg-tr-surface-container-high/80 text-tr-on-surface-variant hover:bg-tr-surface-container-highest hover:text-tr-on-surface transition-all p-0 flex items-center justify-center border-0 shadow-sm"
           aria-label="Close modal"
+          variant="ghost"
+          className="absolute right-4 top-4 z-40 h-10 w-10 rounded-full bg-tr-surface-container-high/70 p-0 text-tr-on-surface-variant backdrop-blur hover:bg-tr-surface-container-highest hover:text-tr-on-surface"
         >
-          <X className="w-5 h-5" />
+          <X className="h-5 w-5" />
         </Button>
 
-        {/* Main content */}
-        <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 py-8 sm:px-12">
-          {/* HEADER */}
-          <div
+        {/* Content */}
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+          {/* ================= HEADER ================= */}
+          <header
             className={cn(
-              "flex flex-col items-center text-center transition-all duration-700 ease-in-out",
-              !showWinner
-                ? "-translate-y-32 opacity-0 pointer-events-none absolute"
-                : "translate-y-0 opacity-100",
+              "shrink-0 px-5 pt-5 text-center transition-all duration-500 sm:px-8 sm:pt-7",
+              !showWinner && "pointer-events-none absolute -translate-y-10 opacity-0",
             )}
           >
-            <div className="flex items-center justify-center gap-3 mb-5">
+            <div className="flex items-center justify-center gap-3 sm:gap-5">
               <img
                 src="/Bagong-Pilipinas.png"
                 alt="Bagong Pilipinas"
-                className="w-20"
-                loading="lazy"
+                className="h-10 w-auto object-contain sm:h-12"
               />
 
-              <img src="/deped-logo-philippines.png" alt="DepEd" className="w-24" loading="lazy" />
+              <div className="h-7 w-px bg-tr-outline-variant/40" />
+
+              <p className="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-tr-primary sm:text-xs">
+                National Teachers' Month Kick-off
+              </p>
+
+              <div className="h-7 w-px bg-tr-outline-variant/40" />
+
+              <img
+                src="/deped-logo-philippines.png"
+                alt="DepEd"
+                className="h-10 w-auto object-contain sm:h-8"
+              />
             </div>
 
-            <p className="font-display font-extrabold text-md uppercase tracking-[0.2em] text-tr-primary">
-              National Teachers' Month Kick-off
-            </p>
-
-            <h3 className="mt-1 font-display font-black text-3xl lg:text-5xl xl:text-7xl  uppercase tracking-tight text-tr-secondary leading-none">
+            <h3 className="mt-3 font-display text-3xl font-black uppercase leading-none tracking-tight text-tr-secondary sm:text-4xl lg:text-5xl">
               Congratulations!
             </h3>
 
-            <div className="mx-auto mt-4 h-1 w-16 rounded-full bg-tr-tertiary-container" />
-          </div>
+            <div className="mx-auto mt-3 h-1 w-14 rounded-full bg-tr-tertiary-container" />
+          </header>
 
-          {/* WINNER / DRAW CONTAINER */}
-          <div
-            className={cn(
-              "relative w-full max-w-8xl mt-8 rounded-3xl border transition-all duration-700 ease-in-out overflow-hidden ",
-              showWinner
-                ? "min-h-55 border-tr-secondary/10 bg-tr-secondary/5"
-                : "min-h-130 scale-[1.02] border-tr-primary-container/40 bg-tr-secondary shadow-2xl",
-            )}
-          >
-            {/* Drawing glow */}
-            {!showWinner && (
-              <>
+          {/* ================= MAIN ================= */}
+          <main className="flex min-h-0 flex-1 items-center justify-center px-4 sm:px-8 lg:px-12">
+            {showWinner ? (
+              <div className="flex w-full max-w-312.5 min-h-0 flex-col items-center ">
+                {/* Lucky winner label */}
+                <div className="mb-3 flex shrink-0 items-center gap-2 text-tr-tertiary-container sm:mb-4">
+                  <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
+
+                  <span className="font-sans text-[10px] font-bold uppercase tracking-[0.22em] text-tr-on-surface-variant sm:text-xs">
+                    {multipleWinners ? "Our Lucky Winners" : "Our Lucky Winner"}
+                  </span>
+
+                  <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+
+                {/* ================= PRIZE ================= */}
+                <section className="flex w-full shrink-0 flex-col items-center">
+                  {/* Prize image */}
+                  {prizeImageUrl && (
+                    <div className="relative flex h-32 w-full items-center justify-center sm:h-40 lg:h-44">
+                      <div className="absolute h-28 w-28 rounded-full bg-tr-primary/15 blur-3xl sm:h-36 sm:w-36" />
+
+                      <img
+                        src={prizeImageUrl}
+                        alt={prizeTitle || "Prize"}
+                        loading="lazy"
+                        className="relative z-10 h-full max-w-[280px] object-contain drop-shadow-[0_18px_25px_rgba(0,0,0,0.25)]"
+                      />
+                    </div>
+                  )}
+
+                  {/* Prize title */}
+                  <h4
+                    className={cn(
+                      "mt-2 max-w-4xl text-center font-display font-black uppercase leading-tight tracking-tight text-tr-primary",
+                      multipleWinners
+                        ? "text-xl sm:text-2xl lg:text-3xl"
+                        : "text-2xl sm:text-3xl lg:text-4xl",
+                    )}
+                  >
+                    {prizeTitle || "Prize"}
+                  </h4>
+
+                  {/* Sponsor */}
+                  {(sponsor || sponsorImageUrl) && (
+                    <div className="mt-3 flex items-center justify-center gap-3">
+                      {sponsorImageUrl && (
+                        <div className="flex h-10 w-20 items-center justify-center overflow-hidden rounded-lg bg-white px-2 py-1 shadow-sm sm:h-12 sm:w-24">
+                          <img
+                            src={sponsorImageUrl}
+                            alt={`${sponsor ?? "Sponsor"} logo`}
+                            loading="lazy"
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                      )}
+
+                      {sponsor && (
+                        <span className="max-w-xs text-sm font-semibold text-tr-on-surface-variant sm:text-base">
+                          {sponsor}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </section>
+
+                {/* Divider */}
+                <div className="my-4 h-px w-full max-w-4xl bg-tr-outline-variant/20 sm:my-5" />
+
+                {/* ================= WINNERS ================= */}
+                <section
+                  className={cn(
+                    "flex min-h-0 w-full flex-col items-center justify-center",
+                    multipleWinners ? "max-h-[35vh] overflow-y-auto" : "max-h-[40vh]",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "grid w-full items-center justify-items-center gap-3",
+                      multipleWinners ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1",
+                    )}
+                  >
+                    {persons.map((person) => (
+                      <div
+                        key={person.id}
+                        className={cn(
+                          "flex w-full flex-col items-center text-center",
+                          multipleWinners &&
+                            "rounded-2xl border border-tr-outline-variant/20 bg-tr-surface-container-low/60 px-4 py-4",
+                        )}
+                      >
+                        <h2
+                          className={cn(
+                            "max-w-full break-words font-display font-black uppercase leading-[0.9] tracking-tight text-tr-secondary",
+                            multipleWinners
+                              ? "text-3xl sm:text-4xl lg:text-5xl"
+                              : "text-5xl sm:text-6xl lg:text-8xl xl:text-9xl",
+                          )}
+                        >
+                          {person.fullname ?? "Winner"}
+                        </h2>
+
+                        {person.region?.region && (
+                          <div
+                            className={cn(
+                              "mt-2 rounded-full border border-tr-primary-container/20 bg-tr-primary-container/10 font-bold uppercase text-tr-primary",
+                              multipleWinners
+                                ? "px-3 py-1 text-xs"
+                                : "px-4 py-1.5 text-sm sm:text-base",
+                            )}
+                          >
+                            {person.region.region} - {person.schoolsDivision} - {person.station}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            ) : (
+              /* ================= DRAWING ================= */
+              <div className="relative flex h-full w-full max-w-5xl flex-col items-center justify-center overflow-hidden rounded-3xl border border-tr-primary-container/30 bg-tr-secondary px-6 py-10 shadow-2xl">
                 <div className="absolute inset-0 bg-tr-primary/10 animate-pulse" />
 
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-tr-primary-container/10 blur-3xl" />
-              </>
-            )}
+                <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-tr-primary-container/15 blur-3xl sm:h-96 sm:w-96" />
 
-            {/* Content */}
-            <div className="relative z-10 flex h-full w-full min-h-[inherit] flex-col items-center justify-center p-8">
-              {showWinner ? (
-                persons.map((p) => (
-                  <Fragment key={p.id}>
-                    <p className="mb-2 font-sans text-md font-bold uppercase tracking-[0.2em] text-tr-on-surface-variant">
-                      Our Lucky Winner
-                    </p>
-
-                    <h2 className="font-display font-black text-5xl sm:text-6xl md:text-7xl xl:text-9xl uppercase tracking-tight text-tr-primary leading-none wrap-break-word text-center">
-                      {p?.fullname ?? "Winner"}
-                    </h2>
-
-                    {p?.region && (
-                      <div className="mt-5 rounded-full bg-tr-primary-container/10 border border-tr-primary-container/20 px-5 py-2 text-xl font-bold uppercase text-tr-primary">
-                        {p.region.region}
-                      </div>
-                    )}
-                  </Fragment>
-                ))
-              ) : (
-                <div className="mb-8">
-                  <p className="text-xs font-bold uppercase tracking-[0.3em] text-tr-on-secondary/60 text-center mb-5">
+                <div className="relative z-10 flex flex-col items-center">
+                  <p className="mb-6 text-center text-xs font-bold uppercase tracking-[0.3em] text-white/60">
                     The moment of truth...
                   </p>
 
-                  <span className="flex items-center justify-center gap-3  text-3xl lg:text-6xl xl:text-9xl text-white">
+                  <div className="flex h-16 items-center justify-center gap-1 text-5xl font-black text-white sm:h-24 sm:text-7xl lg:text-9xl">
                     {Array.from({ length: 10 }).map((_, index) => (
                       <span
-                        // biome-ignore lint/suspicious/noArrayIndexKey: for dot animation
+                        // biome-ignore lint/suspicious/noArrayIndexKey: static animation dots
                         key={index}
                         className="animate-dot-bounce"
                         style={{
@@ -151,48 +262,11 @@ export function WinnerModal({
                         •
                       </span>
                     ))}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* PRIZE */}
-          <div
-            className={cn(
-              "w-full max-w-7xl transition-all duration-700",
-              !showWinner ? "mt-6 scale-90" : "mt-6 opacity-100 scale-100",
-            )}
-          >
-            <div className="relative overflow-hidden rounded-2xl border border-tr-tertiary-container/30 bg-tr-surface-container-low shadow-sm">
-              <div className="flex items-center gap-4 p-3.5">
-                {prizeImageUrl && (
-                  <div className="relative flex h-20 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-tr-surface-container-lowest border border-tr-outline-variant/20 shadow-xs">
-                    <img
-                      src={prizeImageUrl}
-                      alt={prizeTitle}
-                      className="h-full w-full object-contain p-1.5"
-                      loading="lazy"
-                    />
                   </div>
-                )}
-
-                <div className="min-w-0 text-left">
-                  <span className="text-sm xl:text-xl font-bold uppercase tracking-[0.18em] text-tr-primary">
-                    Featured Prize
-                  </span>
-
-                  <h4 className="font-display font-black text-lg sm:text-xl md:text-2xl xl:text-5xl  uppercase text-tr-secondary truncate leading-tight">
-                    {prizeTitle}
-                  </h4>
-
-                  <span className="text-xs md:text-lg font-semibold text-tr-on-surface-variant">
-                    Sponsored: {sponsor}
-                  </span>
                 </div>
               </div>
-            </div>
-          </div>
+            )}
+          </main>
         </div>
       </div>
     </div>
