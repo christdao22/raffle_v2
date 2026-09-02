@@ -134,6 +134,7 @@ export function LiveDraw() {
               prizeTitle={currentPrize?.prize}
               prizeImageUrl={currentPrize?.imageUrl}
               sponsor={currentPrize?.sponsor}
+              sponsorImageUrl={currentPrize?.sponsorImage}
             />
           )}
         </main>

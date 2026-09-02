@@ -1,5 +1,5 @@
+import type { Person } from "@raffle_v2/shared";
 import { useEffect, useReducer, useRef } from "react";
-import type { Person } from "../components/Custom/DrawResultModal";
 import { type DisplayType, useLiveEvents } from "./use-live";
 
 type LiveState = {

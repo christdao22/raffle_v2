@@ -1,7 +1,7 @@
-import { Button, cn } from "@raffle_v2/ui";
-import { Trophy, X } from "lucide-react";
+import type { Person } from "@raffle_v2/shared";
+import { cn } from "@raffle_v2/ui";
+import { Trophy } from "lucide-react";
 import Confetti from "react-confetti";
-import type { Person } from "../Custom/DrawResultModal";
 
 export interface MultipleWinnerModalProps {
   isOpen?: boolean;
@@ -140,14 +140,14 @@ export function MultipleWinnersModal({
 
         {/* Close */}
 
-        <Button
+        {/* <Button
           onClick={onClose}
           disabled={isRevealing}
           className="absolute top-4 right-4 z-40 flex h-9 w-9 items-center justify-center rounded-full bg-tr-surface-container-high/80 p-0 text-tr-on-surface-variant shadow-sm transition-all hover:bg-tr-surface-container-highest hover:text-tr-on-surface border-0"
           aria-label="Close modal"
         >
           <X className="h-5 w-5" />
-        </Button>
+        </Button> */}
 
         {/* Main */}
 
