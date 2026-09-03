@@ -247,7 +247,7 @@ export function MultipleWinnersModal({
                       </div>
                     </div>
 
-                    {sponsorImageUrl && (
+                    {(sponsoredBy || sponsorImageUrl) && (
                       <>
                         {/* Mobile divider */}
                         <div className="h-px w-full bg-tr-outline-variant/15 lg:hidden" />
@@ -261,16 +261,17 @@ export function MultipleWinnersModal({
                           </span>
 
                           {/* Bigger sponsor logo */}
-
-                          <div className="mt-3 flex h-15 w-52 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-black/5 sm:h-28 sm:w-40">
-                            <img
-                              src={sponsorImageUrl}
-                              alt={`${sponsoredBy ?? "Sponsor"} logo`}
-                              loading="lazy"
-                              decoding="async"
-                              className="h-full w-full object-contain rounded-md"
-                            />
-                          </div>
+                          {sponsorImageUrl && (
+                            <div className="mt-3 flex h-15 w-52 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-black/5 sm:h-28 sm:w-40">
+                              <img
+                                src={sponsorImageUrl}
+                                alt={`${sponsoredBy ?? "Sponsor"} logo`}
+                                loading="lazy"
+                                decoding="async"
+                                className="h-full w-full object-contain rounded-md"
+                              />
+                            </div>
+                          )}
 
                           {sponsoredBy && (
                             <span className="mt-3 max-w-xs break-words text-sm font-bold text-tr-secondary sm:text-base">
