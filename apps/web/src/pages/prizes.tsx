@@ -175,7 +175,7 @@ function toPrizePayload(values: PrizeFormValues) {
 
 export function Prizes() {
   const [formError, setFormError] = useState("");
-  const table = useTableState({ pageSize: 5 });
+  const table = useTableState({ pageSize: 10 });
   const confirmationModal = useConfirmationModal();
   const formModal = useModal<PrizeFormValues>();
   const form = useForm<PrizeFormValues>({
