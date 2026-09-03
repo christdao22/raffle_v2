@@ -6,6 +6,7 @@ import {
   eq,
   ilike,
   isNull,
+  or,
   persons,
   prizes,
   regions,
@@ -27,7 +28,13 @@ export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> =
 
   const activeWinnerCondition = and(
     isNull(winners.deletedAt),
-    search ? ilike(persons.fullname, `%${search}%`) : undefined,
+    search
+      ? or(
+          ilike(persons.fullname, `%${search}%`),
+          ilike(prizes.sponsor, `%${search}%`),
+          ilike(prizes.prize, `%${search}%`),
+        )
+      : undefined,
   );
 
   const result = await paginate({
@@ -38,6 +45,7 @@ export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> =
         .select({ count: sql<number>`count(*)` })
         .from(winners)
         .innerJoin(persons, eq(winners.personId, persons.id))
+        .innerJoin(prizes, eq(winners.prizeId, prizes.id))
         .where(activeWinnerCondition);
 
       return rows[0]?.count ?? 0;
