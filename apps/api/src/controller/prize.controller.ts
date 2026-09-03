@@ -48,12 +48,16 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
           ];
 
           if (search) {
-            conditions.push(
-              orWhere(
-                ilikeWhere(fields.prize, `%${search}%`),
-                ilikeWhere(fields.sponsor, `%${search}%`),
-              ),
-            );
+            const prizeSearch = ilikeWhere(fields.prize, `%${search}%`);
+            const sponsorSearch = ilikeWhere(fields.sponsor, `%${search}%`);
+            const searchCondition =
+              prizeSearch && sponsorSearch
+                ? orWhere(prizeSearch, sponsorSearch)
+                : (prizeSearch ?? sponsorSearch);
+
+            if (searchCondition) {
+              conditions.push(searchCondition);
+            }
           }
 
           return andWhere(...conditions);
