@@ -24,7 +24,7 @@ export default function RaffleConfigCard({
 }: RaffleConfigCardProps) {
   const modal = useConfirmationModal();
   const [winnerCount, setWinnerCount] = useState<number>(1);
-  const [duration, setDuration] = useState<number>(15);
+  const [duration, setDuration] = useState<number>(1);
   const [isDrawModalOpen, setIsDrawModalOpen] = useState<boolean>(false);
   const { data: liveCounter } = useLiveStatus();
   const displayWinnerCount = useSetWinnerCount();
