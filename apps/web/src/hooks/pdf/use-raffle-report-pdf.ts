@@ -80,8 +80,12 @@ export function useRaffleReportPdf(reportData: RaffleReport, raffleId: string) {
     });
 
     if (reportData.winners.length > 0) {
-      const majorWinners = reportData.winners.filter((w) => w.type === "MAJOR PRIZE");
-      const minorWinners = reportData.winners.filter((w) => w.type === "MINOR PRIZE");
+      const majorWinners = reportData.winners.filter(
+        (w) => w.type?.toLowerCase() === "major prize",
+      );
+      const minorWinners = reportData.winners.filter(
+        (w) => w.type?.toLowerCase() === "minors prize",
+      );
 
       if (majorWinners.length > 0) {
         doc.addPage();

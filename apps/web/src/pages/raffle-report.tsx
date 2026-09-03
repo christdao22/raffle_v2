@@ -91,6 +91,8 @@ export function RaffleReportPage() {
     [reportData],
   );
 
+  console.log(reportData);
+
   const handleDownloadPdf = useRaffleReportPdf(reportData, raffleId);
 
   return (
@@ -220,7 +222,7 @@ export function RaffleReportPage() {
                   </thead>
                   <tbody>
                     {reportData.winners
-                      .filter((w) => w.type === "MAJOR PRIZE")
+                      .filter((w) => w.type?.toLowerCase() === "major prize")
                       .map((winner) => (
                         <tr
                           key={`${winner.drawNumber}-${winner.winnerName}`}
@@ -228,7 +230,7 @@ export function RaffleReportPage() {
                         >
                           <td className="px-3 py-3 w-12">{winner.drawNumber}</td>
                           <td className="capitalize px-3 py-3 w-32">{winner.winnerName}</td>
-                          <td className="capitalize px-3 py-3 w-24">{winner.position ?? "-"}</td>
+                          <td className=" px-3 py-3 w-24">{winner.position ?? "-"}</td>
                           <td className="capitalize px-3 py-3 w-40 wrap-break-word">
                             {winner.school ?? "-"}
                           </td>
@@ -275,7 +277,7 @@ export function RaffleReportPage() {
                   </thead>
                   <tbody>
                     {reportData.winners
-                      .filter((w) => w.type === "MINOR PRIZE")
+                      .filter((w) => w.type?.toLowerCase() === "minor prize")
                       .map((winner) => (
                         <tr
                           key={`${winner.drawNumber}-${winner.winnerName}`}
