@@ -1,5 +1,5 @@
 import type { RouteHandler } from "@hono/zod-openapi";
-import { and, db, eq, ilike, isNull, prizes, sql, winners } from "@raffle_v2/db";
+import { and, db, eq, ilike, isNull, or, prizes, sql, winners } from "@raffle_v2/db";
 import { canDeletePrize } from "../guard/prize-delete.guard";
 import type { AppEnv } from "../lib/context";
 import { paginate } from "../lib/pagination";
@@ -23,7 +23,11 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
   )`;
 
   const countWhereClause = search
-    ? and(isNull(prizes.deletedAt), ilike(prizes.prize, `%${search}%`), countFilter)
+    ? and(
+        isNull(prizes.deletedAt),
+        or(ilike(prizes.prize, `%${search}%`), ilike(prizes.sponsor, `%${search}%`)),
+        countFilter,
+      )
     : and(isNull(prizes.deletedAt), countFilter);
 
   const result = await paginate({
@@ -34,7 +38,7 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
       const rows = await db.query.prizes.findMany({
         where: (
           fields,
-          { and: andWhere, ilike: ilikeWhere, isNull: isNullWhere, sql: sqlWhere },
+          { and: andWhere, ilike: ilikeWhere, isNull: isNullWhere, or: orWhere, sql: sqlWhere },
         ) => {
           const conditions = [
             isNullWhere(fields.deletedAt),
@@ -44,7 +48,12 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
           ];
 
           if (search) {
-            conditions.push(ilikeWhere(fields.prize, `%${search}%`));
+            conditions.push(
+              orWhere(
+                ilikeWhere(fields.prize, `%${search}%`),
+                ilikeWhere(fields.sponsor, `%${search}%`),
+              ),
+            );
           }
 
           return andWhere(...conditions);

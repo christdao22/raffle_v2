@@ -304,7 +304,7 @@ export function Prizes() {
         search={{
           value: table.searchInput,
           onChange: table.setSearchInput,
-          placeholder: "Search prize...",
+          placeholder: "Search prize or sponsor...",
         }}
         pagination={{
           page: table.page,
