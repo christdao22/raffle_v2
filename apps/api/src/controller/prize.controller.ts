@@ -1,5 +1,5 @@
 import type { RouteHandler } from "@hono/zod-openapi";
-import { and, db, eq, ilike, isNull, or, prizes, sql, winners } from "@raffle_v2/db";
+import { and, db, eq, ilike, isNull, or, prizes, winners } from "@raffle_v2/db";
 import { canDeletePrize } from "../guard/prize-delete.guard";
 import type { AppEnv } from "../lib/context";
 import { paginate } from "../lib/pagination";
@@ -17,18 +17,12 @@ import type {
 export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = async (c) => {
   const { page, pageSize, search } = c.req.valid("query");
 
-  // Filter for db.$count
-  const countFilter = sql`${prizes.numberOfWinners} > (
-    SELECT COUNT(*)::int FROM winners WHERE winners.prize_id = ${prizes.id} AND winners.deleted_at IS NULL
-  )`;
-
   const countWhereClause = search
     ? and(
         isNull(prizes.deletedAt),
         or(ilike(prizes.prize, `%${search}%`), ilike(prizes.sponsor, `%${search}%`)),
-        countFilter,
       )
-    : and(isNull(prizes.deletedAt), countFilter);
+    : isNull(prizes.deletedAt);
 
   const result = await paginate({
     page,
@@ -36,16 +30,8 @@ export const listPrizesHandler: RouteHandler<typeof listPrizesRoute, AppEnv> = a
     count: () => db.$count(prizes, countWhereClause),
     query: async ({ limit, offset }) => {
       const rows = await db.query.prizes.findMany({
-        where: (
-          fields,
-          { and: andWhere, ilike: ilikeWhere, isNull: isNullWhere, or: orWhere, sql: sqlWhere },
-        ) => {
-          const conditions = [
-            isNullWhere(fields.deletedAt),
-            sqlWhere`${fields.numberOfWinners} > (
-              SELECT COUNT(*)::int FROM winners WHERE winners.prize_id = ${fields.id} AND winners.deleted_at IS NULL
-            )`,
-          ];
+        where: (fields, { and: andWhere, ilike: ilikeWhere, isNull: isNullWhere, or: orWhere }) => {
+          const conditions = [isNullWhere(fields.deletedAt)];
 
           if (search) {
             const prizeSearch = ilikeWhere(fields.prize, `%${search}%`);
