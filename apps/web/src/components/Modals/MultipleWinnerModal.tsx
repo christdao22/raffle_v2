@@ -3,12 +3,20 @@ import { cn } from "@raffle_v2/ui";
 import { MapPin, Trophy } from "lucide-react";
 import Confetti from "react-confetti";
 
+function limitStationWords(station: string) {
+  const words = station.trim().split(/\s+/);
+
+  return words.length > 2 ? `${words.slice(0, 2).join(" ")}...` : station;
+}
+
 export interface MultipleWinnerModalProps {
   isOpen?: boolean;
   persons?: Person[];
   prizeTitle?: string;
-  prizeImageUrl?: string;
-  sponsoredBy?: string;
+  prizeType?: string | null;
+  prizeImageUrl?: string | null;
+  sponsoredBy?: string | null;
+  sponsorImageUrl?: string | null;
   showConfetti?: boolean;
   className?: string;
 }
@@ -16,18 +24,25 @@ export interface MultipleWinnerModalProps {
 export function MultipleWinnersModal({
   isOpen = false,
   persons = [],
-  prizeTitle = "NETHERBook Pro",
-  sponsoredBy = "MAMBA",
+  prizeTitle = "",
+  prizeType = "Minor",
+  prizeImageUrl,
+  sponsoredBy = "",
+  sponsorImageUrl,
   showConfetti = true,
   className,
 }: MultipleWinnerModalProps) {
   const winners = persons.slice(0, 10);
   const showWinner = winners.length > 0;
+  const winnerCount = winners.length;
 
   if (!isOpen) return null;
 
-  const winnerCount = winners.length;
-
+  /**
+   * Keep the existing responsive card behavior.
+   * This is intentionally preserved so multiple winners
+   * continue to scale based on the number of winners.
+   */
   const getCardWidthClass = () => {
     if (winnerCount === 2) {
       return "w-full lg:w-[calc(50%-0.5rem)]";
@@ -44,6 +59,9 @@ export function MultipleWinnersModal({
     return "w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]";
   };
 
+  /**
+   * Keep the existing dynamic winner-name sizing.
+   */
   const getNameSize = () => {
     if (winnerCount <= 2) {
       return "text-3xl sm:text-4xl xl:text-6xl";
@@ -64,151 +82,103 @@ export function MultipleWinnersModal({
     return "text-lg sm:text-xl lg:text-[18px] xl:text-3xl";
   };
 
+  /**
+   * Keep the existing card sizing.
+   */
   const getCardSize = () => {
-    if (winnerCount <= 2) return "min-h-52 sm:min-h-64";
-    if (winnerCount <= 4) return "min-h-fit lg:min-h-40 xl:min-h-60";
-    if (winnerCount <= 6) return "min-h-36 sm:min-h-60 lg:min-h-20 xl:min-h-60";
-    return "min-h-32 sm:min-h-36  lg:min-h-20 xl:min-h-50";
-  };
-
-  const getCongratsSize = () => {
     if (winnerCount <= 2) {
-      return "text-2xl lg:text-3xl xl:text-7xl";
+      return "min-h-52 sm:min-h-64";
     }
 
     if (winnerCount <= 4) {
-      return "text-2xl lg:text-3xl xl:text-6xl";
+      return "min-h-fit lg:min-h-40 xl:min-h-60";
     }
 
     if (winnerCount <= 6) {
-      return "text-2xl lg:text-3xl xl:text-5xl";
+      return "min-h-36 sm:min-h-60 lg:min-h-20 xl:min-h-60";
     }
 
-    return "text-2xl lg:text-2xl xl:text-4xl";
+    return "min-h-32 sm:min-h-36 lg:min-h-20 xl:min-h-50";
   };
-
-  const getPrizeSize = () => {
-    if (winnerCount <= 2) {
-      return "text-base lg:text-7xl";
-    }
-
-    if (winnerCount <= 4) {
-      return "text-base lg:text-6xl";
-    }
-
-    if (winnerCount <= 6) {
-      return "text-base lg:text-3xl xl:text-5xl";
-    }
-
-    return "text-base lg:text-xl xl:text-4xl";
-  };
-
-  const getSponsorSize = () => {
-    const sponsorLength = sponsoredBy.length;
-
-    if (sponsorLength > 60) return "text-sm sm:text-base lg:text-2xl";
-    if (sponsorLength > 35) return "text-base sm:text-lg lg:text-2xl";
-    return "text-lg sm:text-xl lg:text-lg  xl:text-3xl";
-  };
-
-  //
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-tr-surface/85 backdrop-blur-md animate-in fade-in duration-300 p-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 backdrop-blur-md sm:p-5">
       {showConfetti && showWinner && (
-        <Confetti
-          recycle
-          numberOfPieces={30}
-          gravity={0.18}
-          className="pointer-events-none w-full"
-        />
+        <Confetti recycle numberOfPieces={60} gravity={0.16} className="pointer-events-none" />
       )}
 
       <div
         className={cn(
-          "relative flex h-full w-full max-w-8xl flex-col overflow-hidden rounded-3xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest shadow-2xl font-sans text-tr-on-surface",
+          "relative flex h-[min(94vh,900px)] w-full max-w-[1500px] flex-col overflow-hidden rounded-[2rem] border border-tr-outline-variant/30 bg-tr-surface-container-lowest text-tr-on-surface shadow-2xl",
           className,
         )}
       >
         {/* Background */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: "radial-gradient(circle, currentColor 1px, transparent 1px)",
+            backgroundSize: "22px 22px",
+          }}
+        />
 
-        <div className="absolute inset-0 pointer-events-none opacity-[0.08] bg-[radial-gradient(#0b4db8_1px,transparent_1px)] bg-size-[18px_18px]" />
+        {/* Decorative glow */}
+        {showWinner && (
+          <>
+            <div className="pointer-events-none absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-tr-primary/10 blur-[100px]" />
+            <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-tr-tertiary-container/10 blur-[100px]" />
+          </>
+        )}
 
-        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-tr-primary-container/10 blur-3xl pointer-events-none" />
+        {/* Header */}
+        <header className="relative z-10 shrink-0 px-5 pt-5 sm:px-8 sm:pt-7">
+          <div className="flex items-center justify-center gap-3 sm:gap-5">
+            <img
+              src="/Bagong-Pilipinas.png"
+              alt="Bagong Pilipinas"
+              className="h-9 w-auto object-contain sm:h-11"
+            />
 
-        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-tr-error/10 blur-3xl pointer-events-none" />
+            <div className="h-6 w-px bg-tr-outline-variant/40" />
 
-        {/* Main */}
+            <div className="text-center">
+              <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-tr-primary sm:text-[11px]">
+                National Teachers' Month
+              </p>
 
-        <div className="relative z-10 flex h-full flex-col items-center px-6 py-8 sm:px-10">
-          {/* Header */}
-
-          {showWinner && (
-            <div
-              className={cn(
-                "shrink-0 flex flex-col items-center text-center transition-all duration-700",
-                !showWinner ? "opacity-0 -translate-y-10" : "opacity-100 translate-y-0",
-              )}
-            >
-              <div className="flex items-center gap-6 justify-center">
-                <img
-                  src="/Bagong-Pilipinas.png"
-                  alt="Bagong Pilipinas"
-                  className="w-14"
-                  loading="lazy"
-                />
-
-                <p className="font-display font-extrabold text-xs sm:text-sm uppercase tracking-[0.2em] text-tr-primary">
-                  National Teachers' Month Kick-off
-                </p>
-
-                <img
-                  src="/deped-logo-philippines.png"
-                  alt="DepEd"
-                  className="w-15"
-                  loading="lazy"
-                />
-              </div>
-              <h1
-                className={cn(
-                  "mt-1 font-display font-black uppercase tracking-tight text-tr-secondary leading-none",
-                  getCongratsSize(),
-                )}
-              >
-                Congratulations!
-              </h1>
-
-              <div className="mt-4 h-1 w-16 rounded-full bg-tr-tertiary-container" />
+              <p className="mt-0.5 font-display text-[8px] font-medium uppercase tracking-[0.12em] text-tr-on-surface-variant sm:text-[9px]">
+                Kick-off Celebration
+              </p>
             </div>
-          )}
 
-          {/* Winner Area */}
+            <div className="h-6 w-px bg-tr-outline-variant/40" />
 
-          <div
-            className={cn(
-              "relative flex min-h-0 w-full flex-1 justify-center overflow-y-auto rounded-3xl border transition-all duration-700 items-center",
-              showWinner
-                ? "mt-6 border-tr-secondary/10 bg-tr-secondary/5"
-                : "mt-0 border-tr-primary-container/40 bg-tr-secondary shadow-2xl",
-            )}
-          >
-            {/* Drawing */}
+            <img
+              src="/deped-logo-philippines.png"
+              alt="Department of Education"
+              className="h-9 w-auto object-contain sm:h-8"
+            />
+          </div>
+        </header>
 
-            {!showWinner && (
-              <>
-                <div className="absolute inset-0 bg-tr-primary/10 animate-pulse" />
+        <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
+          {!showWinner ? (
+            /* Drawing State */
+            <div className="flex flex-1 items-center justify-center p-5 sm:p-10">
+              <div className="relative flex h-full w-full max-w-6xl items-center justify-center overflow-hidden rounded-[2rem] bg-tr-secondary shadow-2xl">
+                <div className="absolute inset-0 animate-pulse bg-tr-primary/10" />
 
-                <div className="absolute left-1/2 top-1/2 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-tr-primary-container/10 blur-3xl" />
+                <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-tr-primary-container/15 blur-[100px]" />
 
-                <div className="relative z-10 flex w-full flex-col items-center px-6">
-                  <p className="mb-6 text-xs font-bold uppercase tracking-[0.3em] text-tr-on-secondary animate-pulse">
+                <div className="relative z-10 text-center">
+                  <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.35em] text-white/50 sm:text-xs">
                     Selecting Multiple Winners
                   </p>
 
-                  <span className="flex items-center justify-center gap-3  text-5xl sm:text-8xl lg:text-9xl text-white">
+                  <div className="flex justify-center gap-1 text-6xl font-black leading-none text-white sm:text-8xl lg:text-9xl">
                     {Array.from({ length: 10 }).map((_, index) => (
                       <span
-                        // biome-ignore lint/suspicious/noArrayIndexKey: for dot animation
+                        // biome-ignore lint/suspicious/noArrayIndexKey: static animation dots
                         key={index}
                         className="animate-dot-bounce"
                         style={{
@@ -218,53 +188,121 @@ export function MultipleWinnersModal({
                         •
                       </span>
                     ))}
-                  </span>
+                  </div>
 
-                  <div className="mt-8 flex items-center gap-3">
-                    <span className="h-3 w-3 rounded-full bg-tr-tertiary-container animate-pulse" />
+                  <div className="mt-8 flex items-center justify-center gap-3">
+                    <span className="h-3 w-3 animate-pulse rounded-full bg-tr-tertiary-container" />
 
-                    <span className="font-display text-sm font-bold uppercase tracking-[0.2em] text-tr-on-secondary/60">
-                      Drawing {winnerCount || "multiple"} winners
+                    <span className="font-display text-sm font-bold uppercase tracking-[0.2em] text-white/60">
+                      Drawing multiple winners
                     </span>
                   </div>
                 </div>
-              </>
-            )}
+              </div>
+            </div>
+          ) : (
+            /* Winner State */
+            <div className="flex min-h-0 flex-1 flex-col px-5 pb-6 pt-4 sm:px-10 sm:pb-8 sm:pt-5">
+              {/* Congratulations */}
+              <section className="shrink-0 text-center">
+                <h1 className="font-display text-3xl font-black uppercase leading-none tracking-tight text-tr-secondary sm:text-2xl lg:text-3xl">
+                  Congratulations!
+                </h1>
 
-            {/* Winners */}
+                <div className="mx-auto mt-3 h-1 w-14 rounded-full bg-tr-tertiary-container" />
+              </section>
 
-            {showWinner && (
-              <div className="relative z-10 h-full w-full px-4 py-8 sm:px-8">
-                <div className="mb-6 flex items-center justify-center gap-2">
-                  <Trophy className="h-5 w-5 text-tr-tertiary-container" />
+              {/* Prize + Sponsor */}
+              <section className="mx-auto mt-5 w-full max-w-5xl shrink-0">
+                <div className="relative overflow-hidden rounded-3xl border border-tr-outline-variant/20 bg-tr-surface-container-low/70 shadow-sm backdrop-blur-md">
+                  {/* Decorative background */}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-tr-primary/[0.03] via-transparent to-tr-tertiary-container/[0.04]" />
 
-                  <p className="font-display font-bold text-xs sm:text-sm xl:text-xl  uppercase tracking-[0.2em] text-tr-on-surface-variant">
-                    {winnerCount} Lucky Winners
-                  </p>
+                  <div className="flex items-center justify-around py-5">
+                    <div className="flex gap-5 min-h-36 items-center justify-center sm:min-h-40 lg:min-h-44">
+                      {prizeImageUrl && (
+                        <div className="relative flex h-30 w-full items-center justify-center sm:h-40 lg:h-44">
+                          {/* Glow */}
+                          <div className="absolute h-32 w-32 rounded-full bg-tr-primary/15 blur-3xl sm:h-40 sm:w-40" />
 
-                  <Trophy className="h-5 w-5 text-tr-tertiary-container" />
-                </div>
-                <div className="text-center mb-5 flex flex-col xl:gap-5">
-                  <h4
-                    className={cn(
-                      "font-display font-black uppercase text-tr-primary truncate leading-tight text-center",
-                      getPrizeSize(),
+                          <img
+                            src={prizeImageUrl}
+                            alt={prizeTitle || "Prize"}
+                            loading="lazy"
+                            decoding="async"
+                            className="relative z-10 h-full w-full max-w-64 object-contain drop-shadow-[0_16px_24px_rgba(0,0,0,0.22)] transition-transform duration-300 hover:scale-105"
+                          />
+                        </div>
+                      )}
+                      <div className="flex min-w-0 flex-col items-center text-center lg:items-start lg:text-left w-full">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-tr-primary/70">
+                          {prizeType || "Prize"} Prize
+                        </span>
+
+                        <h2 className="mt-2 max-w-xl break-words font-display text-2xl font-black uppercase leading-[0.95] tracking-tight text-tr-primary sm:text-3xl lg:text-4xl">
+                          {prizeTitle || "Prize"}
+                        </h2>
+
+                        <div className="mt-3 h-1 w-12 rounded-full bg-tr-tertiary-container" />
+                      </div>
+                    </div>
+
+                    {sponsorImageUrl && (
+                      <>
+                        {/* Mobile divider */}
+                        <div className="h-px w-full bg-tr-outline-variant/15 lg:hidden" />
+
+                        {/* Desktop divider */}
+                        <div className="hidden h-28 w-px bg-tr-outline-variant/20 lg:block" />
+
+                        <div className="flex min-w-0 flex-col items-center justify-center text-center lg:items-center">
+                          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-tr-on-surface-variant/70 sm:text-[10px]">
+                            Proudly Sponsored By
+                          </span>
+
+                          {/* Bigger sponsor logo */}
+
+                          <div className="mt-3 flex h-15 w-52 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-black/5 sm:h-28 sm:w-40">
+                            <img
+                              src={sponsorImageUrl}
+                              alt={`${sponsoredBy ?? "Sponsor"} logo`}
+                              loading="lazy"
+                              decoding="async"
+                              className="h-full w-full object-contain rounded-md"
+                            />
+                          </div>
+
+                          {sponsoredBy && (
+                            <span className="mt-3 max-w-xs break-words text-sm font-bold text-tr-secondary sm:text-base">
+                              {sponsoredBy}
+                            </span>
+                          )}
+                        </div>
+                      </>
                     )}
-                  >
-                    {prizeTitle}
-                  </h4>
-                  <span
-                    className={cn(
-                      "block max-w-full wrap-break-word font-semibold text-tr-on-surface-variant",
-                      getSponsorSize(),
-                    )}
-                  >
-                    {sponsoredBy}
-                  </span>
+                  </div>
                 </div>
-                <div className="mx-auto flex w-full max-w-8xl flex-wrap justify-center gap-4 pb-4">
+              </section>
+
+              {/* Divider */}
+              <div className="mx-auto my-5 h-px w-full max-w-5xl shrink-0 bg-tr-outline-variant/20 sm:my-6" />
+
+              {/* Winner Count */}
+              <div className="flex shrink-0 items-center justify-center gap-3 text-tr-tertiary-container">
+                <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
+
+                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-tr-on-surface-variant sm:text-xs">
+                  {winnerCount} Lucky Winners
+                </span>
+
+                <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
+              </div>
+
+              {/* Winners */}
+              <section className="mt-4 min-h-0 flex-1 overflow-y-auto px-1">
+                <div className="mx-auto flex w-full max-w-[1500px] flex-wrap justify-center gap-4 pb-4">
                   {winners.map((person) => (
-                    <div
+                    <article
                       key={person.id}
                       className={cn(
                         "group relative flex flex-col items-center justify-center rounded-2xl border border-tr-outline-variant/20 bg-tr-surface-container-lowest/95 px-4 py-4 text-center shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-lg",
@@ -272,11 +310,10 @@ export function MultipleWinnersModal({
                         getCardSize(),
                       )}
                     >
-                      {/* Winner */}
-
+                      {/* Winner Name */}
                       <h2
                         className={cn(
-                          "max-w-full font-display font-black uppercase  text-tr-secondary wrap-break-word leading-2.5",
+                          "max-w-full font-display font-black uppercase leading-[0.9] text-tr-secondary wrap-break-word",
                           getNameSize(),
                         )}
                       >
@@ -296,18 +333,23 @@ export function MultipleWinnersModal({
 
                           {(person.schoolsDivision || person.station) && (
                             <p className="max-w-full break-words text-[10px] font-medium uppercase tracking-wide text-tr-on-surface-variant sm:text-xs">
-                              {[person.schoolsDivision, person.station].filter(Boolean).join(" • ")}
+                              {[
+                                person.schoolsDivision,
+                                person.station ? limitStationWords(person.station) : null,
+                              ]
+                                .filter(Boolean)
+                                .join(" • ")}
                             </p>
                           )}
                         </div>
                       )}
-                    </div>
+                    </article>
                   ))}
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
+              </section>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );

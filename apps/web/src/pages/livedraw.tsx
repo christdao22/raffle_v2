@@ -113,7 +113,10 @@ export function LiveDraw() {
               persons={persons}
               isOpen={isWinnerModalOpen}
               prizeTitle={currentPrize?.prize}
+              prizeType={currentPrize?.type}
+              prizeImageUrl={currentPrize?.imageUrl}
               sponsoredBy={currentPrize?.sponsor ?? ""}
+              sponsorImageUrl={currentPrize?.sponsorImage}
             />
           ) : (
             <WinnerModal

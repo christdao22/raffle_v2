@@ -1,6 +1,6 @@
 import type { Person } from "@raffle_v2/shared";
 import { cn } from "@raffle_v2/ui";
-import { MapPin, Trophy } from "lucide-react";
+import { Gift, MapPin, Trophy } from "lucide-react";
 import Confetti from "react-confetti";
 
 export interface WinnerModalProps {
@@ -136,7 +136,7 @@ export function WinnerModal({
 
                   <div className="flex items-center justify-around py-5">
                     <div className="flex gap-5 min-h-36 items-center justify-center sm:min-h-40 lg:min-h-44">
-                      {prizeImageUrl ? (
+                      {prizeImageUrl && (
                         <div className="relative flex h-30 w-full items-center justify-center sm:h-40 lg:h-44">
                           {/* Glow */}
                           <div className="absolute h-32 w-32 rounded-full bg-tr-primary/15 blur-3xl sm:h-40 sm:w-40" />
@@ -148,12 +148,6 @@ export function WinnerModal({
                             decoding="async"
                             className="relative z-10 h-full w-full max-w-64 object-contain drop-shadow-[0_16px_24px_rgba(0,0,0,0.22)] transition-transform duration-300 hover:scale-105"
                           />
-                        </div>
-                      ) : (
-                        <div className="flex h-32 w-32 items-center justify-center rounded-full bg-tr-primary/5">
-                          <span className="text-xs font-bold uppercase tracking-[0.2em] text-tr-on-surface-variant/50">
-                            Prize
-                          </span>
                         </div>
                       )}
                       <div className="flex min-w-0 flex-col items-center text-center lg:items-start lg:text-left w-full">
