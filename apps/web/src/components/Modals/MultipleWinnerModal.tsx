@@ -236,7 +236,7 @@ export function MultipleWinnersModal({
                       )}
                       <div className="flex min-w-0 flex-col items-center text-center lg:items-start lg:text-left w-full">
                         <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-tr-primary/70">
-                          {prizeType || "Prize"} Prize
+                          {prizeType || "Prize"}
                         </span>
 
                         <h2 className="mt-2 max-w-xl break-words font-display text-2xl font-black uppercase leading-[0.95] tracking-tight text-tr-primary sm:text-3xl lg:text-4xl">
