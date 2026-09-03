@@ -26,11 +26,7 @@ export function LiveDraw() {
   const { state } = useLiveSocket(apiHost, handlePrizeSelected);
   const { displayType, selectedPrizeId, persons, isWinnerModalOpen, count } = state;
 
-  const { data: currentPrize, isLoading: isPrizeLoading } = usePrize(selectedPrizeId ?? "");
-
-  if (isPrizeLoading) {
-    return <p>Loading</p>;
-  }
+  const { data: currentPrize } = usePrize(selectedPrizeId ?? "");
 
   return (
     <div className="flex h-screen min-h-dvh w-full bg-white font-sans overflow-hidden">

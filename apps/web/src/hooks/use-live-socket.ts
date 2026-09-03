@@ -9,7 +9,6 @@ type LiveState = {
   persons: Person[];
   isWinnerModalOpen: boolean;
   isDrawing: boolean;
-  countdownRemaining: number | null;
   count: number;
 };
 
@@ -18,8 +17,7 @@ type LiveAction =
   | { type: "PRIZE_SELECTED"; prizeId: string }
   | { type: "REGIONS_SELECTED"; regionIds: string[] }
   | { type: "DISPLAY_SELECTION"; display: DisplayType }
-  | { type: "COUNTDOWN_START"; remaining: number }
-  | { type: "COUNTDOWN_TICK" }
+  | { type: "COUNTDOWN_START" }
   | { type: "WINNERS"; persons: Person[] }
   | { type: "MODAL_CLOSED" }
   | { type: "WINNER_COUNT"; payload: { count: number } };
@@ -31,7 +29,6 @@ const initialState: LiveState = {
   persons: [],
   isWinnerModalOpen: false,
   isDrawing: false,
-  countdownRemaining: null,
   count: 0,
 };
 
@@ -83,29 +80,19 @@ function reducer(state: LiveState, action: LiveAction): LiveState {
         persons: [],
         isDrawing: true,
         isWinnerModalOpen: true,
-        countdownRemaining: action.remaining,
       };
-    case "COUNTDOWN_TICK": {
-      const prev = state.countdownRemaining;
-      if (prev === null || prev <= 1) {
-        return { ...state, countdownRemaining: 0 };
-      }
-      return { ...state, countdownRemaining: prev - 1 };
-    }
     case "WINNERS":
       return {
         ...state,
         persons: action.persons,
         isDrawing: false,
         isWinnerModalOpen: true,
-        countdownRemaining: null,
       };
     case "MODAL_CLOSED":
       return {
         ...state,
         isWinnerModalOpen: false,
         isDrawing: false,
-        countdownRemaining: null,
       };
     default:
       return state;
@@ -139,11 +126,7 @@ export function useLiveSocket(
       if (!modalClosed && !latestWinners?.persons?.length && latestCountdown) {
         const { duration, startedAt } = latestCountdown;
         if (typeof duration === "number" && typeof startedAt === "number") {
-          const remaining = Math.max(0, Math.ceil(duration - (Date.now() - startedAt) / 1000));
-          dispatch({ type: "COUNTDOWN_START", remaining });
-          countdownTickRef.current = setInterval(() => {
-            dispatch({ type: "COUNTDOWN_TICK" });
-          }, 1000);
+          dispatch({ type: "COUNTDOWN_START" });
         }
       }
 
@@ -151,7 +134,6 @@ export function useLiveSocket(
     }
   }, [initialEvents]);
 
-  const countdownTickRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const lastWinnerKeyRef = useRef<string | null>(null);
   const lastCountdownKeyRef = useRef<string | null>(null);
 
@@ -206,16 +188,7 @@ export function useLiveSocket(
             if (lastCountdownKeyRef.current === countdownKey) return;
             lastCountdownKeyRef.current = countdownKey;
 
-            const elapsedSeconds = (Date.now() - startedAt) / 1000;
-            const remaining = Math.max(0, Math.ceil(duration - elapsedSeconds));
-
-            if (countdownTickRef.current) clearInterval(countdownTickRef.current);
-
-            dispatch({ type: "COUNTDOWN_START", remaining });
-
-            countdownTickRef.current = setInterval(() => {
-              dispatch({ type: "COUNTDOWN_TICK" });
-            }, 1000);
+            dispatch({ type: "COUNTDOWN_START" });
             break;
           }
 
@@ -227,14 +200,11 @@ export function useLiveSocket(
             if (lastWinnerKeyRef.current === winnerKey) return;
             lastWinnerKeyRef.current = winnerKey;
 
-            if (countdownTickRef.current) clearInterval(countdownTickRef.current);
-
             dispatch({ type: "WINNERS", persons: winnerPersons });
             break;
           }
 
           case "MODAL_CLOSED": {
-            if (countdownTickRef.current) clearInterval(countdownTickRef.current);
             lastWinnerKeyRef.current = null;
             lastCountdownKeyRef.current = null;
             dispatch({ type: "MODAL_CLOSED" });
@@ -247,7 +217,6 @@ export function useLiveSocket(
     };
 
     return () => {
-      if (countdownTickRef.current) clearInterval(countdownTickRef.current);
       if (socket.readyState === WebSocket.OPEN) {
         socket.close();
       } else if (socket.readyState === WebSocket.CONNECTING) {
@@ -257,7 +226,6 @@ export function useLiveSocket(
   }, [apiHost]);
 
   const closeWinnerModal = () => {
-    if (countdownTickRef.current) clearInterval(countdownTickRef.current);
     lastWinnerKeyRef.current = null;
     lastCountdownKeyRef.current = null;
     dispatch({ type: "MODAL_CLOSED" });
