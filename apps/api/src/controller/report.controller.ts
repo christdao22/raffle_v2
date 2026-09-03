@@ -21,6 +21,12 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
         ),
         0
       )`,
+      unclaimed: sql<number>`coalesce(
+        count(${winners.id}) filter (
+          where ${winners.isReceived} = false and ${winners.deletedAt} is null
+        ),
+        0
+      )`,
     })
     .from(prizes)
     .leftJoin(winners, eq(winners.prizeId, prizes.id))
@@ -54,7 +60,7 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
 
   const totalPrizeUnits = prizeRows.reduce((sum, item) => sum + Number(item.allocated), 0);
   const awardedPrizeUnits = prizeRows.reduce((sum, item) => sum + Number(item.awarded), 0);
-  const unclaimedPrizeUnits = totalPrizeUnits - awardedPrizeUnits;
+  const unclaimedPrizeUnits = prizeRows.reduce((sum, item) => sum + Number(item.unclaimed), 0);
 
   const summary = {
     totalParticipants,
@@ -119,7 +125,7 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
       type: prize.type ?? null,
       allocated: Number(prize.allocated),
       awarded: Number(prize.awarded),
-      unclaimed: Math.max(Number(prize.allocated) - Number(prize.awarded), 0),
+      unclaimed: Number(prize.unclaimed),
     })),
     winners: winnerRows.map((winner, index) => ({
       drawNumber: index + 1,
@@ -144,13 +150,13 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
       reason: winner.reason,
     })),
     unclaimedPrizes: prizeRows
-      .filter((prize) => Number(prize.allocated) - Number(prize.awarded) > 0)
+      .filter((prize) => Number(prize.unclaimed) > 0)
       .map((prize) => ({
         prize: prize.prize,
         sponsor: prize.sponsor ?? null,
         allocated: Number(prize.allocated),
         awarded: Number(prize.awarded),
-        unclaimed: Math.max(Number(prize.allocated) - Number(prize.awarded), 0),
+        unclaimed: Number(prize.unclaimed),
       })),
   };
 
