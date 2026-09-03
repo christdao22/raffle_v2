@@ -84,7 +84,7 @@ export function useRaffleReportPdf(reportData: RaffleReport, raffleId: string) {
         (w) => w.type?.toLowerCase() === "major prize",
       );
       const minorWinners = reportData.winners.filter(
-        (w) => w.type?.toLowerCase() === "minors prize",
+        (w) => w.type?.toLowerCase() === "minor prize",
       );
 
       if (majorWinners.length > 0) {
