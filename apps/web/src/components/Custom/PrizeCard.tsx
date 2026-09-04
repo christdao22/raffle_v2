@@ -13,7 +13,7 @@ export const PrizeCard = memo(function PrizeCard({
   className,
   count = 1,
 }: PrizeCardProps) {
-  const prizeName = currentPrize?.prize ?? "Select a Prize";
+  const prizeName = currentPrize?.prize ?? "";
   const sponsorName = currentPrize?.sponsor;
   const winnerLabel = count === 1 ? "Winner" : "Winners";
 

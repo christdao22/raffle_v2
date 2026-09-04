@@ -281,7 +281,7 @@ export function MultipleWinnersModal({
                           )}
 
                           {sponsoredBy && (
-                            <span className="mt-3 max-w-xs wrap-break-word text-xs font-bold text-tr-secondary sm:text-lg">
+                            <span className="mt-3 max-w-xs wrap-break-word text-xs font-bold text-tr-secondary sm:text-4xl">
                               {sponsoredBy}
                             </span>
                           )}

@@ -207,7 +207,7 @@ export function WinnerModal({
                           )}
 
                           {sponsor && (
-                            <span className="mt-3 max-w-xs wrap-break-word text-sm font-bold text-tr-secondary sm:text-base">
+                            <span className="mt-3 max-w-xs wrap-break-word text-sm font-bold text-tr-secondary sm:text-4xl">
                               {sponsor}
                             </span>
                           )}
