@@ -138,22 +138,22 @@ export function MultipleWinnersModal({
         )}
 
         {/* Header */}
-        {/* <header className="relative z-10 shrink-0 px-5 pt-5 sm:px-8 sm:pt-7">
+        <header className="relative z-10 shrink-0 px-5 pt-5 sm:px-8 sm:pt-7">
           <div className="flex items-center justify-center gap-3 sm:gap-5">
             <img
               src="/Bagong-Pilipinas.png"
               alt="Bagong Pilipinas"
-              className="h-9 w-auto object-contain sm:h-11"
+              className="h-9 w-auto object-contain sm:h-30"
             />
 
             <div className="h-6 w-px bg-tr-outline-variant/40" />
 
             <div className="text-center">
-              <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-tr-primary sm:text-[11px]">
+              <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-tr-primary sm:text-[36px]">
                 National Teachers' Month
               </p>
 
-              <p className="mt-0.5 font-display text-[8px] font-medium uppercase tracking-[0.12em] text-tr-on-surface-variant sm:text-[9px]">
+              <p className="mt-0.5 font-display text-[8px] font-medium uppercase tracking-[0.12em] text-tr-on-surface-variant sm:text-[24px]">
                 Kick-off Celebration
               </p>
             </div>
@@ -163,10 +163,10 @@ export function MultipleWinnersModal({
             <img
               src="/deped-logo-philippines.png"
               alt="Department of Education"
-              className="h-9 w-auto object-contain sm:h-8"
+              className="h-9 w-auto object-contain sm:h-18"
             />
           </div>
-        </header> */}
+        </header>
 
         <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
           {!showWinner ? (
@@ -220,8 +220,8 @@ export function MultipleWinnersModal({
               </section> */}
 
               {/* Prize + Sponsor */}
-              <section className="mx-auto mt-5 w-full max-w-5xl shrink-0">
-                <div className="relative overflow-hidden rounded-3xl border border-tr-outline-variant/20 bg-tr-surface-container-low/70 shadow-sm backdrop-blur-md">
+              <section className="mx-auto mt-5 w-full max-w-7xl shrink-0">
+                <div className="relative overflow-hidden rounded-3xl border border-tr-outline-variant/20 bg-tr-surface-container-low/70 shadow-sm backdrop-blur-md  p-6">
                   {/* Decorative background */}
                   <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-tr-primary/3 via-transparent to-tr-tertiary-container/4" />
 
@@ -242,11 +242,11 @@ export function MultipleWinnersModal({
                         </div>
                       )}
                       <div className="flex min-w-0 flex-col items-center text-center lg:items-start lg:text-left w-full">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-tr-primary/70">
+                        <span className="text-[18px] font-bold uppercase tracking-[0.3em] text-tr-primary/70">
                           {prizeType || "Prize"}
                         </span>
 
-                        <h2 className="mt-2 max-w-xl wrap-break-word font-display text-2xl font-black uppercase leading-[0.95] tracking-tight text-tr-primary sm:text-3xl lg:text-3xl">
+                        <h2 className="mt-2 max-w-xl wrap-break-word font-display text-2xl font-black uppercase leading-[0.95] tracking-tight text-tr-primary sm:text-3xl lg:text-6xl">
                           {prizeTitle || "Prize"}
                         </h2>
 
@@ -263,13 +263,13 @@ export function MultipleWinnersModal({
                         <div className="hidden h-28 w-px bg-tr-outline-variant/20 lg:block" />
 
                         <div className="flex min-w-0 flex-col items-center justify-center text-center lg:items-center">
-                          <span className="text-[7px] font-bold uppercase tracking-[0.3em] text-tr-on-surface-variant/70 sm:text-[8px]">
+                          <span className="text-[7px] font-bold uppercase tracking-[0.3em] text-tr-on-surface-variant/70 sm:text-[18px]">
                             Proudly Sponsored By
                           </span>
 
                           {/* Bigger sponsor logo */}
                           {sponsorImageUrl && (
-                            <div className="mt-3 flex h-15 w-52 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-black/5 sm:h-20 sm:w-40">
+                            <div className="mt-3 flex h-15 w-52 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-black/5 sm:h-30 sm:w-60">
                               <img
                                 src={sponsorImageUrl}
                                 alt={`${sponsoredBy ?? "Sponsor"} logo`}
@@ -281,7 +281,7 @@ export function MultipleWinnersModal({
                           )}
 
                           {sponsoredBy && (
-                            <span className="mt-3 max-w-xs wrap-break-word text-xs font-bold text-tr-secondary sm:text-xs">
+                            <span className="mt-3 max-w-xs wrap-break-word text-xs font-bold text-tr-secondary sm:text-lg">
                               {sponsoredBy}
                             </span>
                           )}
@@ -332,15 +332,15 @@ export function MultipleWinnersModal({
                       {person.region?.region && (
                         <div className="mt-4 flex max-w-full flex-col items-center gap-1">
                           <div className="flex items-center gap-1.5 text-tr-primary">
-                            <MapPin className="h-5 w-5 shrink-0" />
+                            <MapPin className="h-6 w-6 shrink-0" />
 
-                            <span className="text-sm font-bold uppercase tracking-[0.12em] sm:text-xl">
+                            <span className="text-sm font-bold uppercase tracking-[0.12em] sm:text-3xl">
                               {person.region.region}
                             </span>
                           </div>
 
                           {(person.schoolsDivision || person.station) && (
-                            <p className="max-w-full wrap-break-word text-[10px] font-medium uppercase tracking-wide text-tr-on-surface-variant sm:text-md">
+                            <p className="max-w-full wrap-break-word text-[10px] font-medium uppercase tracking-wide text-tr-on-surface-variant sm:text-xl">
                               {[
                                 person.schoolsDivision,
                                 person.station ? limitStationWords(person.station) : null,
