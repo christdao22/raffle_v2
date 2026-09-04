@@ -180,7 +180,7 @@ export default function RaffleConfigCard({
             </div>
             <button
               type="button"
-              onClick={() => setDuration((prev) => prev + 5)}
+              onClick={() => setDuration((prev) => prev + 1)}
               className="w-10 h-10 rounded-lg bg-[#182035] flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
             >
               <Plus className="w-4 h-4" />
