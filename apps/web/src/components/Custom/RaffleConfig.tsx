@@ -167,7 +167,7 @@ export default function RaffleConfigCard({
           <div className="flex items-center justify-between bg-[#080d1a] rounded-md p-2 border border-slate-800/60">
             <button
               type="button"
-              onClick={() => setDuration((prev) => Math.max(5, prev - 5))}
+              onClick={() => setDuration((prev) => Math.max(1, prev - 1))}
               className="w-10 h-10 rounded-lg bg-[#182035] flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
             >
               <Minus className="w-4 h-4" />
