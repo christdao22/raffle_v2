@@ -5,6 +5,7 @@ import {
   CircleArrowRight,
   CircleX,
   Clock,
+  Download,
   RefreshCcw,
   TrendingUp,
   Trophy,
@@ -18,12 +19,14 @@ import Layout from "../components/layout";
 import { useTableState } from "../hooks/datatable/use-table-state";
 import { useConfirmationModal } from "../hooks/use-confirmation-modal";
 import {
+  fetchAllWinners,
   useClaimWinnerMutation,
   useDeleteWinner,
   useRedrawWinner,
   useWinners,
 } from "../hooks/use-winners";
 import { useSession } from "../lib/auth-client";
+import { exportWinnersBySponsor } from "../lib/winners-by-sponsor-export";
 
 function WinnerReasonAction({ winnerId, mode }: { winnerId: string; mode: "delete" | "redraw" }) {
   const [open, setOpen] = useState(false);
@@ -205,6 +208,7 @@ function getWinnerStats({
 export function Winners() {
   const { data } = useSession();
   const table = useTableState({ pageSize: 10 });
+  const [isExporting, setIsExporting] = useState(false);
 
   const { data: winners, isLoading: isWinnerLoading } = useWinners({
     page: table.page,
@@ -231,6 +235,20 @@ export function Winners() {
         toast.success("Claimed successfully!");
       },
     });
+  };
+
+  const handleExportWinnersBySponsor = async () => {
+    if (isExporting) return;
+
+    setIsExporting(true);
+    try {
+      exportWinnersBySponsor(await fetchAllWinners());
+      toast.success("Winners by sponsor exported successfully!");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to export winners by sponsor");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const columns = createWinnerColumns({
@@ -270,6 +288,16 @@ export function Winners() {
           icon: Trophy,
           title: "Winner Claims",
           subtitle: "Search and process raffle prize distribution records.",
+          action: (
+            <Button
+              onClick={handleExportWinnersBySponsor}
+              disabled={isExporting}
+              className="gap-2 whitespace-nowrap"
+            >
+              <Download className="h-4 w-4" />
+              {isExporting ? "Exporting..." : "Export Winners by Sponsor"}
+            </Button>
+          ),
         }}
         search={{
           value: table.searchInput,

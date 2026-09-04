@@ -5,6 +5,8 @@ import type { AppEnv } from "../lib/context";
 
 const app = new OpenAPIHono<AppEnv>();
 
+const reportDateSchema = z.string().date();
+
 export const getRaffleReportRoute = createRoute({
   method: "get",
   path: "/{raffleId}",
@@ -13,6 +15,10 @@ export const getRaffleReportRoute = createRoute({
   request: {
     params: z.object({
       raffleId: z.string(),
+    }),
+    query: z.object({
+      startDate: reportDateSchema.optional(),
+      endDate: reportDateSchema.optional(),
     }),
   },
   responses: {

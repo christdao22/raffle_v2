@@ -1,5 +1,17 @@
 import type { RouteHandler } from "@hono/zod-openapi";
-import { db, eq, isNull, persons, prizes, regions, sql, winners } from "@raffle_v2/db";
+import {
+  and,
+  db,
+  eq,
+  gte,
+  isNull,
+  lt,
+  persons,
+  prizes,
+  regions,
+  sql,
+  winners,
+} from "@raffle_v2/db";
 import type { AppEnv } from "../lib/context";
 import type { getRaffleReportRoute } from "../routes/report.route";
 
@@ -7,6 +19,24 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
   c,
 ) => {
   const { raffleId } = c.req.valid("param");
+  const { startDate, endDate } = c.req.valid("query");
+
+  if (startDate && endDate && startDate > endDate) {
+    return c.json({ message: "Start date must be on or before end date" }, 400);
+  }
+
+  const startOfDay = startDate ? new Date(`${startDate}T00:00:00.000Z`) : undefined;
+  const endOfDay = endDate ? new Date(`${endDate}T00:00:00.000Z`) : undefined;
+  if (endOfDay) endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
+
+  const createdAtInRange = and(
+    ...(startOfDay ? [gte(winners.createdAt, startOfDay)] : []),
+    ...(endOfDay ? [lt(winners.createdAt, endOfDay)] : []),
+  );
+  const deletedAtInRange = and(
+    ...(startOfDay ? [gte(winners.deletedAt, startOfDay)] : []),
+    ...(endOfDay ? [lt(winners.deletedAt, endOfDay)] : []),
+  );
 
   const prizeRows = await db
     .select({
@@ -29,7 +59,7 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
       )`,
     })
     .from(prizes)
-    .leftJoin(winners, eq(winners.prizeId, prizes.id))
+    .leftJoin(winners, and(eq(winners.prizeId, prizes.id), createdAtInRange))
     .where(isNull(prizes.deletedAt))
     .groupBy(prizes.id, prizes.prize, prizes.sponsor, prizes.type, prizes.numberOfWinners);
 
@@ -40,17 +70,20 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
     })
     .from(persons);
 
-  const totalWinnerCount = await db.select({ count: sql<number>`count(*)` }).from(winners);
+  const totalWinnerCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(winners)
+    .where(createdAtInRange);
 
   const validWinnerCount = await db
     .select({ count: sql<number>`count(*)` })
     .from(winners)
-    .where(isNull(winners.deletedAt));
+    .where(and(isNull(winners.deletedAt), createdAtInRange));
 
   const invalidatedWinnerCount = await db
     .select({ count: sql<number>`count(*)` })
     .from(winners)
-    .where(sql`${winners.deletedAt} is not null`);
+    .where(and(sql`${winners.deletedAt} is not null`, deletedAtInRange));
 
   const totalParticipants = Number(participantStats?.totalParticipants ?? 0);
   const eligibleParticipants = Number(participantStats?.eligibleParticipants ?? 0);
@@ -89,7 +122,7 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
     .innerJoin(persons, eq(winners.personId, persons.id))
     .innerJoin(regions, eq(persons.regionId, regions.id))
     .innerJoin(prizes, eq(winners.prizeId, prizes.id))
-    .where(isNull(winners.deletedAt))
+    .where(and(isNull(winners.deletedAt), createdAtInRange))
     .orderBy(winners.createdAt);
 
   const invalidatedWinnerRows = await db
@@ -106,7 +139,7 @@ export const getRaffleReportHandler: RouteHandler<typeof getRaffleReportRoute, A
     .from(winners)
     .innerJoin(persons, eq(winners.personId, persons.id))
     .innerJoin(prizes, eq(winners.prizeId, prizes.id))
-    .where(sql`${winners.deletedAt} is not null`)
+    .where(and(sql`${winners.deletedAt} is not null`, deletedAtInRange))
     .orderBy(winners.deletedAt);
 
   const payload = {
