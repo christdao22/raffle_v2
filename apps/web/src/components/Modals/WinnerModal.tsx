@@ -49,7 +49,7 @@ export function WinnerModal({
   const multipleWinners = persons.length > 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 backdrop-blur-md sm:p-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 backdrop-blur-md sm:p-5 ">
       {showConfetti && showWinner && (
         <Confetti recycle numberOfPieces={60} gravity={0.16} className="pointer-events-none" />
       )}
@@ -82,17 +82,17 @@ export function WinnerModal({
             <img
               src="/Bagong-Pilipinas.png"
               alt="Bagong Pilipinas"
-              className="h-9 w-auto object-contain sm:h-11"
+              className="h-9 w-auto object-contain sm:h-30"
             />
 
             <div className="h-6 w-px bg-tr-outline-variant/40" />
 
             <div className="text-center">
-              <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-tr-primary sm:text-[11px]">
+              <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-tr-primary sm:text-[36px]">
                 National Teachers' Month
               </p>
 
-              <p className="mt-0.5 font-display text-[8px] font-medium uppercase tracking-[0.12em] text-tr-on-surface-variant sm:text-[9px]">
+              <p className="mt-0.5 font-display text-[8px] font-medium uppercase tracking-[0.12em] text-tr-on-surface-variant sm:text-[24px]">
                 Kick-off Celebration
               </p>
             </div>
@@ -102,7 +102,7 @@ export function WinnerModal({
             <img
               src="/deped-logo-philippines.png"
               alt="Department of Education"
-              className="h-9 w-auto object-contain sm:h-8"
+              className="h-9 w-auto object-contain sm:h-18"
             />
           </div>
         </header>
@@ -138,15 +138,15 @@ export function WinnerModal({
               </div>
             </div>
           ) : (
-            <div className="flex min-h-0 flex-1 flex-col px-5 pb-6 pt-4 sm:px-10 sm:pb-8 sm:pt-5">
-              {/* <section className="shrink-0 text-center">
-                <h1 className="font-display text-3xl font-black uppercase leading-none tracking-tight text-tr-secondary sm:text-2xl lg:text-3xl">
+            <div className="flex min-h-0 flex-1 flex-col px-5 pb-6 pt-4 sm:px-10 sm:pb-8 sm:pt-18">
+              <section className="shrink-0 text-center">
+                <h1 className="font-display text-3xl font-black uppercase leading-none tracking-tight text-tr-secondary sm:text-2xl lg:text-6xl">
                   Congratulations!
                 </h1>
 
                 <div className="mx-auto mt-3 h-1 w-14 rounded-full bg-tr-tertiary-container" />
-              </section> */}
-              <section className="mx-auto mt-5 w-full max-w-5xl shrink-0">
+              </section>
+              <section className="mx-auto mt-5 w-full max-w-8xl shrink-0">
                 <div className="relative overflow-hidden rounded-3xl border border-tr-outline-variant/20 bg-tr-surface-container-low/70 shadow-sm backdrop-blur-md">
                   {/* Decorative background */}
                   <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-tr-primary/3 via-transparent to-tr-tertiary-container/4" />
@@ -168,11 +168,11 @@ export function WinnerModal({
                         </div>
                       )}
                       <div className="flex min-w-0 flex-col items-center text-center lg:items-start lg:text-left w-full">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-tr-primary/70">
+                        <span className="text-[20px] font-bold uppercase tracking-[0.3em] text-tr-primary/70">
                           {prizeType || "Prize"}
                         </span>
 
-                        <h2 className="mt-2 max-w-xl wrap-break-word font-display text-2xl font-black uppercase leading-[0.95] tracking-tight text-tr-primary sm:text-3xl lg:text-4xl">
+                        <h2 className="mt-2 max-w-7xl w-full wrap-break-word font-display text-2xl font-black uppercase leading-[0.95] tracking-tight text-tr-primary sm:text-3xl lg:text-7xl">
                           {prizeTitle || "Prize"}
                         </h2>
 
@@ -189,13 +189,13 @@ export function WinnerModal({
                         <div className="hidden h-28 w-px bg-tr-outline-variant/20 lg:block" />
 
                         <div className="flex min-w-0 flex-col items-center justify-center text-center lg:items-center">
-                          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-tr-on-surface-variant/70 sm:text-[10px]">
+                          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-tr-on-surface-variant/70 sm:text-[18px]">
                             Proudly Sponsored By
                           </span>
 
                           {/* Bigger sponsor logo */}
                           {sponsorImageUrl && (
-                            <div className="mt-3 flex h-15 w-52 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-black/5 sm:h-28 sm:w-40">
+                            <div className="mt-3 flex h-15 w-52 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-black/5 sm:h-40 sm:w-60">
                               <img
                                 src={sponsorImageUrl}
                                 alt={`${sponsor ?? "Sponsor"} logo`}
@@ -222,7 +222,7 @@ export function WinnerModal({
               <div className="flex shrink-0 items-center justify-center gap-3 text-tr-tertiary-container">
                 <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
 
-                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-tr-on-surface-variant sm:text-xs">
+                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-tr-on-surface-variant sm:text-lg">
                   {multipleWinners ? "Our Lucky Winners" : "Our Lucky Winner"}
                 </span>
 
@@ -261,13 +261,13 @@ export function WinnerModal({
                           <div className="flex items-center gap-1.5 text-tr-primary">
                             <MapPin className="h-10 w-10 shrink-0" />
 
-                            <span className="text-xs font-bold uppercase tracking-[0.12em] sm:text-sm lg:text-3xl">
+                            <span className="text-xs font-bold uppercase tracking-[0.12em] sm:text-sm lg:text-6xl">
                               {person.region.region}
                             </span>
                           </div>
 
                           {(person.schoolsDivision || person.station) && (
-                            <p className="max-w-full wrap-break-word text-[10px] font-medium uppercase tracking-wide text-tr-on-surface-variant sm:text-xs lg:text-2xl">
+                            <p className="max-w-full wrap-break-word text-[10px] font-medium uppercase tracking-wide text-tr-on-surface-variant sm:text-xs lg:text-4xl">
                               {[person.schoolsDivision, person.station].filter(Boolean).join(" • ")}
                             </p>
                           )}
