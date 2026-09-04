@@ -31,6 +31,9 @@ export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> =
     search
       ? or(
           ilike(persons.fullname, `%${search}%`),
+          ilike(persons.station, `%${search}%`),
+          ilike(persons.schoolsDivision, `%${search}%`),
+          ilike(regions.region, `%${search}%`),
           ilike(prizes.sponsor, `%${search}%`),
           ilike(prizes.prize, `%${search}%`),
         )
@@ -45,6 +48,7 @@ export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> =
         .select({ count: sql<number>`count(*)` })
         .from(winners)
         .innerJoin(persons, eq(winners.personId, persons.id))
+        .innerJoin(regions, eq(persons.regionId, regions.id))
         .innerJoin(prizes, eq(winners.prizeId, prizes.id))
         .where(activeWinnerCondition);
 
@@ -70,7 +74,7 @@ export const listWinnersHandler: RouteHandler<typeof listWinnersRoute, AppEnv> =
         .innerJoin(regions, eq(persons.regionId, regions.id))
         .innerJoin(prizes, eq(winners.prizeId, prizes.id))
         .where(activeWinnerCondition)
-        .orderBy(asc(winners.id))
+        .orderBy(asc(persons.fullname), asc(winners.id))
         .limit(limit)
         .offset(offset);
 
