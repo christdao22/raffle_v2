@@ -58,28 +58,6 @@ export function LiveDraw() {
                 {connectionStatus === "connected" ? "Live" : connectionStatus}
               </span>
             </div>
-            <button type="button" className="flex items-center gap-3 group text-left">
-              <div className="hidden sm:block text-right">
-                <p className="text-sm font-bold text-tr-secondary group-hover:text-[#FFD000] transition-colors leading-tight">
-                  {sessionData?.user.name}
-                </p>
-                <p className="text-xs text-slate-400 font-medium mt-0.5 capitalize">
-                  {sessionData?.user.role}
-                </p>
-              </div>
-              <div className="hidden sm:flex w-10 h-10 rounded-full bg-tr-secondary items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
-                {sessionData?.user && sessionData.user.image !== null ? (
-                  <img
-                    src={sessionData.user.image}
-                    alt="Profile"
-                    className="w-full h-full rounded-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <User className="w-5 h-5 fill-current" />
-                )}
-              </div>
-            </button>
           </div>
         </header>
 

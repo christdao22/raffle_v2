@@ -10,6 +10,9 @@ import { usePrizes } from "../hooks/use-prizes";
 import { useRegions } from "../hooks/use-regions";
 
 export function Dashboard() {
+  const [connectionStatus, setConnectionStatus] = useState<
+    "connecting" | "connected" | "disconnected"
+  >("connecting");
   const savedPrizeId = localStorage.getItem("raffle:selected-prize");
   const savedRegionIds = localStorage.getItem("raffle:selected-regions");
   const [pagination, setPagination] = useState({
@@ -92,8 +95,12 @@ export function Dashboard() {
   };
 
   return (
-    <Layout pageTitle="Raffle Control & Prize Selector">
-      <LiveScreenDisplayMode />
+    <Layout
+      pageTitle="Raffle Control & Prize Selector"
+      statusText={connectionStatus === "connected" ? "Live link" : connectionStatus}
+      isConnected={connectionStatus === "connected"}
+    >
+      <LiveScreenDisplayMode onConnectionStatusChange={setConnectionStatus} />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
         <div className="lg:col-span-8">
           {prizeData && regions ? (
