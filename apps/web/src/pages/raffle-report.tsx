@@ -40,8 +40,10 @@ function capitalizeWords(value: string | null | undefined) {
 }
 
 export function RaffleReportPage() {
-  const [raffleId, setRaffleId] = useState("RFL-2026-001");
-  const { data: report, isLoading, isError, error } = useReport(raffleId);
+  const raffleId = "RFL-2026-001";
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const { data: report, isLoading, isError, error } = useReport(raffleId, startDate, endDate);
 
   const reportData = report ?? EMPTY_REPORT;
 
@@ -91,8 +93,6 @@ export function RaffleReportPage() {
     [reportData],
   );
 
-  console.log(reportData);
-
   const handleDownloadPdf = useRaffleReportPdf(reportData, raffleId);
 
   return (
@@ -129,24 +129,36 @@ export function RaffleReportPage() {
                   <Download className="h-4 w-4" />
                   Download PDF
                 </Button>
-                <div className="mt-4 grid gap-2 text-sm text-slate-300 sm:grid-cols-3">
-                  <div>
-                    <span className="block text-xs uppercase tracking-[0.18em] text-slate-400">
-                      Draw Date
-                    </span>
-                    <span>{reportData.raffle.date}</span>
+                <div className="flex justify-between">
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:max-w-xl">
+                    <label className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                      Start Date
+                      <input
+                        type="date"
+                        value={startDate}
+                        max={endDate || undefined}
+                        onChange={(event) => setStartDate(event.target.value)}
+                        className="mt-2 block w-full border rounded-md border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 scheme-dark"
+                      />
+                    </label>
+                    <label className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                      End Date
+                      <input
+                        type="date"
+                        value={endDate}
+                        min={startDate || undefined}
+                        onChange={(event) => setEndDate(event.target.value)}
+                        className="mt-2 block w-full border rounded-md border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 scheme-dark"
+                      />
+                    </label>
                   </div>
-                  <div>
-                    <span className="block text-xs uppercase tracking-[0.18em] text-slate-400">
-                      Status
-                    </span>
-                    <span>{reportData.raffle.status}</span>
-                  </div>
-                  <div>
-                    <span className="block text-xs uppercase tracking-[0.18em] text-slate-400">
-                      Report Generated
-                    </span>
-                    <span>{new Date(reportData.raffle.generatedAt).toLocaleDateString()}</span>
+                  <div className="w-fit mt-4 grid gap-2 text-sm text-slate-300 sm:grid-cols-3">
+                    <div className="">
+                      <span className="block text-xs uppercase tracking-[0.18em] text-slate-400">
+                        Report Generated
+                      </span>
+                      <span>{new Date(reportData.raffle.generatedAt).toLocaleDateString()}</span>
+                    </div>
                   </div>
                 </div>
               </div>

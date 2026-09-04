@@ -1,6 +1,6 @@
 import type { Person } from "@raffle_v2/shared";
 import { cn } from "@raffle_v2/ui";
-import { Gift, MapPin, Trophy } from "lucide-react";
+import { MapPin, Trophy } from "lucide-react";
 import Confetti from "react-confetti";
 
 export interface WinnerModalProps {
@@ -13,6 +13,23 @@ export interface WinnerModalProps {
   sponsor?: string | null;
   sponsorImageUrl?: string | null;
   className?: string;
+}
+
+function getWinnerNameSize(fullname: string, multipleWinners: boolean) {
+  const length = fullname.trim().length;
+
+  if (multipleWinners) {
+    if (length > 44) return "text-xl sm:text-2xl";
+    if (length > 30) return "text-2xl sm:text-3xl";
+
+    return "text-3xl sm:text-4xl";
+  }
+
+  if (length > 44) return "text-2xl sm:text-4xl lg:text-5xl xl:text-6xl";
+  if (length > 30) return "text-3xl sm:text-5xl lg:text-6xl xl:text-7xl";
+  if (length > 20) return "text-4xl sm:text-6xl lg:text-7xl xl:text-8xl";
+
+  return "text-5xl sm:text-7xl lg:text-8xl xl:text-9xl";
 }
 
 export function WinnerModal({
@@ -39,7 +56,7 @@ export function WinnerModal({
 
       <div
         className={cn(
-          "relative flex h-[min(94vh,900px)] w-full max-w-[1500px] flex-col overflow-hidden rounded-[2rem] border border-tr-outline-variant/30 bg-tr-surface-container-lowest text-tr-on-surface shadow-2xl",
+          "relative flex h-full w-full flex-col overflow-hidden rounded-4xl border border-tr-outline-variant/30 bg-tr-surface-container-lowest text-tr-on-surface shadow-2xl",
           className,
         )}
       >
@@ -55,8 +72,8 @@ export function WinnerModal({
         {/* Decorative glow */}
         {showWinner && (
           <>
-            <div className="pointer-events-none absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-tr-primary/10 blur-[100px]" />
-            <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-tr-tertiary-container/10 blur-[100px]" />
+            <div className="pointer-events-none absolute -left-40 -top-40 h-125 w-125 rounded-full bg-tr-primary/10 blur-[100px]" />
+            <div className="pointer-events-none absolute -bottom-40 -right-40 h-125 w-125 rounded-full bg-tr-tertiary-container/10 blur-[100px]" />
           </>
         )}
 
@@ -93,7 +110,7 @@ export function WinnerModal({
         <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
           {!showWinner ? (
             <div className="flex flex-1 items-center justify-center p-5 sm:p-10">
-              <div className="relative flex h-full w-full max-w-6xl items-center justify-center overflow-hidden rounded-[2rem] bg-tr-secondary shadow-2xl">
+              <div className="relative flex h-full w-full max-w-6xl items-center justify-center overflow-hidden rounded-4xl bg-tr-secondary shadow-2xl">
                 <div className="absolute inset-0 bg-tr-primary/10 animate-pulse" />
 
                 <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-tr-primary-container/15 blur-[100px]" />
@@ -122,17 +139,17 @@ export function WinnerModal({
             </div>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col px-5 pb-6 pt-4 sm:px-10 sm:pb-8 sm:pt-5">
-              <section className="shrink-0 text-center">
+              {/* <section className="shrink-0 text-center">
                 <h1 className="font-display text-3xl font-black uppercase leading-none tracking-tight text-tr-secondary sm:text-2xl lg:text-3xl">
                   Congratulations!
                 </h1>
 
                 <div className="mx-auto mt-3 h-1 w-14 rounded-full bg-tr-tertiary-container" />
-              </section>
+              </section> */}
               <section className="mx-auto mt-5 w-full max-w-5xl shrink-0">
                 <div className="relative overflow-hidden rounded-3xl border border-tr-outline-variant/20 bg-tr-surface-container-low/70 shadow-sm backdrop-blur-md">
                   {/* Decorative background */}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-tr-primary/[0.03] via-transparent to-tr-tertiary-container/[0.04]" />
+                  <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-tr-primary/3 via-transparent to-tr-tertiary-container/4" />
 
                   <div className="flex items-center justify-around py-5">
                     <div className="flex gap-5 min-h-36 items-center justify-center sm:min-h-40 lg:min-h-44">
@@ -155,7 +172,7 @@ export function WinnerModal({
                           {prizeType || "Prize"}
                         </span>
 
-                        <h2 className="mt-2 max-w-xl break-words font-display text-2xl font-black uppercase leading-[0.95] tracking-tight text-tr-primary sm:text-3xl lg:text-4xl">
+                        <h2 className="mt-2 max-w-xl wrap-break-word font-display text-2xl font-black uppercase leading-[0.95] tracking-tight text-tr-primary sm:text-3xl lg:text-4xl">
                           {prizeTitle || "Prize"}
                         </h2>
 
@@ -190,7 +207,7 @@ export function WinnerModal({
                           )}
 
                           {sponsor && (
-                            <span className="mt-3 max-w-xs break-words text-sm font-bold text-tr-secondary sm:text-base">
+                            <span className="mt-3 max-w-xs wrap-break-word text-sm font-bold text-tr-secondary sm:text-base">
                               {sponsor}
                             </span>
                           )}
@@ -231,10 +248,8 @@ export function WinnerModal({
                       {/* Winner name */}
                       <h3
                         className={cn(
-                          "max-w-full break-words font-display font-black uppercase leading-[0.9] tracking-tight text-tr-secondary",
-                          multipleWinners
-                            ? "text-3xl sm:text-4xl"
-                            : "text-5xl sm:text-7xl lg:text-8xl xl:text-9xl",
+                          "max-w-full wrap-break-word font-display font-black uppercase leading-[0.9] tracking-tight text-tr-secondary",
+                          getWinnerNameSize(person.fullname ?? "Winner", multipleWinners),
                         )}
                       >
                         {person.fullname ?? "Winner"}
@@ -244,15 +259,15 @@ export function WinnerModal({
                       {person.region?.region && (
                         <div className="mt-4 flex max-w-full flex-col items-center gap-1">
                           <div className="flex items-center gap-1.5 text-tr-primary">
-                            <MapPin className="h-3.5 w-3.5 shrink-0" />
+                            <MapPin className="h-10 w-10 shrink-0" />
 
-                            <span className="text-xs font-bold uppercase tracking-[0.12em] sm:text-sm">
+                            <span className="text-xs font-bold uppercase tracking-[0.12em] sm:text-sm lg:text-3xl">
                               {person.region.region}
                             </span>
                           </div>
 
                           {(person.schoolsDivision || person.station) && (
-                            <p className="max-w-full break-words text-[10px] font-medium uppercase tracking-wide text-tr-on-surface-variant sm:text-xs">
+                            <p className="max-w-full wrap-break-word text-[10px] font-medium uppercase tracking-wide text-tr-on-surface-variant sm:text-xs lg:text-2xl">
                               {[person.schoolsDivision, person.station].filter(Boolean).join(" • ")}
                             </p>
                           )}

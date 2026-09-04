@@ -59,10 +59,17 @@ export function MultipleWinnersModal({
     return "w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]";
   };
 
-  /**
-   * Keep the existing dynamic winner-name sizing.
-   */
-  const getNameSize = () => {
+  const getNameSize = (fullname: string) => {
+    const nameLength = fullname.trim().length;
+
+    if (nameLength > 44) {
+      return "text-base sm:text-lg lg:text-xl xl:text-2xl";
+    }
+
+    if (nameLength > 30) {
+      return "text-lg sm:text-xl lg:text-2xl xl:text-3xl";
+    }
+
     if (winnerCount <= 2) {
       return "text-3xl sm:text-4xl xl:text-6xl";
     }
@@ -76,7 +83,7 @@ export function MultipleWinnersModal({
     }
 
     if (winnerCount <= 8) {
-      return "text-xl lg:text-xl xl:text-5xl";
+      return "text-xl lg:text-xl xl:text-4xl";
     }
 
     return "text-lg sm:text-xl lg:text-[18px] xl:text-3xl";
@@ -98,7 +105,7 @@ export function MultipleWinnersModal({
       return "min-h-36 sm:min-h-60 lg:min-h-20 xl:min-h-60";
     }
 
-    return "min-h-32 sm:min-h-36 lg:min-h-20 xl:min-h-50";
+    return "min-h-32 sm:min-h-36 lg:min-h-20 xl:min-h-40";
   };
 
   return (
@@ -109,7 +116,7 @@ export function MultipleWinnersModal({
 
       <div
         className={cn(
-          "relative flex h-[min(94vh,900px)] w-full max-w-[1500px] flex-col overflow-hidden rounded-[2rem] border border-tr-outline-variant/30 bg-tr-surface-container-lowest text-tr-on-surface shadow-2xl",
+          "relative flex h-full w-full flex-col overflow-hidden rounded-[2rem] border border-tr-outline-variant/30 bg-tr-surface-container-lowest text-tr-on-surface shadow-2xl",
           className,
         )}
       >
@@ -131,7 +138,7 @@ export function MultipleWinnersModal({
         )}
 
         {/* Header */}
-        <header className="relative z-10 shrink-0 px-5 pt-5 sm:px-8 sm:pt-7">
+        {/* <header className="relative z-10 shrink-0 px-5 pt-5 sm:px-8 sm:pt-7">
           <div className="flex items-center justify-center gap-3 sm:gap-5">
             <img
               src="/Bagong-Pilipinas.png"
@@ -159,7 +166,7 @@ export function MultipleWinnersModal({
               className="h-9 w-auto object-contain sm:h-8"
             />
           </div>
-        </header>
+        </header> */}
 
         <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
           {!showWinner ? (
@@ -204,21 +211,21 @@ export function MultipleWinnersModal({
             /* Winner State */
             <div className="flex min-h-0 flex-1 flex-col px-5 pb-6 pt-4 sm:px-10 sm:pb-8 sm:pt-5">
               {/* Congratulations */}
-              <section className="shrink-0 text-center">
+              {/* <section className="shrink-0 text-center">
                 <h1 className="font-display text-3xl font-black uppercase leading-none tracking-tight text-tr-secondary sm:text-2xl lg:text-3xl">
                   Congratulations!
                 </h1>
 
                 <div className="mx-auto mt-3 h-1 w-14 rounded-full bg-tr-tertiary-container" />
-              </section>
+              </section> */}
 
               {/* Prize + Sponsor */}
               <section className="mx-auto mt-5 w-full max-w-5xl shrink-0">
                 <div className="relative overflow-hidden rounded-3xl border border-tr-outline-variant/20 bg-tr-surface-container-low/70 shadow-sm backdrop-blur-md">
                   {/* Decorative background */}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-tr-primary/[0.03] via-transparent to-tr-tertiary-container/[0.04]" />
+                  <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-tr-primary/3 via-transparent to-tr-tertiary-container/4" />
 
-                  <div className="flex items-center justify-around py-5">
+                  <div className="flex items-center justify-around">
                     <div className="flex gap-5 min-h-36 items-center justify-center sm:min-h-40 lg:min-h-44">
                       {prizeImageUrl && (
                         <div className="relative flex h-30 w-full items-center justify-center sm:h-40 lg:h-44">
@@ -239,7 +246,7 @@ export function MultipleWinnersModal({
                           {prizeType || "Prize"}
                         </span>
 
-                        <h2 className="mt-2 max-w-xl break-words font-display text-2xl font-black uppercase leading-[0.95] tracking-tight text-tr-primary sm:text-3xl lg:text-4xl">
+                        <h2 className="mt-2 max-w-xl wrap-break-word font-display text-2xl font-black uppercase leading-[0.95] tracking-tight text-tr-primary sm:text-3xl lg:text-3xl">
                           {prizeTitle || "Prize"}
                         </h2>
 
@@ -256,13 +263,13 @@ export function MultipleWinnersModal({
                         <div className="hidden h-28 w-px bg-tr-outline-variant/20 lg:block" />
 
                         <div className="flex min-w-0 flex-col items-center justify-center text-center lg:items-center">
-                          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-tr-on-surface-variant/70 sm:text-[10px]">
+                          <span className="text-[7px] font-bold uppercase tracking-[0.3em] text-tr-on-surface-variant/70 sm:text-[8px]">
                             Proudly Sponsored By
                           </span>
 
                           {/* Bigger sponsor logo */}
                           {sponsorImageUrl && (
-                            <div className="mt-3 flex h-15 w-52 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-black/5 sm:h-28 sm:w-40">
+                            <div className="mt-3 flex h-15 w-52 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-black/5 sm:h-20 sm:w-40">
                               <img
                                 src={sponsorImageUrl}
                                 alt={`${sponsoredBy ?? "Sponsor"} logo`}
@@ -274,7 +281,7 @@ export function MultipleWinnersModal({
                           )}
 
                           {sponsoredBy && (
-                            <span className="mt-3 max-w-xs break-words text-sm font-bold text-tr-secondary sm:text-base">
+                            <span className="mt-3 max-w-xs wrap-break-word text-xs font-bold text-tr-secondary sm:text-xs">
                               {sponsoredBy}
                             </span>
                           )}
@@ -292,7 +299,7 @@ export function MultipleWinnersModal({
               <div className="flex shrink-0 items-center justify-center gap-3 text-tr-tertiary-container">
                 <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
 
-                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-tr-on-surface-variant sm:text-xs">
+                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-tr-on-surface-variant sm:text-lg">
                   {winnerCount} Lucky Winners
                 </span>
 
@@ -306,7 +313,7 @@ export function MultipleWinnersModal({
                     <article
                       key={person.id}
                       className={cn(
-                        "group relative flex flex-col items-center justify-center rounded-2xl border border-tr-outline-variant/20 bg-tr-surface-container-lowest/95 px-4 py-4 text-center shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-lg",
+                        "group relative flex flex-col items-center justify-center rounded-2xl border border-tr-outline-variant/20 bg-tr-surface-container-lowest/95 px-4 py-0 text-center shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-lg",
                         getCardWidthClass(),
                         getCardSize(),
                       )}
@@ -315,7 +322,7 @@ export function MultipleWinnersModal({
                       <h2
                         className={cn(
                           "max-w-full font-display font-black uppercase leading-[0.9] text-tr-secondary wrap-break-word",
-                          getNameSize(),
+                          getNameSize(person.fullname ?? "Winner"),
                         )}
                       >
                         {person.fullname ?? "Winner"}
@@ -325,15 +332,15 @@ export function MultipleWinnersModal({
                       {person.region?.region && (
                         <div className="mt-4 flex max-w-full flex-col items-center gap-1">
                           <div className="flex items-center gap-1.5 text-tr-primary">
-                            <MapPin className="h-3.5 w-3.5 shrink-0" />
+                            <MapPin className="h-5 w-5 shrink-0" />
 
-                            <span className="text-xs font-bold uppercase tracking-[0.12em] sm:text-sm">
+                            <span className="text-sm font-bold uppercase tracking-[0.12em] sm:text-xl">
                               {person.region.region}
                             </span>
                           </div>
 
                           {(person.schoolsDivision || person.station) && (
-                            <p className="max-w-full break-words text-[10px] font-medium uppercase tracking-wide text-tr-on-surface-variant sm:text-xs">
+                            <p className="max-w-full wrap-break-word text-[10px] font-medium uppercase tracking-wide text-tr-on-surface-variant sm:text-md">
                               {[
                                 person.schoolsDivision,
                                 person.station ? limitStationWords(person.station) : null,

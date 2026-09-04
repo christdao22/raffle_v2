@@ -45,6 +45,32 @@ interface WinnersResponse {
   };
 }
 
+async function getWinnersPage(page: number, pageSize: number): Promise<WinnersResponse> {
+  const res = await api.winners.$get({
+    query: {
+      page: String(page),
+      pageSize: String(pageSize),
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to load winners");
+  }
+
+  return (await res.json()) as unknown as WinnersResponse;
+}
+
+export async function fetchAllWinners(): Promise<Winner[]> {
+  const firstPage = await getWinnersPage(1, 100);
+  const remainingPages = Array.from(
+    { length: Math.max(firstPage.meta.pagination.totalPages - 1, 0) },
+    (_, index) => getWinnersPage(index + 2, 100),
+  );
+  const pages = await Promise.all(remainingPages);
+
+  return [...firstPage.data, ...pages.flatMap((page) => page.data)];
+}
+
 export const winnerKeys = {
   all: ["winners"] as const,
   draws: () => [...winnerKeys.all, "draw"] as const,

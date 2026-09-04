@@ -6,14 +6,18 @@ const apiBaseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 export const reportKeys = {
   all: ["reports"] as const,
   details: () => [...reportKeys.all, "detail"] as const,
-  detail: (raffleId: string) => [...reportKeys.details(), raffleId] as const,
+  detail: (raffleId: string, startDate?: string, endDate?: string) =>
+    [...reportKeys.details(), raffleId, startDate, endDate] as const,
 };
 
-export function useReport(raffleId: string) {
+export function useReport(raffleId: string, startDate?: string, endDate?: string) {
   return useQuery({
-    queryKey: reportKeys.detail(raffleId),
+    queryKey: reportKeys.detail(raffleId, startDate, endDate),
     queryFn: async () => {
-      const url = `${apiBaseUrl}/report/${encodeURIComponent(raffleId)}`;
+      const query = new URLSearchParams();
+      if (startDate) query.set("startDate", startDate);
+      if (endDate) query.set("endDate", endDate);
+      const url = `${apiBaseUrl}/report/${encodeURIComponent(raffleId)}${query.size ? `?${query}` : ""}`;
       const res = await fetch(url, {
         credentials: "include",
         headers: {
