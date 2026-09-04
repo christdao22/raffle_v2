@@ -1,5 +1,5 @@
 import type { Person } from "@raffle_v2/shared";
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { type DisplayType, useLiveEvents } from "./use-live";
 
 type LiveState = {
@@ -105,6 +105,9 @@ export function useLiveSocket(
   onRegionsSelected?: (regionIds: string[]) => void,
 ) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [connectionStatus, setConnectionStatus] = useState<
+    "connecting" | "connected" | "disconnected"
+  >("connecting");
   const { data: initialEvents } = useLiveEvents();
 
   const hydratedRef = useRef(false);
@@ -147,11 +150,50 @@ export function useLiveSocket(
   useEffect(() => {
     const cleanHost = apiHost.replace(/^https?:\/\//, "");
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const socket = new WebSocket(`${protocol}//${cleanHost}/ws`);
+    let socket: WebSocket | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+    let heartbeatTimer: ReturnType<typeof setTimeout> | undefined;
+    let disposed = false;
 
-    socket.onmessage = (event) => {
+    const scheduleHeartbeatTimeout = () => {
+      if (heartbeatTimer) clearTimeout(heartbeatTimer);
+      heartbeatTimer = setTimeout(() => {
+        setConnectionStatus("disconnected");
+        socket?.close();
+      }, 35_000);
+    };
+
+    let handleMessage: (event: MessageEvent) => void;
+
+    const connect = () => {
+      if (disposed) return;
+      setConnectionStatus("connecting");
+      socket = new WebSocket(`${protocol}//${cleanHost}/ws`);
+      socket.onmessage = handleMessage;
+
+      socket.onopen = () => {
+        setConnectionStatus("connected");
+        scheduleHeartbeatTimeout();
+      };
+
+      socket.onclose = () => {
+        if (heartbeatTimer) clearTimeout(heartbeatTimer);
+        setConnectionStatus("disconnected");
+        if (!disposed) {
+          reconnectTimer = setTimeout(connect, 2_000);
+        }
+      };
+    };
+
+    handleMessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data);
+
+        if (data.type === "HEARTBEAT") {
+          setConnectionStatus("connected");
+          scheduleHeartbeatTimeout();
+          return;
+        }
 
         switch (data.type) {
           case "PRIZE_SELECTED": {
@@ -216,12 +258,13 @@ export function useLiveSocket(
       }
     };
 
+    connect();
+
     return () => {
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.close();
-      } else if (socket.readyState === WebSocket.CONNECTING) {
-        socket.onopen = () => socket.close();
-      }
+      disposed = true;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (heartbeatTimer) clearTimeout(heartbeatTimer);
+      if (socket && socket.readyState !== WebSocket.CLOSED) socket.close();
     };
   }, [apiHost]);
 
@@ -231,5 +274,5 @@ export function useLiveSocket(
     dispatch({ type: "MODAL_CLOSED" });
   };
 
-  return { state, closeWinnerModal };
+  return { state, connectionStatus, closeWinnerModal };
 }

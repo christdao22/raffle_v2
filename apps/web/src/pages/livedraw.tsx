@@ -23,7 +23,7 @@ export function LiveDraw() {
     [queryClient],
   );
 
-  const { state } = useLiveSocket(apiHost, handlePrizeSelected);
+  const { state, connectionStatus } = useLiveSocket(apiHost, handlePrizeSelected);
   const { displayType, selectedPrizeId, persons, isWinnerModalOpen, count } = state;
 
   const { data: currentPrize } = usePrize(selectedPrizeId ?? "");
@@ -48,6 +48,16 @@ export function LiveDraw() {
           </div>
 
           <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  connectionStatus === "connected" ? "bg-emerald-400 animate-pulse" : "bg-red-400"
+                }`}
+              />
+              <span className="text-tr-primary">
+                {connectionStatus === "connected" ? "Live" : connectionStatus}
+              </span>
+            </div>
             <button type="button" className="flex items-center gap-3 group text-left">
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-bold text-tr-secondary group-hover:text-[#FFD000] transition-colors leading-tight">
@@ -58,7 +68,7 @@ export function LiveDraw() {
                 </p>
               </div>
               <div className="hidden sm:flex w-10 h-10 rounded-full bg-tr-secondary items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
-                {sessionData?.user && sessionData?.user.image !== null ? (
+                {sessionData?.user && sessionData.user.image !== null ? (
                   <img
                     src={sessionData.user.image}
                     alt="Profile"

@@ -77,6 +77,11 @@ app.get("/reference", Scalar({ url: "/doc" }));
 // Initialize WebSocketServer alongside HTTP listener
 const wss = new WebSocketServer({ noServer: true });
 
+const heartbeatInterval = setInterval(() => {
+  broadcastEvent("HEARTBEAT", { timestamp: Date.now() });
+}, 15_000);
+heartbeatInterval.unref();
+
 serve({ fetch: app.fetch, port: env.PORT, websocket: { server: wss } }, (info) => {
   console.log(`Raffle_v2 API listening on http://localhost:${info.port}`);
   console.log(`  API reference: http://localhost:${info.port}/reference`);

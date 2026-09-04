@@ -7,9 +7,17 @@ import { useLiveSocket } from "../../hooks/use-live-socket";
 
 export type DisplayType = "standby" | "live" | "unclaimed" | "live-unclaimed";
 
+type ConnectionStatus = "connecting" | "connected" | "disconnected";
+
+type LiveScreenDisplayModeProps = {
+  onConnectionStatusChange?: (status: ConnectionStatus) => void;
+};
+
 const apiHost = (import.meta.env.VITE_API_URL ?? "localhost:3000").replace(/^https?:\/\//, "");
 
-export default function LiveScreenDisplayMode() {
+export default function LiveScreenDisplayMode({
+  onConnectionStatusChange,
+}: LiveScreenDisplayModeProps) {
   //Hooks
   const queryClient = useQueryClient();
 
@@ -20,8 +28,12 @@ export default function LiveScreenDisplayMode() {
     [queryClient],
   );
 
-  const { state } = useLiveSocket(apiHost, handlePrizeSelected);
+  const { state, connectionStatus } = useLiveSocket(apiHost, handlePrizeSelected);
   const { displayType: displayState } = state;
+
+  useEffect(() => {
+    onConnectionStatusChange?.(connectionStatus);
+  }, [connectionStatus, onConnectionStatusChange]);
 
   // Track active display mode
   const [displayType, setDisplayType] = useState<DisplayType>("standby");
