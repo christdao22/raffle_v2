@@ -67,7 +67,6 @@ export function Dashboard() {
     : ((prizeData as { data?: Prize[] })?.data ?? []);
   const prize = prizesList.find((p) => p.id === selectedPrizeId);
 
-  // Calculate sum of eligible candidates based on selected regions (or all regions if none selected)
   const regionsList = regions?.data ?? [];
   const targetRegions =
     regionId && regionId.length > 0
